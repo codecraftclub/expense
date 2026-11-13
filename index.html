@@ -502,7 +502,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-const app=initializeApp({apiKey:"AIzaSyDA1XwfYzlPCL_Soxia0d-JpNekGGCaJMM",authDomain:"mypscrevison.firebaseapp.com",projectId:"mypscrevison",storageBucket:"mypscrevison.firebasestorage.app",messagingSenderId:"89979950079",appId:"1:89979950079:web:707815264541bba457cdca",measurementId:"G-GC849S4G0N"});
+const app=initializeApp({apiKey:"AIzaSyAC9KeZ2XtiEXbKbS7T5eavKqWS1MXgiLE",authDomain:"expense-manager-5651c.firebaseapp.com",projectId:"expense-manager-5651c",storageBucket:"expense-manager-5651c.firebasestorage.app",messagingSenderId:"490114275639",appId:"1:490114275639:web:e9b9b9b921978eeef5a2b2",measurementId:"G-NYVBBDEDQV"});
 const auth=getAuth(app),db=getFirestore(app),el=id=>document.getElementById(id);
 let uid=null,timer=null;
 const say=m=>{el('sync').textContent=m};
