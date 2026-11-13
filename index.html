@@ -53,7 +53,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
+#modal,#cmodal,#pmodal,#lmodal,#smodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -66,7 +66,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#1e1b4b;color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:40;font-size:14px}
@@ -74,7 +74,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 </head>
 <body>
 <header>
-  <button class="hbtn" onclick="setKey()">⚙ Key</button><button class="hbtn" id="cloudBtn" onclick="window.cloudToggle&&cloudToggle()">☁ Login</button>
+  <button class="hbtn" onclick="openSet()">⚙</button><button class="hbtn" id="cloudBtn" onclick="window.cloudToggle&&cloudToggle()">☁ Login</button>
   <h1>🐷 My Expense Manager</h1><small id="today"></small><br><small id="sync" style="opacity:.85"></small>
 </header>
 <main>
@@ -88,7 +88,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   <div class="card" style="text-align:center">
     <button class="mic" id="mic" onclick="toggleMic()"><svg style="width:36px;height:36px" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></button>
     <small style="color:var(--mute)" id="micHint">മൈക്ക് അമർത്തി പറയൂ</small>
-    <textarea id="voiceText" rows="2" placeholder="ഇവിടെ പറയുക / ടൈപ്പ് ചെയ്യുക (Gemini ഇത് മനസ്സിലാക്കും)"></textarea>
+    <textarea id="voiceText" rows="3" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea>
     <small style="display:block;text-align:left;color:var(--mute);margin-top:8px">പഴയ തീയതിയിലെ എൻട്രിക്ക് തീയതി തിരഞ്ഞെടുക്കൂ (അല്ലെങ്കിൽ വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറയൂ)</small><input id="hDate" type="date" max="">
     <button class="btn" id="goBtn" onclick="askGemini()">✨ Gemini-ക്ക് അയക്കൂ</button>
     <div class="res" id="res"></div>
@@ -133,6 +133,11 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <button class="btn" onclick="saveCat()">Category സേവ് ചെയ്യുക</button>
  <h3 style="margin-top:16px;font-size:14px">നിങ്ങളുടെ categories</h3><div id="cList"></div>
  <button class="btn sec" onclick="closeCat()">അടയ്ക്കുക</button></div></div>
+<div id="smodal" onclick="if(event.target===this)closeSet()"><div class="sheet"><h3>⚙ Settings</h3>
+ <label style="display:flex;align-items:center;gap:12px;margin-top:10px"><input type="checkbox" id="gSw" onchange="gemToggle()" style="width:24px;height:24px;margin:0;padding:0"><span>Gemini AI ഉപയോഗിക്കുക</span></label>
+ <small style="color:var(--mute);display:block;margin-top:6px">ഓഫ് ആയിരിക്കുമ്പോൾ ഒന്നും പുറത്തേക്ക് അയക്കില്ല, ആപ്പ് തന്നെ മനസ്സിലാക്കും.</small>
+ <div id="gKeyBox" style="display:none"><input id="gKey" type="password" placeholder="Gemini API key"></div>
+ <button class="btn" onclick="saveSet()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeSet()">അടയ്ക്കുക</button></div></div>
 <div id="pmodal" onclick="if(event.target===this)closePay()"><div class="sheet"><h3>💳 ബിൽ പെയ്ഡ് ആണോ?</h3><div id="pTxt" style="margin:6px 0"></div>
  <small>അടച്ച തുക ₹</small><input id="pAmt" type="number" inputmode="decimal">
  <small>ഏത് അക്കൗണ്ടിൽ നിന്ന്</small><select id="pAcc"></select>
@@ -163,7 +168,7 @@ let D=JSON.parse(localStorage.getItem('em_data')||'null')||{acc:[{id:1,name:'Cas
 D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};let type='expense';
 const save=()=>{localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',Date.now());window.cloudPush&&window.cloudPush()};
 window.emGet=()=>D;
-window.emSet=(d,u)=>{D=d;D.acc=D.acc||[];D.tx=D.tx||[];D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',u||Date.now());processRec();render()};
+window.emSet=(d,u)=>{D=d;D.acc=D.acc||[];D.tx=D.tx||[];D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};if(D.gk&&!localStorage.getItem('em_key'))localStorage.setItem('em_key',D.gk);localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',u||Date.now());processRec();render()};
 const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
 const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
 const dOf=(y,m,d)=>new Date(y,m,Math.min(d,new Date(y,m+1,0).getDate()));
@@ -209,7 +214,7 @@ function ensureCat(n,emo,kind){if(!n||allCats().some(x=>x.n.toLowerCase()===Stri
 function catList(ty){const seen=new Set(),o=[];
  [...allCats().filter(x=>x.kind===ty),...D.tx.filter(t=>t.type===ty&&t.cat).map(t=>catMeta(t.cat))].forEach(x=>{const k=x.n.toLowerCase();if(!seen.has(k)){seen.add(k);o.push(x)}});return o}
 const catOpts=ty=>catList(ty).map(x=>`<option value="${esc(x.n)}">${x.ic} ${esc(x.n)}</option>`).join('');
-async function geminiCat(desc,ty){const key=localStorage.getItem('em_key');if(!key)return null;
+async function geminiCat(desc,ty){if(!gemOn())return null;const key=localStorage.getItem('em_key');if(!key)return null;
  try{const names=allCats().filter(x=>x.kind===ty).map(x=>x.n).join(', ');
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify({contents:[{parts:[{text:`Classify this ${ty} item (Malayalam/English/Manglish) into one category from [${names}]. If none fits, create a short new English category. Reply JSON only: {"category":"name","emoji":"one emoji"}. Item: "${desc}"`}]}],generationConfig:{responseMimeType:'application/json',thinkingConfig:{thinkingBudget:0}}})});
@@ -305,6 +310,7 @@ async function toWav(blob){const ac=new (window.AudioContext||window.webkitAudio
 function toggleMic(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(SR&&!window.srFail)return liveMic(SR);
+ if(!gemOn())return toast('ലൈവ് മൈക്ക് ഈ ഫോണിൽ പ്രവർത്തിക്കുന്നില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ');
  return recMic()}
 let sr=null;
 function liveMic(SR){
@@ -312,9 +318,9 @@ function liveMic(SR){
  sr=new SR();sr.lang='ml-IN';sr.interimResults=true;sr.continuous=false;let got=false;
  sr.onstart=()=>{$('mic').classList.add('rec');$('micHint').textContent='കേൾക്കുന്നു…';$('voiceText').value='';$('res').style.display='none'};
  sr.onresult=e=>{got=true;$('voiceText').value=[...e.results].map(r=>r[0].transcript).join(' ')};
- sr.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;window.srFail=true;toast('ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ (റെക്കോർഡ് രീതി)')};
+ sr.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;window.srFail=true;toast(gemOn()?'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ (റെക്കോർഡ് രീതി)':'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ')};
  sr.onend=()=>{sr=null;$('mic').classList.remove('rec');$('micHint').textContent='മൈക്ക് അമർത്തി പറയൂ';if(got&&$('voiceText').value.trim())askGemini()};
- try{sr.start()}catch(e){sr=null;window.srFail=true;toast('ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ')}}
+ try{sr.start()}catch(e){sr=null;window.srFail=true;toast(gemOn()?'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ':'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ')}}
 async function recMic(){
  if(mr&&mr.state==='recording'){mr.stop();return}
  if(!navigator.mediaDevices||!window.MediaRecorder)return toast('https ലിങ്കിൽ (GitHub Pages) Chrome-ൽ തുറക്കൂ');
@@ -341,7 +347,7 @@ function localParse(text){
  const type=/salary|ശമ്പളം|income|വരവ്|received|credited|interest|പലിശ/.test(t)?'income':'expense';
  const other=/അതർ|\bother\b/.test(t);
  if(/കാറ്റഗറി|category/.test(t)&&!other)return null;
- const cat=other?(type==='income'?'Other Income':'Other'):classify(t,type);if(!cat)return null;
+ let cat=other?(type==='income'?'Other Income':'Other'):classify(t,type);if(!cat){if(type==='income'||!gemOn())cat=type==='income'?'Other Income':'Other';else return null}
  const A=D.acc.filter(a=>a.group!=='emi');
  const cardW=/കാർഡ്|\bcard\b/.test(t),bankW=/ബാങ്ക്|\bbank\b/.test(t),cashW=/ക്യാഷ്|കാഷ്|\bcash\b/.test(t),tk=t.split(/[^a-z0-9]+/);
  const sc=a=>a.name.toLowerCase().split(/\s+/).filter(x=>/^[a-z0-9]+$/.test(x)?(x.length>2&&tk.includes(x)):(x.length>1&&t.includes(x))).length;
@@ -363,6 +369,7 @@ async function askGemini(audio){
   res.innerHTML=`🎤 ${esc(text)}<br>✅ ${done.length} എൻട്രി സേവ് ചെയ്തു`+done.map(t=>`<br>• ${catMeta(t.cat).ic} ${esc(t.cat)} · ${inr(t.amt)} · ${esc(accById(t.acc).name)}`).join('')+(fail.length?`<br>⚠ മനസ്സിലായില്ല (ഒന്നൊന്നായി പറയൂ): ${esc(fail.join(', '))}`:'')+(done.length?`<button class="btn sec" onclick="undoMany([${done.map(t=>t.id)}])">↩ Undo all</button>`:'');
   $('voiceText').value=fail.join(', ');return}
  const lt=audio?null:localParse(text);if(lt){if(saveTx(lt)){showSaved(lt,text);$('voiceText').value=''}return}
+ if(!gemOn()){toast('മനസ്സിലായില്ല — ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്');return}
  let key=localStorage.getItem('em_key');if(!key){setKey();key=localStorage.getItem('em_key');if(!key)return}
  const btn=$('goBtn');btn.textContent='⏳ ആലോചിക്കുന്നു…';btn.disabled=true;
  const A=D.acc.filter(a=>a.group!=='emi');
@@ -485,6 +492,12 @@ async function saveAdd(){const amt=+$('aAmt').value;if(!amt||amt<=0)return toast
   if(desc&&tx.cat&&!/^other/i.test(tx.cat))D.map[desc.toLowerCase()]=tx.cat}
  if(saveTx(tx))closeAdd()}
 function lShow(m){const ids={in:'lLogin',new:'lNew',reset:'lReset'};for(const k in ids)$(ids[k]).style.display=k===m?'block':'none';$('lErr').textContent=''}
+const gemOn=()=>localStorage.getItem('em_gem')==='1';
+function openSet(){$('gSw').checked=gemOn();$('gKey').value=localStorage.getItem('em_key')||'';$('gKeyBox').style.display=gemOn()?'block':'none';$('smodal').style.display='flex'}
+function closeSet(){$('smodal').style.display='none'}
+function gemToggle(){$('gKeyBox').style.display=$('gSw').checked?'block':'none'}
+function saveSet(){const on=$('gSw').checked;if(on&&!$('gKey').value.trim())return toast('API key നൽകൂ');
+ localStorage.setItem('em_gem',on?'1':'0');if(on){const k=$('gKey').value.trim();localStorage.setItem('em_key',k);D.gk=k;save()}closeSet();toast(on?'Gemini ഓൺ':'Gemini ഓഫ്')}
 let payCard=0;
 function openPay(id,amt){payCard=id;$('pTxt').textContent=accById(id).name+' — '+inr(amt)+' ബിൽ പെയ്ഡ് ആണോ?';$('pAmt').value=amt;
  $('pAcc').innerHTML=D.acc.filter(a=>a.group!=='emi'&&a.group!=='card').map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('');
