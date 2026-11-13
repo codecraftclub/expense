@@ -53,7 +53,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -66,7 +66,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#1e1b4b;color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:40;font-size:14px}
@@ -74,8 +74,8 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 </head>
 <body>
 <header>
-  <button class="hbtn" onclick="openSet()">⚙</button><button class="hbtn" id="cloudBtn" onclick="window.cloudToggle&&cloudToggle()">☁ Login</button>
-  <h1>🐷 My Expense Manager</h1><small id="today"></small><br><small id="sync" style="opacity:.85"></small>
+  <button class="hbtn" onclick="openSet()">⚙</button><button class="hbtn" id="cloudBtn" onclick="window.cloudToggle&&cloudToggle()">☁ …</button>
+  <h1>🐷 My Expense Manager</h1><small id="today"></small><br><small id="sync" style="opacity:.85">ലോഗിൻ പരിശോധിക്കുന്നു…</small>
 </header>
 <main>
 
@@ -90,7 +90,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     <small style="color:var(--mute)" id="micHint">മൈക്ക് അമർത്തി പറയൂ</small>
     <textarea id="voiceText" rows="3" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea>
     <small style="display:block;text-align:left;color:var(--mute);margin-top:8px">പഴയ തീയതിയിലെ എൻട്രിക്ക് തീയതി തിരഞ്ഞെടുക്കൂ (അല്ലെങ്കിൽ വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറയൂ)</small><input id="hDate" type="date" max="">
-    <button class="btn" id="goBtn" onclick="askGemini()">✨ Gemini-ക്ക് അയക്കൂ</button>
+    <button class="btn" id="goBtn" onclick="askGemini()">✔ ചേർക്കൂ</button>
     <div class="res" id="res"></div>
   </div>
   <div class="card"><h3>സമീപകാല ഇടപാടുകൾ</h3><div id="recent"></div></div>
@@ -133,6 +133,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <button class="btn" onclick="saveCat()">Category സേവ് ചെയ്യുക</button>
  <h3 style="margin-top:16px;font-size:14px">നിങ്ങളുടെ categories</h3><div id="cList"></div>
  <button class="btn sec" onclick="closeCat()">അടയ്ക്കുക</button></div></div>
+<div id="amodal" onclick="if(event.target===this)closeAcc()"><div class="sheet" style="max-height:88vh;overflow:auto"><h3 id="amTitle"></h3><div id="amSum" style="font-size:14px;margin:2px 0 8px"></div><div id="amList"></div><button class="btn sec" onclick="closeAcc()">അടയ്ക്കുക</button></div></div>
 <div id="smodal" onclick="if(event.target===this)closeSet()"><div class="sheet"><h3>⚙ Settings</h3>
  <label style="display:flex;align-items:center;gap:12px;margin-top:10px"><input type="checkbox" id="gSw" onchange="gemToggle()" style="width:24px;height:24px;margin:0;padding:0"><span>Gemini AI ഉപയോഗിക്കുക</span></label>
  <small style="color:var(--mute);display:block;margin-top:6px">ഓഫ് ആയിരിക്കുമ്പോൾ ഒന്നും പുറത്തേക്ക് അയക്കില്ല, ആപ്പ് തന്നെ മനസ്സിലാക്കും.</small>
@@ -165,9 +166,21 @@ const GROUPS={bank:{n:'ബാങ്ക് / Banks',ic:'🏦',c:'#2563eb'},card:{
 const CATS=['ഭക്ഷണം','യാത്ര','ഷോപ്പിംഗ്','ബില്ലുകൾ','ആരോഗ്യം','വിനോദം','വിദ്യാഭ്യാസം','വാടക','ശമ്പളം','മറ്റുള്ളവ'];
 const COL=['#dc2626','#f97316','#f59e0b','#059669','#2563eb','#dc2626','#0891b2','#ef4444'];
 let D=JSON.parse(localStorage.getItem('em_data')||'null')||{acc:[{id:1,name:'Cash',group:'cash',open:0}],tx:[]};
-D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};let type='expense';
+D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};D.del=D.del||[];let type='expense';
 const save=()=>{localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',Date.now());window.cloudPush&&window.cloudPush()};
 window.emGet=()=>D;
+const tomb=x=>{D.del=D.del||[];D.del.push(x)};
+const untombCat=n=>{D.del=(D.del||[]).filter(x=>x!=='cat:'+String(n).toLowerCase())};
+function mergeData(a,b){a=a||{};b=b||{};
+ const del=[...new Set([...(a.del||[]),...(b.del||[])])],ds=new Set(del.map(String));
+ const mk=(x,y,pb)=>{const m=new Map();for(const o of pb?[...(x||[]),...(y||[])]:[...(y||[]),...(x||[])])if(!ds.has(String(o.id)))m.set(o.id,o);return [...m.values()]};
+ const recs=mk(a.rec,b.rec),all=[...(a.rec||[]),...(b.rec||[])];
+ recs.forEach(r=>{r.done=Math.max(...all.filter(x=>x.id===r.id).map(x=>x.done||0))});
+ const cm=new Map();for(const c of [...(b.cats||[]),...(a.cats||[])]){const k='cat:'+c.n.toLowerCase();if(!ds.has(k))cm.set(k,c)}
+ return {acc:mk(a.acc,b.acc,true),tx:mk(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},gk:a.gk||b.gk||'',del}}
+window.emMerge=(c,quiet)=>{D=mergeData(D,c);if(!D.acc.length)D.acc=[{id:1,name:'Cash',group:'cash',open:0}];
+ if(D.gk&&!localStorage.getItem('em_key'))localStorage.setItem('em_key',D.gk);
+ localStorage.setItem('em_data',JSON.stringify(D));processRec();if(!quiet)save();render()};
 window.emSet=(d,u)=>{D=d;D.acc=D.acc||[];D.tx=D.tx||[];D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};if(D.gk&&!localStorage.getItem('em_key'))localStorage.setItem('em_key',D.gk);localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',u||Date.now());processRec();render()};
 const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
 const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
@@ -182,7 +195,10 @@ const DEF=[
 {n:'Food',ic:'🍽️',c:'#f97316',kind:'expense',k:'ഫുഡ്,poritta,parotta,porotta,paratha,chai,tea,coffee,biriyani,biryani,meals,lunch,dinner,breakfast,snack,juice,hotel,restaurant,cake,pizza,burger,dosa,idli,appam,puttu,പൊറോട്ട,ചായ,കാപ്പി,ബിരിയാണി,ഊണ്,ഭക്ഷണം,ഹോട്ടൽ,ജ്യൂസ്,പലഹാരം,ദോശ,ഇഡ്ഡലി'},
 {n:'Travel',ic:'🚌',c:'#2563eb',kind:'expense',k:'ട്രാവൽ,bus,auto,taxi,uber,ola,train,flight,ticket,metro,ksrtc,cab,toll,ബസ്,ഓട്ടോ,ട്രെയിൻ,ടിക്കറ്റ്,യാത്ര,ടാക്സി'},
 {n:'Fuel',ic:'⛽',c:'#0891b2',kind:'expense',k:'ഫ്യുവൽ,petrol,diesel,fuel,പെട്രോൾ,ഡീസൽ'},
-{n:'Grocery',ic:'🛒',c:'#16a34a',kind:'expense',k:'ഗ്രോസറി,grocery,supermarket,vegetable,vegetables,fruits,milk,rice,egg,meat,fish,chicken,സൂപ്പർമാർക്കറ്റ്,പച്ചക്കറി,പാൽ,അരി,മീൻ,ഇറച്ചി,സാധനം,പലചരക്ക്'},
+{n:'Vegetables',ic:'🥦',c:'#65a30d',kind:'expense',k:'vegetable,vegetables,veg,tomato,onion,potato,carrot,പച്ചക്കറി,തക്കാളി,സവാള,ഉള്ളി,ഉരുളക്കിഴങ്ങ്,കാരറ്റ്,വെണ്ടക്ക'},
+{n:'Fruits',ic:'🍎',c:'#ef4444',kind:'expense',k:'fruit,fruits,apple,banana,orange,mango,grapes,പഴം,പഴങ്ങൾ,ആപ്പിൾ,ഓറഞ്ച്,മാങ്ങ,മുന്തിരി'},
+{n:'Fish',ic:'🐟',c:'#0ea5e9',kind:'expense',k:'fish,prawn,sardine,മീൻ,മത്തി,അയല,ചെമ്മീൻ,കൊഞ്ച്,കരിമീൻ'},
+{n:'Grocery',ic:'🛒',c:'#16a34a',kind:'expense',k:'ഗ്രോസറി,grocery,supermarket,milk,rice,egg,meat,chicken,സൂപ്പർമാർക്കറ്റ്,പാൽ,അരി,ഇറച്ചി,സാധനം,പലചരക്ക്'},
 {n:'Bills',ic:'💡',c:'#eab308',kind:'expense',k:'bill,electricity,kseb,water,wifi,internet,dth,ബിൽ,കറണ്ട്,വൈദ്യുതി,വെള്ളം'},
 {n:'Recharge',ic:'📱',c:'#7c3aed',kind:'expense',k:'recharge,mobile,jio,airtel,റീചാർജ്'},
 {n:'Health',ic:'💊',c:'#dc2626',kind:'expense',k:'ഹെൽത്ത്,medicine,doctor,hospital,pharmacy,medical,tablet,lab,മരുന്ന്,ഡോക്ടർ,ആശുപത്രി'},
@@ -210,7 +226,7 @@ function classify(desc,kind){const d=String(desc||'').trim().toLowerCase();if(!d
  if(D.map[d]&&catMeta(D.map[d]))return D.map[d];
  const c=allCats().filter(x=>x.kind===kind&&!/^other/i.test(x.n)).find(x=>matchKw(d,x.n+','+(x.k||'')));return c?c.n:null}
 function ensureCat(n,emo,kind){if(!n||allCats().some(x=>x.n.toLowerCase()===String(n).toLowerCase()))return;
- let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;D.cats.push({n,ic:emo||'📦',c:PAL[h%PAL.length],kind,k:String(n).toLowerCase()})}
+ untombCat(n);let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;D.cats.push({n,ic:emo||'📦',c:PAL[h%PAL.length],kind,k:String(n).toLowerCase()})}
 function catList(ty){const seen=new Set(),o=[];
  [...allCats().filter(x=>x.kind===ty),...D.tx.filter(t=>t.type===ty&&t.cat).map(t=>catMeta(t.cat))].forEach(x=>{const k=x.n.toLowerCase();if(!seen.has(k)){seen.add(k);o.push(x)}});return o}
 const catOpts=ty=>catList(ty).map(x=>`<option value="${esc(x.n)}">${x.ic} ${esc(x.n)}</option>`).join('');
@@ -228,9 +244,9 @@ function drawCat(){
  $('cEmo').innerHTML=EMO.map(e=>`<span onclick="$('cI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
  $('cList').innerHTML=D.cats.map((c,i)=>({c,i})).filter(o=>o.c.kind===type).map(({c,i})=>`<div class="row" style="padding:7px 0"><div class="dot" style="background:${c.c};width:34px;height:34px">${c.ic}</div><div class="grow"><b>${esc(c.n)}</b><small>${esc(c.k||'')}</small></div><button class="del" onclick="delCat(${i})">×</button></div>`).join('')||'<small style="color:var(--mute)">സ്വന്തം category ഒന്നുമില്ല</small>'}
 function saveCat(){const n=$('cN').value.trim();if(!n)return toast('പേര് നൽകൂ');
- D.cats.push({n,ic:$('cI').value.trim()||'📦',c:cColor,kind:type,k:$('cK').value.trim().toLowerCase()});save();
+ untombCat(n);D.cats.push({n,ic:$('cI').value.trim()||'📦',c:cColor,kind:type,k:$('cK').value.trim().toLowerCase()});save();
  $('cN').value='';$('cI').value='';$('cK').value='';drawCat();render();toast('Category ചേർത്തു ✔')}
-function delCat(i){D.cats.splice(i,1);save();drawCat();render()}
+function delCat(i){tomb('cat:'+D.cats[i].n.toLowerCase());D.cats.splice(i,1);save();drawCat();render()}
 
 function go(t){document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id===t));
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));window.scrollTo(0,0)}
@@ -254,7 +270,7 @@ function saveTx(tx){
  tx.id=Date.now()*1000+(window._lid=((window._lid||0)+1)%1000);D.tx.unshift(tx);D.tx.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);save();
  toast('സേവ് ചെയ്തു ✔');render();return true}
 
-function delTx(id){if(confirm('ഈ ഇടപാട് ഡിലീറ്റ് ചെയ്യണോ?')){D.tx=D.tx.filter(t=>t.id!==id);save();render()}}
+function delTx(id){if(confirm('ഈ ഇടപാട് ഡിലീറ്റ് ചെയ്യണോ?')){tomb(id);D.tx=D.tx.filter(t=>t.id!==id);save();render()}}
 
 function txRow(t){
  const sign=t.type==='income'?'+':t.type==='expense'?'−':'⇄';
@@ -264,6 +280,7 @@ function txRow(t){
  const sub=t.type==='transfer'?`${esc(a?.name||'?')} → ${esc(b?.name||'?')}`:`${esc(a?.name||'?')}`;
  return `<div class="row"><div class="dot" style="background:${bg}">${ic}</div><div class="grow"><b>${esc(t.type==='transfer'?'Transfer':t.cat)}</b><small>${sub} · ${t.date}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${t.type}">${sign}${inr(t.amt)}</div><button class="del" onclick="delTx(${t.id})">×</button></div>`}
 
+const OPEN=new Set();function togCat(e){e.open?OPEN.add(e.dataset.k):OPEN.delete(e.dataset.k)}
 function listView(){
  const list=D.tx.filter(x=>x.type===type);
  if(!list.length)return '<div class="card empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
@@ -271,7 +288,7 @@ function listView(){
  const g={};list.forEach(x=>{const c=x.cat||'മറ്റുള്ളവ';(g[c]=g[c]||[]).push(x)});
  return Object.entries(g).map(([c,a])=>({c,a,s:a.reduce((t,x)=>t+x.amt,0)})).sort((x,y)=>y.s-x.s).map((o,i)=>{
   const m=catMeta(o.c),col=m.c;
-  return `<details open class="card" style="border-left:6px solid ${col}"><summary class="ghead"><span style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${col}">${m.ic}</span><span><b>${esc(o.c)}</b><br><small style="color:var(--mute)">${o.a.length} entries</small></span></span><b class="${type}" style="font-size:17px">${inr(o.s)}</b></summary>
+  return `<details ${OPEN.has(type+'|'+o.c)?'open':''} data-k="${esc(type+'|'+o.c)}" ontoggle="togCat(this)" class="card" style="border-left:6px solid ${col}"><summary class="ghead"><span style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${col}">${m.ic}</span><span><b>${esc(o.c)}</b><br><small style="color:var(--mute)">${o.a.length} എൻട്രി · തൊട്ടാൽ വിവരങ്ങൾ</small></span></span><b class="${type}" style="font-size:17px">${inr(o.s)}</b></summary>
   <div style="margin-top:8px">${o.a.map(x=>{const ac=accById(x.acc);return `<div class="row"><div class="grow"><b class="${type}">${inr(x.amt)}</b><small>${x.date}${x.note?' · '+esc(x.note):''}</small></div><span class="chip">${ac?GROUPS[ac.group].ic+' '+esc(ac.name):'?'}</span><button class="del" onclick="delTx(${x.id})">×</button></div>`}).join('')}</div></details>`}).join('')}
 
 function render(){
@@ -287,7 +304,7 @@ function render(){
   const total=list.reduce((s,a)=>s+balance(a),0);
   return `<div class="card" style="border-top:5px solid ${m.c}"><div class="ghead"><h3>${m.ic} ${m.n}</h3><button class="add" onclick="addAcc('${g}')">+ ചേർക്കൂ</button></div>
   <div style="color:${m.c};font-weight:700;margin-bottom:4px">${liab?'ആകെ കുടിശ്ശിക: '+inr(-total):'ആകെ: '+inr(total)}</div>
-  ${list.map(a=>{const b=balance(a);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}</small></div><div class="amt" style="color:${liab?(b<0?'var(--exp)':'var(--inc)'):(b<0?'var(--exp)':'var(--ink)')}">${inr(liab?-b:b)}</div><button class="del" onclick="delAcc(${a.id})">×</button></div>${g==='card'?cardHtml(a):''}`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}).join('')+autoCard();renderReports()}
+  ${list.map(a=>{const b=balance(a);return `<div class="row" style="cursor:pointer" onclick="openAccTx(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}</small></div><div class="amt" style="color:${liab?(b<0?'var(--exp)':'var(--inc)'):(b<0?'var(--exp)':'var(--ink)')}">${inr(liab?-b:b)}</div><button class="del" onclick="event.stopPropagation();delAcc(${a.id})">×</button></div>${g==='card'?cardHtml(a):''}`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}).join('')+autoCard();renderReports()}
 
 function addAcc(g){
  const name=prompt(GROUPS[g].n+' — പേര്:');if(!name)return;
@@ -297,7 +314,7 @@ function addAcc(g){
  if(liab){a.sd=parseInt(prompt('ബിൽ (സ്റ്റേറ്റ്മെന്റ്) തീയതി — മാസത്തിലെ ദിവസം (1-31):','15'))||0;a.dd=parseInt(prompt('ബിൽ അടയ്ക്കേണ്ട അവസാന തീയതി — ദിവസം (1-31):','5'))||0}
  D.acc.push(a);save();render()}
 function delAcc(id){if(D.tx.some(t=>t.acc===id||t.to===id))return toast('ഇടപാടുകൾ ഉള്ള അക്കൗണ്ട് ഡിലീറ്റ് ചെയ്യാനാവില്ല');
- if(confirm('ഡിലീറ്റ് ചെയ്യണോ?')){D.acc=D.acc.filter(a=>a.id!==id);save();render()}}
+ if(confirm('ഡിലീറ്റ് ചെയ്യണോ?')){tomb(id);D.acc=D.acc.filter(a=>a.id!==id);save();render()}}
 
 /* ---------- Voice (records audio, Gemini understands Malayalam) ---------- */
 let mr=null,chunks=[];
@@ -312,15 +329,18 @@ function toggleMic(){
  if(SR&&!window.srFail)return liveMic(SR);
  if(!gemOn())return toast('ലൈവ് മൈക്ക് ഈ ഫോണിൽ പ്രവർത്തിക്കുന്നില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ');
  return recMic()}
-let sr=null;
+let sr=null,srAcc='',srStop=false,srIdle=0;
 function liveMic(SR){
- if(sr){sr.stop();return}
- sr=new SR();sr.lang='ml-IN';sr.interimResults=true;sr.continuous=false;let got=false;
- sr.onstart=()=>{$('mic').classList.add('rec');$('micHint').textContent='കേൾക്കുന്നു…';$('voiceText').value='';$('res').style.display='none'};
- sr.onresult=e=>{got=true;$('voiceText').value=[...e.results].map(r=>r[0].transcript).join(' ')};
- sr.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;window.srFail=true;toast(gemOn()?'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ (റെക്കോർഡ് രീതി)':'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ')};
- sr.onend=()=>{sr=null;$('mic').classList.remove('rec');$('micHint').textContent='മൈക്ക് അമർത്തി പറയൂ';if(got&&$('voiceText').value.trim())askGemini()};
- try{sr.start()}catch(e){sr=null;window.srFail=true;toast(gemOn()?'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ':'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ')}}
+ if(sr){srStop=true;try{sr.stop()}catch(e){}return}
+ srAcc='';srStop=false;srIdle=0;$('voiceText').value='';$('res').style.display='none';
+ const fin=()=>{sr=null;$('mic').classList.remove('rec');$('micHint').textContent='മൈക്ക് അമർത്തി പറയൂ';if($('voiceText').value.trim())askGemini()};
+ const run=()=>{const r=new SR();sr=r;r.lang='ml-IN';r.interimResults=true;r.continuous=false;let got=false;
+  r.onstart=()=>{$('mic').classList.add('rec');$('micHint').textContent='കേൾക്കുന്നു… പറഞ്ഞു കഴിഞ്ഞാൽ വീണ്ടും അമർത്തൂ'};
+  r.onresult=e=>{got=true;srIdle=0;const t=[...e.results].map(x=>x[0].transcript).join(' ');$('voiceText').value=(srAcc+' '+t).trim();if(e.results[e.results.length-1].isFinal)srAcc=$('voiceText').value};
+  r.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;srStop=true;window.srFail=true;toast(gemOn()?'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ (റെക്കോർഡ് രീതി)':'ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ')};
+  r.onend=()=>{if(srStop)return fin();if(!got)srIdle++;if(srIdle>=3)return fin();setTimeout(()=>{if(!srStop){try{run()}catch(e){fin()}}},150)};
+  try{r.start()}catch(e){fin();window.srFail=true;toast('ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല')}};
+ run()}
 async function recMic(){
  if(mr&&mr.state==='recording'){mr.stop();return}
  if(!navigator.mediaDevices||!window.MediaRecorder)return toast('https ലിങ്കിൽ (GitHub Pages) Chrome-ൽ തുറക്കൂ');
@@ -339,17 +359,34 @@ function setKey(){const k=prompt('Gemini API Key നൽകൂ:',localStorage.get
 function showSaved(tx,heard,extra){const res=$('res');res.style.display='block';
  res.innerHTML=`🎤 ${esc(heard)}<br>✅ സേവ് ചെയ്തു<br><b class="${tx.type}">${tx.type.toUpperCase()} · ${inr(tx.amt)}</b><br>${esc(tx.cat||'Transfer')} · ${esc(accById(tx.acc).name)} · ${tx.date}${tx.note?' · '+esc(tx.note):''}${extra||''}
  <button class="btn sec" onclick="undoTx(${tx.id})">↩ Undo</button>`}
-function localParse(text){
+const MLN=[['പതിനൊന്ന',11],['പന്ത്രണ്ട',12],['പതിമൂന്ന',13],['പതിനാല',14],['പതിനഞ്ച',15],['പതിനാറ',16],['പതിനേഴ',17],['പതിനെട്ട',18],['പത്തൊമ്പത',19],['ഒന്ന',1],['രണ്ട',2],['മൂന്ന',3],['നാല',4],['അഞ്ച',5],['ആറ',6],['ഏഴ',7],['എട്ട',8],['ഒമ്പത',9],['ഒൻപത',9],['പത്ത',10],['ഇരുപത',20],['മുപ്പത',30],['നാല്പത',40],['നാൽപത',40],['നാൽപ്പത',40],['അമ്പത',50],['അൻപത',50],['അറുപത',60],['എഴുപത',70],['എൺപത',80],['തൊണ്ണൂറ',90],['നൂറ',100],['ഇരുനൂറ',200],['ഇരുന്നൂറ',200],['മുന്നൂറ',300],['മൂന്നൂറ',300],['നാനൂറ',400],['അഞ്ഞൂറ',500],['അറുനൂറ',600],['അറുന്നൂറ',600],['എഴുനൂറ',700],['എഴുന്നൂറ',700],['എണ്ണൂറ',800],['തൊള്ളായിര',900],['ആയിര',1000],['രണ്ടായിര',2000],['മൂവായിര',3000],['നാലായിര',4000],['അയ്യായിര',5000],['ആറായിര',6000],['ഏഴായിര',7000],['എണ്ണായിര',8000],['ഒമ്പതിനായിര',9000],['ഒൻപതിനായിര',9000],['പതിനായിര',10000],['ഇരുപതിനായിര',20000],['മുപ്പതിനായിര',30000],['നാല്പതിനായിര',40000],['നാൽപതിനായിര',40000],['അമ്പതിനായിര',50000],['അൻപതിനായിര',50000],['അറുപതിനായിര',60000],['എഴുപതിനായിര',70000],['എൺപതിനായിര',80000],['ലക്ഷ',100000]].sort((a,b)=>b[0].length-a[0].length);
+function mlNum(text){const w=text.split(/\s+/).filter(Boolean),val=w.map(x=>{x=x.replace(/[.,!?]/g,'');const m=MLN.find(e=>x.startsWith(e[0])&&x.length-e[0].length<=(e[0].length<=3?3:5));return m?m[1]:0});
+ const groups=[];let cur=null;val.forEach((v,i)=>{if(v){if(!cur){cur={s:i,e:i,v:[v]};groups.push(cur)}else if(cur.e===i-1){cur.e=i;cur.v.push(v)}else{cur={s:i,e:i,v:[v]};groups.push(cur)}}else cur=null});
+ if(groups.length!==1)return null;const g=groups[0];let tot=0,last=0;
+ g.v.forEach(v=>{if(v>=1000&&last>0&&last<100){tot=tot-last+last*v}else tot+=v;last=v});
+ let s0=g.s;if(s0>0&&/^ഒരു$/.test(w[s0-1]))s0--;
+ return {v:tot,rest:[...w.slice(0,s0),...w.slice(g.e+1)].join(' ')}}
+const MON={'ജനുവരി':1,'ഫെബ്രുവരി':2,'മാർച്ച്':3,'ഏപ്രിൽ':4,'മേയ്':5,'മെയ്':5,'ജൂൺ':6,'ജൂലൈ':7,'ഓഗസ്റ്റ്':8,'സെപ്റ്റംബർ':9,'ഒക്ടോബർ':10,'നവംബർ':11,'ഡിസംബർ':12,january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12,jan:1,feb:2,mar:3,apr:4,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+const MONRE=Object.keys(MON).sort((a,b)=>b.length-a.length).join('|');
+function dateWords(text){let mon,day,m=text.match(new RegExp('('+MONRE+')\\s*(\\d{1,2})(?!\\d)','i'));
+ if(m){mon=MON[m[1].toLowerCase()];day=+m[2]}
+ else{m=text.match(new RegExp('(?<!\\d)(\\d{1,2})\\s*(?:-?ന്|th|st|nd|rd)?\\s*('+MONRE+')','i'));if(m){day=+m[1];mon=MON[m[2].toLowerCase()]}}
+ if(!m||!mon||day<1||day>31)return null;
+ const n=new Date();let dt=new Date(n.getFullYear(),mon-1,day);if(dt>n)dt=new Date(n.getFullYear()-1,mon-1,day);
+ return {d:f(dt),rest:text.replace(m[0],' ').replace(/(^|\s)-?ന്(?=\s|$)/g,' ').replace(/\s+/g,' ').trim()}}
+function localParse(text0){let text=text0,dd=null;const dw=dateWords(text0);if(dw){text=dw.rest;dd=dw.d}
  const t=text.toLowerCase();
  if(/transfer|ട്രാൻസ്ഫർ|recurring|renew|റിന്യൂ|\bemi\b|ഇഎംഐ|മാസം|വർഷം|month|year|every|കാർഡ് ബിൽ|card bill|ബിൽ അടച്ച|bill paid|bill payment/.test(t))return null;
- const nums=t.match(/\d+(?:[.,]\d+)*/g);if(!nums||nums.length!==1)return null;
- const amt=parseFloat(nums[0].replace(/,/g,''));if(!amt)return null;
+ const nums=t.match(/\d+(?:[.,]\d+)*/g);let amt,txt=text;
+ if(nums&&nums.length===1)amt=parseFloat(nums[0].replace(/,/g,''));
+ else if(!nums){const m=mlNum(text);if(!m)return null;amt=m.v;txt=m.rest}else return null;
+ if(!amt)return null;
  const type=/salary|ശമ്പളം|income|വരവ്|received|credited|interest|പലിശ/.test(t)?'income':'expense';
  const other=/അതർ|\bother\b/.test(t);
  if(/കാറ്റഗറി|category/.test(t)&&!other)return null;
  let cat=other?(type==='income'?'Other Income':'Other'):classify(t,type);if(!cat){if(type==='income'||!gemOn())cat=type==='income'?'Other Income':'Other';else return null}
  const A=D.acc.filter(a=>a.group!=='emi');
- const cardW=/കാർഡ്|\bcard\b/.test(t),bankW=/ബാങ്ക്|\bbank\b/.test(t),cashW=/ക്യാഷ്|കാഷ്|\bcash\b/.test(t),tk=t.split(/[^a-z0-9]+/);
+ const cardW=/കാർഡ|\bcard\b/.test(t),bankW=/ബാങ്ക|\bbank\b/.test(t),cashW=/ക്യാഷ|കാഷ|\bcash\b/.test(t),tk=t.split(/[^a-z0-9]+/);
  const sc=a=>a.name.toLowerCase().split(/\s+/).filter(x=>/^[a-z0-9]+$/.test(x)?(x.length>2&&tk.includes(x)):(x.length>1&&t.includes(x))).length;
  let C=A.filter(a=>sc(a)>0);
  if(C.length>1){const g=cardW?'card':bankW?'bank':cashW?'cash':'',F=g?C.filter(a=>a.group===g):[];if(F.length)C=F;C.sort((x,y)=>sc(y)-sc(x)||y.name.length-x.name.length)}
@@ -357,8 +394,9 @@ function localParse(text){
  if(!acc&&cashW)acc=A.find(a=>a.group==='cash');
  if(!acc&&cardW&&A.filter(a=>a.group==='card').length===1)acc=A.find(a=>a.group==='card');
  if(!acc)acc=A[0];if(!acc)return null;
- let d=todayStr();if(/ഇന്നലെ|yesterday/.test(t))d=f(new Date(Date.now()-864e5));else if(/മിനിഞ്ഞാന്ന്/.test(t))d=f(new Date(Date.now()-1728e5));
- const note=text.replace(/\d+(?:[.,]\d+)*/g,'').replace(/അക്കൗണ്ട[്ിൽ]*|\baccount\b|ഇൻ ഹാൻഡ്|ഹാൻഡ്|\bin hand\b|\bhand\b|കാർഡ്|\bcard\b|ബാങ്ക്|\bbank\b|രൂപ|₹|\brs\b|ക്യാഷ്|കാഷ്|\bcash\b|ഇന്നലെ|ഇന്ന്|മിനിഞ്ഞാന്ന്|yesterday|today|അതർ|കാറ്റഗറി/gi,'').replace(new RegExp(acc.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'').replace(new RegExp(acc.name.split(/\s+/).filter(x=>x.length>1).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi'),'').replace(/\s+/g,' ').trim();
+ let d=dd||todayStr();if(!dd){if(/ഇന്നലെ|yesterday/.test(t))d=f(new Date(Date.now()-864e5));else if(/മിനിഞ്ഞാന്ന്/.test(t))d=f(new Date(Date.now()-1728e5))}
+ const hd=document.getElementById('hDate');if(hd&&hd.value)d=hd.value;
+ const note=txt.replace(/\d+(?:[.,]\d+)*/g,'').replace(/അക്കൗണ്ട[്ിൽ]*|\baccount\b|ഇൻ ഹാൻഡ്|ഹാൻഡ്|ഹാന്റ്|\bin hand\b|\bhand\b|കാർഡ\S*|\bcard\b|ബാങ്ക\S*|\bbank\b|രൂപ\S*|₹|\brs\b|ക്യാഷ\S*|കാഷ\S*|\bcash\b|ഇന്നലെ|ഇന്ന്|മിനിഞ്ഞാന്ന്|yesterday|today|അതർ|കാറ്റഗറി/gi,'').replace(new RegExp(acc.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'').replace(new RegExp(acc.name.split(/\s+/).filter(x=>x.length>1).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi'),'').replace(/\s+/g,' ').trim();
  return {type,amt,cat,acc:acc.id,to:0,date:d,note}}
 async function askGemini(audio){
  const text=audio?'':$('voiceText').value.trim();if(!audio&&!text)return toast('ആദ്യം എന്തെങ്കിലും പറയൂ');
@@ -367,8 +405,8 @@ async function askGemini(audio){
   for(const sg of segs){const lt=localParse(sg);if(lt&&saveTx(lt))done.push(lt);else fail.push(sg)}
   const res=$('res');res.style.display='block';
   res.innerHTML=`🎤 ${esc(text)}<br>✅ ${done.length} എൻട്രി സേവ് ചെയ്തു`+done.map(t=>`<br>• ${catMeta(t.cat).ic} ${esc(t.cat)} · ${inr(t.amt)} · ${esc(accById(t.acc).name)}`).join('')+(fail.length?`<br>⚠ മനസ്സിലായില്ല (ഒന്നൊന്നായി പറയൂ): ${esc(fail.join(', '))}`:'')+(done.length?`<button class="btn sec" onclick="undoMany([${done.map(t=>t.id)}])">↩ Undo all</button>`:'');
-  $('voiceText').value=fail.join(', ');return}
- const lt=audio?null:localParse(text);if(lt){if(saveTx(lt)){showSaved(lt,text);$('voiceText').value=''}return}
+  $('voiceText').value=fail.join(', ');if(done.length)$('hDate').value='';return}
+ const lt=audio?null:localParse(text);if(lt){if(saveTx(lt)){showSaved(lt,text);$('voiceText').value='';$('hDate').value=''}return}
  if(!gemOn()){toast('മനസ്സിലായില്ല — ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്');return}
  let key=localStorage.getItem('em_key');if(!key){setKey();key=localStorage.getItem('em_key');if(!key)return}
  const btn=$('goBtn');btn.textContent='⏳ ആലോചിക്കുന്നു…';btn.disabled=true;
@@ -393,7 +431,7 @@ Rules: existing categories are [${cats}]. Use an existing one only if it clearly
   <button class="btn sec" onclick="undoTx(${tx.id})">↩ Undo</button>`;
   $('voiceText').value='';$('hDate').value='';
  }catch(e){toast('പിശക്: '+e.message)}
- btn.textContent='✨ Gemini-ക്ക് അയക്കൂ';btn.disabled=false}
+ btn.textContent='✔ ചേർക്കൂ';btn.disabled=false}
 
 /* ---------- EMI / auto renewals / card cycle ---------- */
 function addMonths(d,n){const x=new Date(d+'T00:00:00'),day=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+n);return f(dOf(x.getFullYear(),x.getMonth(),day))}
@@ -401,14 +439,14 @@ function processRec(){const td=todayStr();let n=0;
  D.rec.forEach(r=>{const st=r.freq==='yearly'?12:1;
   while(n<800){const d=addMonths(r.start,r.done*st);
    if(d>td||(r.count&&r.done>=r.count)||(r.end&&d>r.end))break;
-   D.tx.push({id:Date.now()+(n++),type:'expense',amt:r.amt,cat:r.cat,acc:r.acc,to:0,date:d,note:r.name+' (auto)'});r.done++}});
+   n++;D.tx.push({id:(r.id%1e9)*1000+r.done,type:'expense',amt:r.amt,cat:r.cat,acc:r.acc,to:0,date:d,note:r.name+' (auto)'});r.done++}});
  if(n){D.tx.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);save()}}
 function addEmi(){const name=$('eN').value.trim(),amt=+$('eM').value,s=$('eS').value,e=$('eE').value;
  if(!name||!amt||!s||!e||e<s)return toast('പേര്, മാസത്തവണ, തീയതികൾ ശരിയായി നൽകൂ');
  const a=new Date(s+'T00:00:00'),b=new Date(e+'T00:00:00'),count=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1;
  D.rec.push({id:Date.now(),kind:'emi',name,amt,total:+$('eT').value||amt*count,acc:+$('eA').value,cat:'EMI',freq:'monthly',start:s,end:e,count,done:0});
  processRec();save();render();toast('EMI ചേർത്തു ✔')}
-function delRec(id){if(confirm('ഡിലീറ്റ് ചെയ്യണോ? (മുൻപ് ചേർന്ന ഇടപാടുകൾ നിലനിൽക്കും)')){D.rec=D.rec.filter(r=>r.id!==id);save();render()}}
+function delRec(id){if(confirm('ഡിലീറ്റ് ചെയ്യണോ? (മുൻപ് ചേർന്ന ഇടപാടുകൾ നിലനിൽക്കും)')){tomb(id);D.rec=D.rec.filter(r=>r.id!==id);save();render()}}
 function emiCard(m){const l=D.rec.filter(r=>r.kind==='emi'),A=D.acc.filter(a=>a.group!=='emi');
  const left=l.reduce((t,r)=>t+r.total-Math.min(r.total,r.amt*r.done),0);
  return `<div class="card" style="border-top:5px solid ${m.c}"><div class="ghead"><h3>${m.ic} ${m.n}</h3><button class="add" onclick="$('emiForm').style.display='block'">+ ചേർക്കൂ</button></div>
@@ -498,6 +536,16 @@ function closeSet(){$('smodal').style.display='none'}
 function gemToggle(){$('gKeyBox').style.display=$('gSw').checked?'block':'none'}
 function saveSet(){const on=$('gSw').checked;if(on&&!$('gKey').value.trim())return toast('API key നൽകൂ');
  localStorage.setItem('em_gem',on?'1':'0');if(on){const k=$('gKey').value.trim();localStorage.setItem('em_key',k);D.gk=k;save()}closeSet();toast(on?'Gemini ഓൺ':'Gemini ഓഫ്')}
+function openAccTx(id){const a=accById(id);if(!a)return;
+ const l=D.tx.filter(t=>t.acc==id||(t.type==='transfer'&&t.to==id));let ex=0,inc=0;
+ $('amTitle').textContent=GROUPS[a.group].ic+' '+a.name;
+ $('amList').innerHTML=l.map(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
+  const m=t.type==='transfer'?{ic:'⇄',c:'#2563eb'}:catMeta(t.cat);
+  const ttl=t.type==='transfer'?(inn?'← '+esc(accById(t.acc)?.name||'?'):'→ '+esc(accById(t.to)?.name||'?')):esc(t.cat);
+  return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${t.date}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div></div>`}).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
+ $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
+ $('amodal').style.display='flex'}
+function closeAcc(){$('amodal').style.display='none'}
 let payCard=0;
 function openPay(id,amt){payCard=id;$('pTxt').textContent=accById(id).name+' — '+inr(amt)+' ബിൽ പെയ്ഡ് ആണോ?';$('pAmt').value=amt;
  $('pAcc').innerHTML=D.acc.filter(a=>a.group!=='emi'&&a.group!=='card').map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('');
@@ -505,10 +553,11 @@ function openPay(id,amt){payCard=id;$('pTxt').textContent=accById(id).name+' —
 function closePay(){$('pmodal').style.display='none'}
 function confirmPay(){const amt=+$('pAmt').value,from=+$('pAcc').value;if(!from)return toast('പണം അടച്ച അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
  if(saveTx({type:'transfer',amt,cat:'',acc:from,to:payCard,date:todayStr(),note:'Card bill paid'}))closePay()}
-function undoMany(ids){D.tx=D.tx.filter(t=>!ids.includes(t.id));save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
-function undoTx(id){D.tx=D.tx.filter(t=>t.id!==id);D.rec=D.rec.filter(r=>r.id!==id+1);save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
+function undoMany(ids){ids.forEach(tomb);D.tx=D.tx.filter(t=>!ids.includes(t.id));save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
+function undoTx(id){tomb(id);tomb(id+1);D.tx=D.tx.filter(t=>t.id!==id);D.rec=D.rec.filter(r=>r.id!==id+1);save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
 
 processRec();setType('expense');
+setTimeout(()=>{const b=$('cloudBtn');if(b&&b.textContent.includes('…')){b.textContent='☁ Login';$('sync').textContent='ഫോണിൽ മാത്രം സേവ് ആകുന്നു'}},8000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 <script type="module">
@@ -529,16 +578,18 @@ window.emailLogin=async mode=>{const g=id=>el(id).value.trim(),err=m=>{el('lErr'
   if(mode==='new'){const e=g('sE'),p=el('sP').value;if(!e||!p)return err('ഇമെയിലും പാസ്‌വേഡും നൽകൂ');if(p.length<6)return err('പാസ്‌വേഡ് കുറഞ്ഞത് 6 അക്ഷരം വേണം');if(p!==el('sP2').value)return err('രണ്ട് പാസ്‌വേഡും ഒരുപോലെയല്ല');await createUserWithEmailAndPassword(auth,e,p)}
   else{const e=g('lE'),p=el('lP').value;if(!e||!p)return err('ഇമെയിലും പാസ്‌വേഡും നൽകൂ');await signInWithEmailAndPassword(auth,e,p)}
   el('lmodal').style.display='none'}catch(x){err(x.code||x.message)}};
-window.cloudPush=()=>{if(!uid)return;clearTimeout(timer);say('☁ സേവ് ചെയ്യുന്നു…');
- timer=setTimeout(()=>setDoc(doc(db,'users',uid),{data:JSON.stringify(window.emGet()),updated:+localStorage.getItem('em_upd')||Date.now()}).then(()=>say('☁ ക്ലൗഡിൽ സേവ് ആയി')).catch(e=>say('⚠ '+(e.code||e.message))),700)};
+window.cloudPush=now=>{if(!uid)return;clearTimeout(timer);say('☁ സിങ്ക് ചെയ്യുന്നു…');
+ timer=setTimeout(async()=>{try{const r=doc(db,'users',uid),snap=await getDoc(r);
+  if(snap.exists())window.emMerge(JSON.parse(snap.data().data),true);
+  const out=JSON.stringify(window.emGet());
+  if(!snap.exists()||snap.data().data!==out)await setDoc(r,{data:out,updated:Date.now()});
+  say('☁ ക്ലൗഡിൽ സേവ് ആയി')}catch(e){say('⚠ '+(e.code||e.message))}},now?0:700)};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)window.cloudPush(true)});
 onAuthStateChanged(auth,async u=>{
  uid=u?u.uid:null;el('cloudBtn').textContent=u?'☁ '+(u.displayName||u.email||'Account').split(/[ @]/)[0]:'☁ Login';
  if(!u){say('ഫോണിൽ മാത്രം സേവ് ആകുന്നു · Login ചെയ്യൂ');return}
  say('☁ ലോഡ് ചെയ്യുന്നു…');
- try{const snap=await getDoc(doc(db,'users',uid)),lu=+localStorage.getItem('em_upd')||0;
-  if(snap.exists()&&snap.data().updated>lu){window.emSet(JSON.parse(snap.data().data),snap.data().updated);say('☁ ക്ലൗഡിൽ നിന്ന് ലോഡ് ചെയ്തു')}
-  else window.cloudPush()}
- catch(e){say('⚠ '+(e.code||e.message))}});
+ window.cloudPush(true)});
 </script>
 </body>
 </html>
