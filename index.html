@@ -53,7 +53,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#ccmodal,#kwmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#ccmodal,#kwmodal,#lgmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -66,7 +66,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#ccmodal,#kwmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#ccmodal,#kwmodal,#lgmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -144,6 +144,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <small style="color:var(--mute)">ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
  <button class="btn" onclick="saveCC()">മാറ്റുക</button><button class="btn sec" onclick="closeCC()">അടയ്ക്കുക</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
+<div id="lgmodal"><div class="sheet" style="text-align:center"><h3>🌐 ഏത് ഭാഷയിൽ സംസാരിക്കും?</h3><div id="lgBtns"></div><small style="color:var(--mute);display:block;margin-top:8px">Home-ൽ മൈക്കിന് താഴെ ഇത് എപ്പോൾ വേണമെങ്കിലും മാറ്റാം</small><button class="btn sec" onclick="lgDone()">പിന്നീട്</button></div></div>
 <div id="smodal" onclick="if(event.target===this)closeSet()"><div class="sheet"><h3>⚙ Settings</h3>
  <label style="display:flex;align-items:center;gap:12px;margin-top:10px"><input type="checkbox" id="gSw" onchange="gemToggle()" style="width:24px;height:24px;margin:0;padding:0"><span>Gemini AI ഉപയോഗിക്കുക</span></label>
  <small style="color:var(--mute);display:block;margin-top:6px">ഓഫ് ആയിരിക്കുമ്പോൾ ഒന്നും പുറത്തേക്ക് അയക്കില്ല, ആപ്പ് തന്നെ മനസ്സിലാക്കും.</small>
@@ -344,9 +345,13 @@ async function toWav(blob){const ac=new (window.AudioContext||window.webkitAudio
  const h=new DataView(new ArrayBuffer(44)),w=(o,t)=>[...t].forEach((c,i)=>h.setUint8(o+i,c.charCodeAt(0)));
  w(0,'RIFF');h.setUint32(4,36+len*2,true);w(8,'WAVEfmt ');h.setUint32(16,16,true);h.setUint16(20,1,true);h.setUint16(22,1,true);h.setUint32(24,rate,true);h.setUint32(28,rate*2,true);h.setUint16(32,2,true);h.setUint16(34,16,true);w(36,'data');h.setUint32(40,len*2,true);
  return new Blob([h,out],{type:'audio/wav'})}
-const langTag=t=>{const ml=/[\u0d00-\u0d7f]/.test(t),en=/[a-zA-Z]{2,}/.test(t);return ml&&en?'മലയാളം + English':ml?'മലയാളം':en?'English':''};
+const LANGS=[['ml-IN','മലയാളം'],['en-IN','English'],['kn-IN','ಕನ್ನಡ'],['ta-IN','தமிழ்'],['te-IN','తెలుగు']];
+const langTag=t=>{const f=[];if(/[\u0d00-\u0d7f]/.test(t))f.push('മലയാളം');if(/[\u0c80-\u0cff]/.test(t))f.push('ಕನ್ನಡ');if(/[\u0b80-\u0bff]/.test(t))f.push('தமிழ்');if(/[\u0c00-\u0c7f]/.test(t))f.push('తెలుగు');if(/[a-zA-Z]{2,}/.test(t))f.push('English');return f.join(' + ')};
 function drawLang(){const hq=(localStorage.getItem('em_mic')||'live')==='hq'&&gemOn(),l=localStorage.getItem('em_lang')||'ml-IN';
- $('langSw').innerHTML=hq?'<span class="chip">🌐 ഭാഷ തനിയെ തിരിച്ചറിയും</span>':[['ml-IN','മലയാളം'],['en-IN','English']].map(([c,n])=>`<button class="chip" style="border:0;margin:0 4px;${l===c?'':'opacity:.45'}" onclick="setLang('${c}')">${n}</button>`).join('')}
+ $('langSw').innerHTML=hq?'<span class="chip">🌐 ഭാഷ തനിയെ തിരിച്ചറിയും</span><small style="display:block;color:var(--mute);margin-top:4px">മലയാളം · English · ಕನ್ನಡ · தமிழ் · తెలుగు — മലയാളവും English-ഉം അതേപോലെ എടുക്കും; മറ്റുള്ളവ ഇംഗ്ലീഷിലേക്ക് മാറ്റി മനസ്സിലാക്കും</small>':LANGS.map(([c,n])=>`<button class="chip" style="border:0;margin:3px;${l===c?'':'opacity:.45'}" onclick="setLang('${c}')">${n}</button>`).join('')+((l==='ml-IN'||l==='en-IN')?'':'<small style="display:block;color:var(--mute);margin-top:4px">ഈ ഭാഷയിലെ വാക്കുകൾ category-യിലേക്ക് പോകാൻ 🔑 keywords ചേർക്കൂ, അല്ലെങ്കിൽ ⚙-ൽ ഉയർന്ന കൃത്യത ഉപയോഗിക്കൂ</small>')}
+function lgShow(){$('lgBtns').innerHTML=LANGS.map(([c,n])=>`<button class="btn" style="margin:5px 0" onclick="lgPick('${c}')">${n}</button>`).join('');$('lgmodal').style.display='flex'}
+function lgPick(c){setLang(c);lgDone()}
+function lgDone(){localStorage.setItem('em_lgset','1');$('lgmodal').style.display='none'}
 function setLang(c){localStorage.setItem('em_lang',c);drawLang()}
 function toggleMic(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition,mode=localStorage.getItem('em_mic')||'live';
@@ -370,7 +375,7 @@ function liveMic(SR){
 async function transcribeGemini(audio){
  const key=localStorage.getItem('em_key');if(!key){toast('API key നൽകൂ (⚙)');return ''}
  const ctx=[...new Set([...D.acc.filter(a=>a.group!=='emi').flatMap(a=>[a.name,...(a.kw||'').split(',')]),...allCats().map(c=>c.n),...Object.values(D.ckw||{}).flatMap(v=>String(v).split(','))].map(x=>x.trim()).filter(Boolean))].slice(0,90).join(', ');
- const P=`Transcribe this audio exactly as spoken. The speaker mixes Malayalam and English (item names, amounts, bank and card names). Rules: write Malayalam words in Malayalam script, English words in English letters, numbers as digits, keep names like SBI, HDFC, ICICI, RuPay in English letters. Words that may appear: ${ctx}. Output only the transcript. If there is no speech, output nothing.`;
+ const P=`Transcribe this audio exactly as spoken. The speaker mixes Malayalam and English (item names, amounts, bank and card names). Rules: write Malayalam words in Malayalam script, English words in English letters, numbers as digits, keep names like SBI, HDFC, ICICI, RuPay in English letters. If the speech is in Kannada, Tamil, Telugu or Hindi, do not transcribe it: translate it into simple English instead (item names, amounts, bank and card names), numbers as digits. Words that may appear: ${ctx}. Output exactly in this format: LANGUAGE|TEXT where LANGUAGE is the spoken language (Malayalam, English, Malayalam+English, Kannada, Tamil, Telugu or Hindi) and TEXT is the transcript (or the English translation). If there is no speech, output nothing.`;
  try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:audio.mime,data:audio.data}},{text:P}]}],generationConfig:{temperature:0,thinkingConfig:{thinkingBudget:0}}})});
   const j=await r.json();if(!r.ok)throw new Error(j.error?.message||'API error');
@@ -385,8 +390,9 @@ async function recMic(){
   mr.onstop=async()=>{clearTimeout(cap);st.getTracks().forEach(t=>t.stop());$('mic').classList.remove('rec');$('micHint').textContent='⏳ എഴുതുന്നു…';
    try{const wav=await toWav(new Blob(chunks));if(!wav){$('micHint').textContent='മൈക്ക് അമർത്തി പറയൂ';return toast('ശബ്ദം കേട്ടില്ല — ഒന്നുകൂടി പറയൂ')}
     const r=new FileReader();
-    r.onload=async()=>{const t=await transcribeGemini({mime:'audio/wav',data:r.result.split(',')[1]});
-     const tg=langTag(t);$('micHint').textContent=tg?('🌐 '+tg):'മൈക്ക് അമർത്തി പറയൂ';
+    r.onload=async()=>{const raw=await transcribeGemini({mime:'audio/wav',data:r.result.split(',')[1]});
+     const k=raw.indexOf('|'),ok=k>0&&k<30,lg=ok?raw.slice(0,k).trim():'',t=ok?raw.slice(k+1).trim():raw;
+     const tr=/kannada|tamil|telugu|hindi/i.test(lg),tg=lg?(lg+(tr?' → English':'')):langTag(t);$('micHint').textContent=tg?('🌐 '+tg):'മൈക്ക് അമർത്തി പറയൂ';
      if(t){$('voiceText').value=t;askGemini()}else if(!document.getElementById('res').innerHTML)toast('മനസ്സിലായില്ല')};
     r.readAsDataURL(wav)}catch(e){$('micHint').textContent='മൈക്ക് അമർത്തി പറയൂ';toast('ഓഡിയോ പിശക്')}};
   mr.start();cap=setTimeout(()=>{if(mr&&mr.state==='recording')mr.stop()},30000);
@@ -416,7 +422,50 @@ function dateWords(text){let mon,day,m=text.match(new RegExp('('+MONRE+')\\s*(\\
  const n=new Date();let dt=new Date(n.getFullYear(),mon-1,day);if(dt>n)dt=new Date(n.getFullYear()-1,mon-1,day);
  return {d:f(dt),rest:text.replace(m[0],' ').replace(/(^|\s)-?ന്(?=\s|$)/g,' ').replace(/\s+/g,' ').trim()}}
 const ALIAS={sbi:['എസ്ബിഐ'],hdfc:['എച്ച്ഡിഎഫ്സി','എച്ഡിഎഫ്സി','എച്ചഡിഎഫ്സി'],icici:['ഐസിഐസിഐ'],axis:['ആക്സിസ്'],federal:['ഫെഡറൽ'],canara:['കാനറ'],kotak:['കൊട്ടക്','കോട്ടക്','കൊടക്'],pnb:['പിഎൻബി'],idfc:['ഐഡിഎഫ്സി'],yes:['യെസ്'],coral:['കോറൽ'],rupay:['റുപേ','റൂപേ','രൂപേ'],amazon:['ആമസോൺ'],paytm:['പേടിഎം'],gpay:['ജിപേ'],phonepe:['ഫോൺപേ'],cash:['ക്യാഷ','കാഷ'],card:['കാർഡ്'],bank:['ബാങ്ക്'],credit:['ക്രെഡിറ്റ്'],debit:['ഡെബിറ്റ്'],savings:['സേവിംഗ്സ്']};
+MLN.push(['ഒന്നര',1.5],['രണ്ടര',2.5],['മൂന്നര',3.5],['നാലര',4.5],['അഞ്ചര',5.5],['കോടി',1e7]);MLN.sort((a,b)=>b[0].length-a[0].length);
+const ENW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fourty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+const ENS={hundred:100,hundreds:100,thousand:1000,k:1000,lakh:1e5,lakhs:1e5,lac:1e5,lacs:1e5,million:1e6,crore:1e7,crores:1e7,cr:1e7};
+const MLS=['നൂറ','ആയിര','ലക്ഷ','കോടി'];
+function numTok(x0,wordMode){
+ let x=x0.replace(/^[(\[]+|[.,!?;:)\]]+$/g,'').replace(/^(₹|rs\.?|inr)(?=\d)/i,'').replace(/\/-$/,'');if(!x)return null;
+ let m=x.match(/^(\d+(?:[.,]\d+)*)(k|cr|lakh|lac)?$/i);
+ if(m){const v=parseFloat(m[1].replace(/,/g,''));if(isNaN(v))return null;const u=(m[2]||'').toLowerCase();return {k:'d',v:v*(u==='k'?1e3:u==='cr'?1e7:u?1e5:1)}}
+ const l=x.toLowerCase();
+ if(ENS[l]!==undefined)return {k:'s',v:ENS[l]};
+ const ms=MLS.find(p=>x.startsWith(p)&&x.length-p.length<=3);if(ms)return {k:'s',v:{'നൂറ':100,'ആയിര':1000,'ലക്ഷ':1e5,'കോടി':1e7}[ms]};
+ if(l==='and')return {k:'f'};
+ if(/^(a|ഒരു)$/i.test(x))return {k:'f1'};
+ if(!wordMode)return null;
+ if(ENW[l]!==undefined)return {k:'w',v:ENW[l],en:true};
+ if(x==='അര')return {k:'w',v:0.5};
+ const e=MLN.find(e=>x.startsWith(e[0])&&x.length-e[0].length<=(e[0].length<=3?3:5));
+ return e?{k:'w',v:e[1]}:null}
+function normNums(text){
+ text=text.replace(/[൦-൯]/g,c=>String(c.charCodeAt(0)-3430));
+ const w=text.split(/\s+/).filter(Boolean),wm=!w.some(x=>/\d/.test(x)),T=w.map(x=>numTok(x,wm)),groups=[];
+ for(let i=0;i<w.length;i++){const t=T[i];if(!t||t.k==='f')continue;
+  let g,j=i;
+  if(t.k==='f1'){if(T[i+1]&&T[i+1].k==='s'){g=[{k:'w',v:1}];j=i+1}else continue}
+  else{g=[];}
+  if(!g.length||j===i+1){/* start */}
+  if(t.k!=='f1'){g=[t];j=i+1}
+  else{/* g has the implicit 1 */}
+  const start=i;
+  while(j<w.length){const n=T[j],prev=g[g.length-1];
+   if(!n)break;
+   if(n.k==='s'){g.push(n);j++;continue}
+   if(n.k==='w'&&wm){g.push(n);j++;continue}
+   if(n.k==='d'&&prev.k==='s'){g.push(n);j++;continue}
+   if(n.k==='f'&&T[j+1]&&(T[j+1].k==='w'||T[j+1].k==='d')&&g.length){j++;continue}
+   break}
+  let tot=0,cur=0;for(let q=0;q<g.length;q++){const x=g[q];if(x.k==='s'){if(x.v===100)cur=(cur||1)*100;else{tot+=(cur||1)*x.v;cur=0}}else if(x.k!=='f'){const nx=g[q+1];if(x.en&&x.v>=1&&x.v<=9&&nx&&nx.en&&nx.v>=20&&nx.v%10===0&&cur===0)cur+=x.v*100;else cur+=x.v}}
+  const weak=wm&&g.length===1&&g[0].k==='w'&&g[0].v<10;
+  groups.push({s:start,e:j-1,v:Math.round((tot+cur)*100)/100,weak});i=j-1}
+ const strong=groups.filter(x=>!x.weak),use=strong.length?strong:(groups.length===1?groups:[]);
+ if(!use.length)return text;
+ const out=[];let p=0;for(const g of use){out.push(...w.slice(p,g.s),String(g.v));p=g.e+1}out.push(...w.slice(p));return out.join(' ')}
 function localParse(text0){let text=text0,dd=null;const dw=dateWords(text0);if(dw){text=dw.rest;dd=dw.d}
+ text=normNums(text);
  const t=text.toLowerCase();
  if(/transfer|ട്രാൻസ്ഫർ|recurring|renew|റിന്യൂ|\bemi\b|ഇഎംഐ|മാസം|വർഷം|month|year|every|കാർഡ് ബിൽ|card bill|ബിൽ അടച്ച|bill paid|bill payment/.test(t))return null;
  const nums=t.match(/\d+(?:[.,]\d+)*/g);let amt,txt=text;
@@ -626,7 +675,7 @@ function confirmPay(){const amt=+$('pAmt').value,from=+$('pAcc').value;if(!from)
 function undoMany(ids){ids.forEach(tomb);D.tx=D.tx.filter(t=>!ids.includes(t.id));save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
 function undoTx(id){tomb(id);tomb(id+1);D.tx=D.tx.filter(t=>t.id!==id);D.rec=D.rec.filter(r=>r.id!==id+1);save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
 
-processRec();setType('expense');drawLang();
+processRec();setType('expense');drawLang();if(!localStorage.getItem('em_lgset'))lgShow();
 setTimeout(()=>{const b=$('cloudBtn');if(b&&b.textContent.includes('…')){b.textContent='☁ Login';$('sync').textContent='ഫോണിൽ മാത്രം സേവ് ആകുന്നു'}},8000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
