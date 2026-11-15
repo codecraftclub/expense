@@ -98,6 +98,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     <div class="res" id="res"></div>
   </div>
   <div class="card"><h3>സമീപകാല ഇടപാടുകൾ</h3><div id="recent"></div></div>
+  <div id="verHome" style="text-align:center;color:var(--mute);font-size:12px;margin:2px 0 10px"></div>
 </section>
 
 <!-- TRANSACTION -->
@@ -144,12 +145,15 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <small style="color:var(--mute)">ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
  <button class="btn" onclick="saveCC()">മാറ്റുക</button><button class="btn sec" onclick="closeCC()">അടയ്ക്കുക</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
-<div id="lgmodal"><div class="sheet" style="text-align:center"><h3>🌐 ഏത് ഭാഷയിൽ സംസാരിക്കും?</h3><div id="lgBtns"></div><small style="color:var(--mute);display:block;margin-top:8px">Home-ൽ മൈക്കിന് താഴെ ഇത് എപ്പോൾ വേണമെങ്കിലും മാറ്റാം</small><button class="btn sec" onclick="lgDone()">പിന്നീട്</button></div></div>
+<div id="lgmodal"><div class="sheet"><h3 style="text-align:center">🌐 ഭാഷ തിരഞ്ഞെടുക്കൂ · Choose language</h3><div id="lgBtns"></div><button class="btn" onclick="lgOk()">✔ OK</button></div></div>
 <div id="smodal" onclick="if(event.target===this)closeSet()"><div class="sheet"><h3>⚙ Settings</h3>
  <label style="display:flex;align-items:center;gap:12px;margin-top:10px"><input type="checkbox" id="gSw" onchange="gemToggle()" style="width:24px;height:24px;margin:0;padding:0"><span>Gemini AI ഉപയോഗിക്കുക</span></label>
  <small style="color:var(--mute);display:block;margin-top:6px">ഓഫ് ആയിരിക്കുമ്പോൾ ഒന്നും പുറത്തേക്ക് അയക്കില്ല, ആപ്പ് തന്നെ മനസ്സിലാക്കും.</small>
+ <small style="display:block;margin-top:12px">ആപ്പ് ഭാഷ</small><select id="sUi"></select>
  <small style="display:block;margin-top:12px">മൈക്ക് രീതി</small><select id="sMic"><option value="live">ലൈവ് — Chrome (സൗജന്യം)</option><option value="hq">ഉയർന്ന കൃത്യത — Gemini (ഭാഷ തനിയെ, നോയ്സ് കുറച്ച്)</option></select>
  <div id="gKeyBox" style="display:none"><input id="gKey" type="password" placeholder="Gemini API key"></div>
+ <button class="btn sec" onclick="openFeedback()">💬 അഭിപ്രായം / Feedback</button>
+ <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:10px">My Expense Manager · Version <span id="verTxt"></span></div>
  <button class="btn" onclick="saveSet()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeSet()">അടയ്ക്കുക</button></div></div>
 <div id="pmodal" onclick="if(event.target===this)closePay()"><div class="sheet"><h3>💳 ബിൽ പെയ്ഡ് ആണോ?</h3><div id="pTxt" style="margin:6px 0"></div>
  <small>അടച്ച തുക ₹</small><input id="pAmt" type="number" inputmode="decimal">
@@ -191,7 +195,7 @@ function mergeData(a,b){a=a||{};b=b||{};
  recs.forEach(r=>{r.done=Math.max(...all.filter(x=>x.id===r.id).map(x=>x.done||0))});
  const cm=new Map();for(const c of [...(b.cats||[]),...(a.cats||[])]){const k='cat:'+c.n.toLowerCase();if(!ds.has(k))cm.set(k,c)}
  return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},gk:a.gk||b.gk||'',ckw:{...(b.ckw||{}),...(a.ckw||{})},del}}
-window.emMerge=(c,quiet)=>{D=mergeData(D,c);if(!D.acc.length)D.acc=[{id:1,name:'Cash',group:'cash',open:0}];
+window.emMerge=(c,quiet)=>{if(!localStorage.getItem('em_bak'))localStorage.setItem('em_bak',JSON.stringify(D));D=mergeData(D,c);if(!D.acc.length)D.acc=[{id:1,name:'Cash',group:'cash',open:0}];
  if(D.gk&&!localStorage.getItem('em_key'))localStorage.setItem('em_key',D.gk);
  localStorage.setItem('em_data',JSON.stringify(D));processRec();if(!quiet)save();render()};
 window.emSet=(d,u)=>{D=d;D.acc=D.acc||[];D.tx=D.tx||[];D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};if(D.gk&&!localStorage.getItem('em_key'))localStorage.setItem('em_key',D.gk);localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',u||Date.now());processRec();render()};
@@ -309,7 +313,7 @@ function listView(){
   <div style="margin-top:8px">${o.a.map(x=>{const ac=accById(x.acc);return `<div class="row"><div class="grow"><b class="${type}">${inr(x.amt)}</b><small>${x.date}${x.note?' · '+esc(x.note):''}</small></div><span class="chip">${ac?GROUPS[ac.group].ic+' '+esc(ac.name):'?'}</span><button class="ib ed" onclick="openCC(${x.id})">${PEN}</button><button class="del" onclick="delTx(${x.id})">×</button></div>`}).join('')}</div></details>`}).join('')}
 
 function render(){
- $('today').textContent=new Date().toLocaleDateString('ml-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ $('today').textContent=new Date().toLocaleDateString(UIL(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
  const inc=D.tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amt,0),exp=D.tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amt,0);
  $('sInc').textContent=inr(inc);$('sExp').textContent=inr(exp);
  $('sBal').textContent=inr(D.acc.reduce((s,a)=>s+balance(a),0));
@@ -345,13 +349,10 @@ async function toWav(blob){const ac=new (window.AudioContext||window.webkitAudio
  const h=new DataView(new ArrayBuffer(44)),w=(o,t)=>[...t].forEach((c,i)=>h.setUint8(o+i,c.charCodeAt(0)));
  w(0,'RIFF');h.setUint32(4,36+len*2,true);w(8,'WAVEfmt ');h.setUint32(16,16,true);h.setUint16(20,1,true);h.setUint16(22,1,true);h.setUint32(24,rate,true);h.setUint32(28,rate*2,true);h.setUint16(32,2,true);h.setUint16(34,16,true);w(36,'data');h.setUint32(40,len*2,true);
  return new Blob([h,out],{type:'audio/wav'})}
-const LANGS=[['ml-IN','മലയാളം'],['en-IN','English'],['kn-IN','ಕನ್ನಡ'],['ta-IN','தமிழ்'],['te-IN','తెలుగు']];
+const LANGS=[['ml-IN','മലയാളം'],['en-IN','English']];
 const langTag=t=>{const f=[];if(/[\u0d00-\u0d7f]/.test(t))f.push('മലയാളം');if(/[\u0c80-\u0cff]/.test(t))f.push('ಕನ್ನಡ');if(/[\u0b80-\u0bff]/.test(t))f.push('தமிழ்');if(/[\u0c00-\u0c7f]/.test(t))f.push('తెలుగు');if(/[a-zA-Z]{2,}/.test(t))f.push('English');return f.join(' + ')};
 function drawLang(){const hq=(localStorage.getItem('em_mic')||'live')==='hq'&&gemOn(),l=localStorage.getItem('em_lang')||'ml-IN';
  $('langSw').innerHTML=hq?'<span class="chip">🌐 ഭാഷ തനിയെ തിരിച്ചറിയും</span><small style="display:block;color:var(--mute);margin-top:4px">മലയാളം · English · ಕನ್ನಡ · தமிழ் · తెలుగు — മലയാളവും English-ഉം അതേപോലെ എടുക്കും; മറ്റുള്ളവ ഇംഗ്ലീഷിലേക്ക് മാറ്റി മനസ്സിലാക്കും</small>':LANGS.map(([c,n])=>`<button class="chip" style="border:0;margin:3px;${l===c?'':'opacity:.45'}" onclick="setLang('${c}')">${n}</button>`).join('')+((l==='ml-IN'||l==='en-IN')?'':'<small style="display:block;color:var(--mute);margin-top:4px">ഈ ഭാഷയിലെ വാക്കുകൾ category-യിലേക്ക് പോകാൻ 🔑 keywords ചേർക്കൂ, അല്ലെങ്കിൽ ⚙-ൽ ഉയർന്ന കൃത്യത ഉപയോഗിക്കൂ</small>')}
-function lgShow(){$('lgBtns').innerHTML=LANGS.map(([c,n])=>`<button class="btn" style="margin:5px 0" onclick="lgPick('${c}')">${n}</button>`).join('');$('lgmodal').style.display='flex'}
-function lgPick(c){setLang(c);lgDone()}
-function lgDone(){localStorage.setItem('em_lgset','1');$('lgmodal').style.display='none'}
 function setLang(c){localStorage.setItem('em_lang',c);drawLang()}
 function toggleMic(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition,mode=localStorage.getItem('em_mic')||'live';
@@ -464,6 +465,9 @@ function normNums(text){
  const strong=groups.filter(x=>!x.weak),use=strong.length?strong:(groups.length===1?groups:[]);
  if(!use.length)return text;
  const out=[];let p=0;for(const g of use){out.push(...w.slice(p,g.s),String(g.v));p=g.e+1}out.push(...w.slice(p));return out.join(' ')}
+const NSTOP=new Set(['കുടിച്ചു','കഴിച്ചു','വാങ്ങി','വാങ്ങിച്ചു','വാങ്ങിയത്','കൊടുത്തു','കൊടുത്തത്','അടച്ചു','അടച്ചത്','അടിച്ചു','ആയി','ആയത്','ആണ്','ആയിരുന്നു','ചെലവായി','ചിലവായി','ചെലവ്','ചിലവ്','ഉണ്ടായി','പോയി','പോയത്','എന്ന്','ഒരു','ആയിട്ട്','കൊണ്ട്','ചെയ്തു','എടുത്തു','കിട്ടി','paid','pay','bought','buy','spent','spend','for','rupees','rupee','rs','of','on','the','a','an','to','from','using','via','by','at','with','my','in','was','is','got','had','drank','ate','cost','costs','today','yesterday','and','and']);
+const NSTEM=/^(കുടിച്ച|കഴിച്ച|വാങ്ങി|കൊടുത്ത|അടച്ച|അടിച്ച|ചെലവായ|ചിലവായ|ചെയ്ത|എടുത്ത|കിട്ടി|ആയിരുന്ന|ആയി$)/;
+function cleanNote(n){if(!n)return '';const w=String(n).replace(/[.,;!?]+/g,' ').split(/\s+/).filter(x=>x&&!NSTOP.has(x.toLowerCase())&&!NSTEM.test(x)&&!/^രൂപ/.test(x)&&!/^\d+$/.test(x));return w.slice(0,5).join(' ')}
 function localParse(text0){let text=text0,dd=null;const dw=dateWords(text0);if(dw){text=dw.rest;dd=dw.d}
  text=normNums(text);
  const t=text.toLowerCase();
@@ -492,7 +496,7 @@ function localParse(text0){let text=text0,dd=null;const dw=dateWords(text0);if(d
  const hd=document.getElementById('hDate');if(hd&&hd.value)d=hd.value;
  const note=txt.replace(/\d+(?:[.,]\d+)*/g,'').replace(/അക്കൗണ്ട[്ിൽ]*|\baccount\b|ഇൻ ഹാൻഡ്|ഹാൻഡ്|ഹാന്റ്|\bin hand\b|\bhand\b|കാർഡ\S*|\bcard\b|ബാങ്ക\S*|\bbank\b|രൂപ\S*|₹|\brs\b|ക്യാഷ\S*|കാഷ\S*|\bcash\b|ഇന്നലെ|ഇന്ന്|മിനിഞ്ഞാന്ന്|yesterday|today|അതർ|കാറ്റഗറി/gi,'').replace(new RegExp(acc.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'').replace(new RegExp(acc.name.split(/\s+/).filter(x=>x.length>1).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi'),'').replace(/\s+/g,' ').trim();
  let nt=note;hitKeys(acc).forEach(k=>{try{nt=nt.replace(new RegExp(norm(k).split('').map(c=>c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[\\s.\u200c\u200d]*'),'gi'),' ')}catch(e){}});
- return {type,amt,cat,acc:acc.id,to:0,date:d,note:nt.replace(/\s+/g,' ').trim()}}
+ return {type,amt,cat,acc:acc.id,to:0,date:d,note:cleanNote(nt.replace(/\s+/g,' ').trim())}}
 async function askGemini(audio){
  const text=audio?'':$('voiceText').value.trim();if(!audio&&!text)return toast('ആദ്യം എന്തെങ്കിലും പറയൂ');
  const segs=audio?[text]:text.split(/,(?!\d)|[;،\n]|\s+(?:പിന്നെ|പിന്നീട്|then)\s+/i).map(x=>x.trim()).filter(Boolean);
@@ -509,14 +513,14 @@ async function askGemini(audio){
  const cats=allCats().map(x=>x.n+' ['+x.kind+(x.k?'; hints: '+x.k.split(',').slice(0,14).join('/'):'')+']').join('; ');
  const P=`You are an expense parser. Today is ${todayStr()}. Input is Malayalam/English/Manglish ${audio?'speech (audio)':'text: "'+text+'"'}. Return JSON only:
 {"heard":"transcript","type":"income|expense|transfer","amount":number,"category":"string","emoji":"one emoji for the category","account":"string","to_account":"string","date":"YYYY-MM-DD","note":"string","recurring":null or {"name":"string","freq":"monthly|yearly","count":number or null}}
-Rules: existing categories are [${cats}]. Use an existing one only if it clearly fits, else CREATE a short English category (supermarket->Grocery). Match item names using the category hints (e.g. poritta -> Food) and put the item/purpose in "note". If the user says to add to a named category (e.g. അതർ = Other) use exactly that category. "account" = closest of [${A.map(a=>a.name+' ('+a.group+')'+(a.kw?' aka '+a.kw:'')).join(', ')}] (empty if unknown). Transfer = moving money between accounts or paying a card bill: account = from, to_account = to, category empty; any remark/റിമാർക്ക് goes to note. Set recurring only if the user mentions auto renewal / every month / every year; count from the duration (12 months -> 12, else null). Date defaults to today.`;
+Rules: existing categories are [${cats}]. Use an existing one only if it clearly fits, else CREATE a short English category (supermarket->Grocery). Match item names using the category hints (e.g. poritta -> Food) and put ONLY the item/purpose in "note" (1-3 words naming what was bought or paid for; never copy the whole sentence, amounts, account names or verbs). If the user says to add to a named category (e.g. അതർ = Other) use exactly that category. "account" = closest of [${A.map(a=>a.name+' ('+a.group+')'+(a.kw?' aka '+a.kw:'')).join(', ')}] (empty if unknown). Transfer = moving money between accounts or paying a card bill: account = from, to_account = to, category empty; any remark/റിമാർക്ക് goes to note. Set recurring only if the user mentions auto renewal / every month / every year; count from the duration (12 months -> 12, else null). Date defaults to today.`;
  try{
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify({contents:[{parts:audio?[{inline_data:{mime_type:audio.mime,data:audio.data}},{text:P}]:[{text:P}]}],generationConfig:{responseMimeType:'application/json',thinkingConfig:{thinkingBudget:0}}})});
   const j=await r.json();if(!r.ok)throw new Error(j.error?.message||'API error');
   const o=JSON.parse(j.candidates[0].content.parts[0].text.replace(/```json|```/g,''));
   const fa=n=>(A.find(a=>a.name.toLowerCase()===String(n||'').toLowerCase())||A.find(a=>String(n||'').toLowerCase().includes(a.name.toLowerCase()))||A[0]).id;
-  const tx={type:['income','expense','transfer'].includes(o.type)?o.type:'expense',amt:+o.amount,cat:o.category||'',acc:fa(o.account),to:fa(o.to_account),date:$('hDate').value||(/^\d{4}-\d{2}-\d{2}$/.test(o.date)?o.date:todayStr()),note:o.note||''};
+  const tx={type:['income','expense','transfer'].includes(o.type)?o.type:'expense',amt:+o.amount,cat:o.category||'',acc:fa(o.account),to:fa(o.to_account),date:$('hDate').value||(/^\d{4}-\d{2}-\d{2}$/.test(o.date)?o.date:todayStr()),note:cleanNote(o.note||'')};
   if(tx.type!=='transfer'){if(!o.category||/^other/i.test(o.category)){const c2=classify(tx.note||o.heard||text,tx.type);if(c2)tx.cat=c2}if(tx.cat)ensureCat(tx.cat,o.emoji,tx.type)}
   if(!saveTx(tx))throw new Error('തുക മനസ്സിലായില്ല, ഒന്നുകൂടി പറയൂ');
   let extra='';
@@ -626,11 +630,12 @@ async function saveAdd(){const amt=+$('aAmt').value;if(!amt||amt<=0)return toast
  if(saveTx(tx))closeAdd()}
 function lShow(m){const ids={in:'lLogin',new:'lNew',reset:'lReset'};for(const k in ids)$(ids[k]).style.display=k===m?'block':'none';$('lErr').textContent=''}
 const gemOn=()=>localStorage.getItem('em_gem')==='1';
-function openSet(){$('sMic').value=localStorage.getItem('em_mic')||'live';$('gSw').checked=gemOn();$('gKey').value=localStorage.getItem('em_key')||'';$('gKeyBox').style.display=gemOn()?'block':'none';$('smodal').style.display='flex'}
+function openSet(){$('verTxt').textContent=APP_VERSION;$('sUi').innerHTML=LANGS.map(([c,n])=>`<option value="${c}">${n}</option>`).join('');$('sUi').value=UI_CODE[UIC];$('sMic').value=localStorage.getItem('em_mic')||'live';$('gSw').checked=gemOn();$('gKey').value=localStorage.getItem('em_key')||'';$('gKeyBox').style.display=gemOn()?'block':'none';$('smodal').style.display='flex'}
 function closeSet(){$('smodal').style.display='none'}
 function gemToggle(){$('gKeyBox').style.display=$('gSw').checked?'block':'none'}
 function saveSet(){const on=$('gSw').checked;if(on&&!$('gKey').value.trim())return toast('API key നൽകൂ');
  if($('sMic').value==='hq'&&!on)return toast('ഉയർന്ന കൃത്യതയ്ക്ക് Gemini ഓൺ വേണം');
+ if($('sUi').value!==UI_CODE[UIC])setUI($('sUi').value);
  localStorage.setItem('em_mic',$('sMic').value);
  localStorage.setItem('em_gem',on?'1':'0');if(on){const k=$('gKey').value.trim();localStorage.setItem('em_key',k);D.gk=k;save()}closeSet();drawLang();toast(on?'Gemini ഓൺ':'Gemini ഓഫ്')}
 let amId=0;
@@ -665,6 +670,9 @@ function closeKw(){$('kwmodal').style.display='none'}
 function saveKw(){const v=$('kwIn').value.trim();
  if(kwKind==='cat'){D.ckw=D.ckw||{};D.ckw[String(kwKey).toLowerCase()]=v}else{const a=accById(kwKey);if(a){a.kw=v;a.u=Date.now()}}
  save();closeKw();render();toast('Keywords സേവ് ചെയ്തു ✔')}
+const APP_VERSION='1.0';
+const FEEDBACK_URL='https://docs.google.com/forms/d/e/1FAIpQLScjyB3pOn3Oo499jXxJNx5IoG41B7qxKh0dT--g0bhn0s7b4w/viewform?usp=publish-editor';
+function openFeedback(){if(!FEEDBACK_URL)return toast('ഫീഡ്ബാക്ക് ലിങ്ക് ഇതുവരെ ചേർത്തിട്ടില്ല');window.open(FEEDBACK_URL,'_blank','noopener')}
 let payCard=0;
 function openPay(id,amt){payCard=id;$('pTxt').textContent=accById(id).name+' — '+inr(amt)+' ബിൽ പെയ്ഡ് ആണോ?';$('pAmt').value=amt;
  $('pAcc').innerHTML=D.acc.filter(a=>a.group!=='emi'&&a.group!=='card').map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('');
@@ -675,7 +683,251 @@ function confirmPay(){const amt=+$('pAmt').value,from=+$('pAcc').value;if(!from)
 function undoMany(ids){ids.forEach(tomb);D.tx=D.tx.filter(t=>!ids.includes(t.id));save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
 function undoTx(id){tomb(id);tomb(id+1);D.tx=D.tx.filter(t=>t.id!==id);D.rec=D.rec.filter(r=>r.id!==id+1);save();$('res').style.display='none';toast('Undo ചെയ്തു');render()}
 
-processRec();setType('expense');drawLang();if(!localStorage.getItem('em_lgset'))lgShow();
+
+/* ---------- App language: translates the whole UI ---------- */
+const UI_CODE={ml:'ml-IN',en:'en-IN',kn:'kn-IN',ta:'ta-IN',te:'te-IN'},UI_OF={'ml-IN':'ml','en-IN':'en','kn-IN':'kn','ta-IN':'ta','te-IN':'te'};
+let UIC=localStorage.getItem('em_ui')||'ml';if(!UI_CODE[UIC])UIC='ml';
+const UIL=()=>UI_CODE[UIC];
+const I18N=`ലോഗിൻ പരിശോധിക്കുന്നു¦Checking login
+വരവ് / Income¦Income
+ചെലവ് / Expense¦Expense
+ബാലൻസ്¦Balance
+മൈക്ക് അമർത്തി പറയൂ¦Tap the mic and speak
+ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്¦Format: item + amount + account
+ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ¦Use a comma (,) between several items
+വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ¦For income, include the word "income"
+പഴയ തീയതിയിലെ എൻട്രിക്ക് തീയതി തിരഞ്ഞെടുക്കൂ (അല്ലെങ്കിൽ വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറയൂ)¦For an entry with an older date, pick the date (or say "October 5" by voice)
+✔ ചേർക്കൂ¦✔ Add
+സമീപകാല ഇടപാടുകൾ¦Recent transactions
+To / എവിടേക്ക്¦To
+From / എവിടെ നിന്ന്¦From
+🏷 Category ചേർക്കൂ¦🏷 Add category
+ഈ വാക്കുകൾ ടൈപ്പ് ചെയ്താൽ/പറഞ്ഞാൽ ഈ category-യിലേക്ക് തനിയെ പോകും.¦Typing or saying these words sends the entry to this category automatically.
+Category സേവ് ചെയ്യുക¦Save category
+എല്ലാ categories¦All categories
+✎ മാറ്റാം · Category / Account¦✎ Edit · Category / Account
+പുതിയ category പേര് (വേണമെങ്കിൽ മാത്രം)¦New category name (only if needed)
+ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.¦From next time, the same description goes to this category automatically.
+ആപ്പ് ഭാഷ¦App language
+Gemini AI ഉപയോഗിക്കുക¦Use Gemini AI
+ഓഫ് ആയിരിക്കുമ്പോൾ ഒന്നും പുറത്തേക്ക് അയക്കില്ല, ആപ്പ് തന്നെ മനസ്സിലാക്കും.¦When off, nothing is sent out; the app understands on its own.
+മൈക്ക് രീതി¦Mic mode
+ലൈവ് — Chrome (സൗജന്യം)¦Live — Chrome (free)
+ഉയർന്ന കൃത്യത — Gemini (ഭാഷ തനിയെ, നോയ്സ് കുറച്ച്)¦High accuracy — Gemini (auto language, less noise)
+💳 ബിൽ പെയ്ഡ് ആണോ?¦💳 Is the bill paid?
+ബിൽ പെയ്ഡ് ആണോ?¦Is the bill paid?
+അടച്ച തുക ₹¦Amount paid ₹
+ഏത് അക്കൗണ്ടിൽ നിന്ന്¦From which account
+അതെ, Paid¦Yes, Paid
+അല്ല¦No
+ഇമെയിലും പാസ്‌വേഡും നൽകൂ¦Enter email and password
+ഇമെയിൽ നൽകൂ¦Enter the email
+നിങ്ങളുടെ ഇമെയിൽ¦Your email
+ഇമെയിൽ¦Email
+പാസ്‌വേഡ് (കുറഞ്ഞത് 6 അക്ഷരം)¦Password (at least 6 characters)
+പാസ്‌വേഡ് കുറഞ്ഞത് 6 അക്ഷരം വേണം¦Password must be at least 6 characters
+പാസ്‌വേഡ് വീണ്ടും¦Password again
+പാസ്‌വേഡ് മറന്നോ?¦Forgot password?
+പാസ്‌വേഡ് റീസെറ്റ്¦Reset password
+രണ്ട് പാസ്‌വേഡും ഒരുപോലെയല്ല¦The two passwords do not match
+പാസ്‌വേഡ്¦Password
+പുതിയ അക്കൗണ്ട് ഉണ്ടാക്കൂ¦Create new account
+പുതിയ അക്കൗണ്ട്¦New account
+അക്കൗണ്ട് ഉണ്ടാക്കൂ¦Create account
+Google ഉപയോഗിക്കൂ¦Use Google
+← Login-ലേക്ക്¦← Back to Login
+റീസെറ്റ് ലിങ്ക് അയക്കൂ¦Send reset link
+✔ റീസെറ്റ് ലിങ്ക് ഇമെയിലിൽ അയച്ചു (Spam ഫോൾഡറും നോക്കൂ)¦✔ Reset link sent to your email (check Spam too)
+ഐക്കൺ (ഇമോജി) — താഴെ നിന്ന് തൊടാം¦Icon (emoji) — tap one below
+പേര് നൽകൂ¦Enter a name
+പേര്, മാസത്തവണ, തീയതികൾ ശരിയായി നൽകൂ¦Enter the name, monthly amount and dates correctly
+പേര്, തുക, തീയതി നൽകൂ¦Enter the name, amount and date
+പേര്:¦Name:
+പേര്¦Name
+നിറം¦Colour
+തീയതി¦Date
+തുക ₹¦Amount ₹
+തുക നൽകൂ¦Enter the amount
+തുക മനസ്സിലായില്ല, ഒന്നുകൂടി പറയൂ¦Amount not understood, please say it again
+തുക¦Amount
+സേവ് ചെയ്യുക¦Save
+സേവ് ചെയ്തു ✔¦Saved ✔
+എൻട്രി സേവ് ചെയ്തു¦entries saved
+സേവ് ചെയ്തു¦Saved
+റദ്ദാക്കുക¦Cancel
+അടയ്ക്കുക¦Close
+മാറ്റുക¦Change
+മാറ്റി ✔¦Changed ✔
+ചേർക്കൂ¦Add
+Category ചേർത്തു ✔¦Category added ✔
+ബാങ്ക് / Banks¦Banks
+കാർഡ് / Cards¦Cards
+കയ്യിലെ പണം / Cash in hand¦Cash in hand
++ അമർത്തി അക്കൗണ്ടുകൾ തമ്മിൽ പണം മാറ്റാം¦Tap + to move money between accounts
++ ചെലവ് ചേർക്കാം · 🏷 category ചേർക്കാം¦+ Add expense · 🏷 add category
++ വരവ് ചേർക്കാം · 🏷 category ചേർക്കാം¦+ Add income · 🏷 add category
+രണ്ട് വ്യത്യസ്ത അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ¦Choose two different accounts
+ഈ ഇടപാട് ഡിലീറ്റ് ചെയ്യണോ?¦Delete this transaction?
+ഇടപാടുകൾ ഒന്നുമില്ല¦No transactions
+എൻട്രി · തൊട്ടാൽ വിവരങ്ങൾ¦entries · tap for details
+ആകെ കുടിശ്ശിക:¦Total due:
+ആകെ ബാക്കി¦Total remaining
+ആകെ:¦Total:
+കുടിശ്ശിക¦Due
+ഒന്നുമില്ല¦None
+നിലവിലെ കുടിശ്ശിക (₹):¦Current due (₹):
+ഇപ്പോഴത്തെ ബാലൻസ് (₹):¦Current balance (₹):
+ഈ അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ (കോമ ഇട്ട്, വേണ്ടെങ്കിൽ ഒഴിച്ചിടൂ)¦Words used to refer to this account (comma separated, optional)
+ബിൽ (സ്റ്റേറ്റ്മെന്റ്) തീയതി — മാസത്തിലെ ദിവസം (1-31):¦Bill (statement) date — day of the month (1-31):
+ബിൽ അടയ്ക്കേണ്ട അവസാന തീയതി — ദിവസം (1-31):¦Bill due date — day (1-31):
+ഇടപാടുകൾ ഉള്ള അക്കൗണ്ട് ഡിലീറ്റ് ചെയ്യാനാവില്ല¦Cannot delete an account that has transactions
+ഡിലീറ്റ് ചെയ്യണോ? (മുൻപ് ചേർന്ന ഇടപാടുകൾ നിലനിൽക്കും)¦Delete? (transactions already added will remain)
+ഡിലീറ്റ് ചെയ്യണോ?¦Delete?
+ഭാഷ തനിയെ തിരിച്ചറിയും¦Language detected automatically
+മലയാളവും English-ഉം അതേപോലെ എടുക്കും; മറ്റുള്ളവ ഇംഗ്ലീഷിലേക്ക് മാറ്റി മനസ്സിലാക്കും¦Malayalam and English are taken as spoken; others are converted to English to understand
+ഈ ഭാഷയിലെ വാക്കുകൾ category-യിലേക്ക് പോകാൻ 🔑 keywords ചേർക്കൂ, അല്ലെങ്കിൽ ⚙-ൽ ഉയർന്ന കൃത്യത ഉപയോഗിക്കൂ¦To send words in this language to a category, add 🔑 keywords, or use High accuracy in ⚙
+ഉയർന്ന കൃത്യതയ്ക്ക് ⚙-ൽ Gemini ഓൺ ചെയ്യൂ¦For high accuracy, turn Gemini on in ⚙
+ഉയർന്ന കൃത്യതയ്ക്ക് Gemini ഓൺ വേണം¦High accuracy needs Gemini turned on
+Gemini ഓൺ¦Gemini on
+Gemini ഓഫ്¦Gemini off
+ലൈവ് മൈക്ക് ഈ ഫോണിൽ പ്രവർത്തിക്കുന്നില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ¦Live mic doesn't work on this phone — please type the text
+കേൾക്കുന്നു… പറഞ്ഞു കഴിഞ്ഞാൽ വീണ്ടും അമർത്തൂ¦Listening… tap again when done
+കേൾക്കുന്നു… പറഞ്ഞ ശേഷം വീണ്ടും അമർത്തൂ¦Listening… tap again when done
+ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — വീണ്ടും അമർത്തൂ (റെക്കോർഡ് രീതി)¦Live mic failed — tap again (record mode)
+ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല — ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്യൂ¦Live mic failed — please type the text
+ലൈവ് മൈക്ക് പ്രവർത്തിച്ചില്ല¦Live mic failed
+API key നൽകൂ (⚙)¦Enter the API key (⚙)
+API key നൽകൂ¦Enter the API key
+Gemini API Key നൽകൂ:¦Enter Gemini API Key:
+പിശക്:¦Error:
+https ലിങ്കിൽ (GitHub Pages) Chrome-ൽ തുറക്കൂ¦Open the https link (GitHub Pages) in Chrome
+എഴുതുന്നു¦Writing
+ശബ്ദം കേട്ടില്ല — ഒന്നുകൂടി പറയൂ¦No sound heard — please speak again
+മനസ്സിലായില്ല (ഒന്നൊന്നായി പറയൂ):¦Not understood (say them one by one):
+മനസ്സിലായില്ല — ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്¦Not understood — format: item + amount + account
+മനസ്സിലായില്ല¦Not understood
+ഓഡിയോ പിശക്¦Audio error
+മൈക്ക് അനുമതി നൽകൂ¦Allow microphone permission
+ആദ്യം എന്തെങ്കിലും പറയൂ¦Say something first
+ആലോചിക്കുന്നു¦Thinking
+🔁 Recurring Expense ചേർത്തു¦🔁 Recurring expense added
+Recurring Expense ചേർത്തു ✔¦Recurring expense added ✔
+Recurring Expense ചേർത്തു¦Recurring expense added
+EMI ചേർത്തു ✔¦EMI added ✔
+EMI സേവ് ചെയ്യുക¦Save EMI
+മാസംതോറും¦Monthly
+വർഷംതോറും¦Yearly
+വർഷം¦year
+മാസം¦month
+തോറും¦ly
+തവണ¦times
+ആകെ തുക ₹ (ഒഴിച്ചിട്ടാൽ തനിയെ)¦Total amount ₹ (automatic if left empty)
+മാസത്തവണ ₹¦Monthly instalment ₹
+തുടങ്ങുന്ന തീയതി¦Start date
+അവസാന തീയതി¦Due date
+എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)¦How many times (continuous if empty)
+ഓരോ മാസവും EMI ഒരു ചെലവ് എൻട്രിയായി തനിയെ ചേരും (ഇരട്ടിക്കില്ല).¦Each month the EMI is added automatically as one expense entry (never doubled).
+ഓരോ മാസവും ഒരു ചെലവ് എൻട്രി തനിയെ ചേരും; ആകെ ചെലവിൽ ഇരട്ടിക്കില്ല.¦Each month one expense entry is added automatically; the total expense is not doubled.
+ഈ മാസം ഇനി വരാനുള്ളത്:¦Still to come this month:
+ഈ മാസം ഇനി:¦Remaining this month:
+അടുത്തത്¦Next
+കഴിഞ്ഞു¦Over
+അടച്ചത്¦Paid
+ബാക്കി¦Remaining
++ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"¦Tap + to add, or say by voice: "insurance 1000 rupees monthly, for 12 months"
+ബിൽ¦Bill
+ദിവസം¦days
+പുതിയ സൈക്കിൾ¦New cycle
+✔ Paid ആക്കൂ¦✔ Mark as Paid
+പുതിയത്¦New
+റിപ്പോർട്ട് കാണാൻ ഇടപാടുകൾ ചേർക്കൂ¦Add transactions to see the report
+ഈ മാസം ചെലവ് ഇല്ല¦No expenses this month
+ഡാറ്റ ഇല്ല¦No data
+ഈ മാസത്തെ ചെലവ് — കാറ്റഗറി തിരിച്ച്¦This month's expense — by category
+ഈ മാസത്തെ വരവ്¦This month's income
+ഈ മാസം vs കഴിഞ്ഞ മാസം¦This month vs last month
+നിറമുള്ളത്: ഈ മാസം · ചാരനിറം: കഴിഞ്ഞ മാസം¦Coloured: this month · Grey: last month
+മാസത്തെ വരവ് / ചെലവ്¦month income / expense
+ഏറ്റവും കൂടുതൽ ചെലവ്¦Highest expense
+ഈ മാസം ചെലവ്¦This month's expense
+കഴിഞ്ഞ മാസം¦Last month
+മാറ്റം¦Change
+മിച്ചം¦Saving
+ചെലവ്/പോയത്¦Spent/out
+വരവ്/വന്നത്¦Income/in
+ഇപ്പോൾ:¦Now:
+ഇപ്പോഴുള്ളവ:¦Current:
+ചെലവ്¦Expense
+വരവ്¦Income
+⬇ വരവ് ചേർക്കൂ¦⬇ Add income
+⬆ ചെലവ് ചേർക്കൂ¦⬆ Add expense
+⇄ ട്രാൻസ്ഫർ¦⇄ Transfer
+റിമാർക്ക്¦Remark
+എന്താവശ്യം¦Purpose
+അക്കൗണ്ട്¦Account
+✨ Auto (തനിയെ)¦✨ Auto
+പണം അടച്ച അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ¦Choose the account the money was paid from
+Keywords സേവ് ചെയ്തു ✔¦Keywords saved ✔
+Undo ചെയ്തു¦Undone
+ഫോണിൽ മാത്രം സേവ് ആകുന്നു · Login ചെയ്യൂ¦Saved on this phone only · please log in
+ഫോണിൽ മാത്രം സേവ് ആകുന്നു¦Saved on this phone only
+Sign out ചെയ്യണോ?¦Sign out?
+☁ സിങ്ക് ചെയ്യുന്നു¦☁ Syncing
+☁ ക്ലൗഡിൽ സേവ് ആയി¦☁ Saved to the cloud
+☁ ലോഡ് ചെയ്യുന്നു¦☁ Loading
+ശരിയായി¦correct
+ഫീഡ്ബാക്ക് ലിങ്ക് ഇതുവരെ ചേർത്തിട്ടില്ല¦Feedback link has not been added yet
+💬 അഭിപ്രായം / Feedback¦💬 Feedback`;
+const I18N_EN=``;
+const I18N_EX=`ജനു¦Jan
+ഫെബ്¦Feb
+മാർ¦Mar
+ഏപ്രി¦Apr
+മേയ്¦May
+ജൂൺ¦Jun
+ജൂലൈ¦Jul
+ഓഗ¦Aug
+സെപ്¦Sep
+ഒക്ടോ¦Oct
+നവം¦Nov
+ഡിസം¦Dec`;
+const zw=x=>x.replace(/[\u200c\u200d]/g,'');
+const trT={};
+function trBuild(l){const i={en:1,kn:2,ta:3,te:4}[l],map=new Map(),ex=new Map();
+ I18N.split('\n').forEach(r=>{const c=r.split('¦'),k=zw(c[0]),v=c[i];if(k&&v)map.set(k,v)});
+ if(l!=='en')I18N_EN.split('\n').forEach(r=>{const c=r.split('¦'),v=c[i-1];if(c[0]&&v)map.set(c[0],v)});
+ I18N_EX.split('\n').forEach(r=>{const c=r.split('¦'),v=c[i];if(c[0]&&v)ex.set(zw(c[0]),v)});
+ const keys=[...map.keys()].sort((a,b)=>b.length-a.length).map(k=>{const e=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return /^[A-Za-z]/.test(k)&&/[A-Za-z]$/.test(k)?'(?<![A-Za-z])'+e+'(?![A-Za-z])':e});
+ return {map,ex,re:keys.length?new RegExp(keys.join('|'),'g'):null}}
+function trText(str){if(UIC==='ml'||!str)return str;const T=trT[UIC]||(trT[UIC]=trBuild(UIC)),z=zw(str),e=T.ex.get(z.trim());
+ if(e!==undefined)return z.replace(z.trim(),e);return T.re?z.replace(T.re,m=>T.map.get(m)):z}
+const trO=new WeakMap(),trL=new WeakMap();
+function trTextNode(n){const v=n.nodeValue,lv=trL.get(n);
+ if(lv!==undefined&&v===lv){const t=trText(trO.get(n));if(t!==v){n.nodeValue=t;trL.set(n,t)}return}
+ const t=trText(v);trO.set(n,v);if(t!==v){n.nodeValue=t;trL.set(n,t)}else trL.set(n,v)}
+function trAttrs(el){for(const a of ['placeholder','title']){const v=el.getAttribute&&el.getAttribute(a);if(v==null)continue;
+  const ok='data-o-'+a;let o=el.getAttribute(ok);if(o==null||v!==el['_l'+a]){o=v;el.setAttribute(ok,v)}
+  const t=trText(o);if(t!==v)el.setAttribute(a,t);el['_l'+a]=t}}
+function trTree(root){if(!root)return;
+ if(root.nodeType===3){const p=root.parentNode&&root.parentNode.tagName;if(!/^(SCRIPT|STYLE|TEXTAREA)$/.test(p||''))trTextNode(root);return}
+ if(root.nodeType!==1||/^(SCRIPT|STYLE)$/.test(root.tagName))return;
+ trAttrs(root);const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,{acceptNode:n=>n.nodeType===1&&/^(SCRIPT|STYLE)$/.test(n.tagName)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+ let n;while(n=w.nextNode()){if(n.nodeType===3){if(n.parentNode.tagName!=='TEXTAREA')trTextNode(n)}else trAttrs(n)}}
+const trMO=new MutationObserver(ms=>{for(const m of ms){
+ if(m.type==='childList')m.addedNodes.forEach(trTree);
+ else if(m.type==='characterData'){const n=m.target;if(trL.get(n)!==n.nodeValue)trTree(n)}
+ else if(m.type==='attributes')trAttrs(m.target)}});
+const _cf=window.confirm.bind(window),_pr=window.prompt.bind(window);
+window.confirm=m=>_cf(trText(String(m)));window.prompt=(m,d)=>_pr(trText(String(m)),d);
+function setUI(c){const u=UI_OF[c]||c;UIC=UI_CODE[u]?u:'ml';localStorage.setItem('em_ui',UIC);localStorage.setItem('em_lang',UI_CODE[UIC]);localStorage.setItem('em_ui_set','1');
+ document.documentElement.lang=UIC;$('lgmodal').style.display='none';trTree(document.body);drawLang();render();toast('✔')}
+let lgSel='';
+function lgShow(){lgSel=localStorage.getItem('em_ui_set')?UI_CODE[UIC]:'';lgDraw();$('lgmodal').style.display='flex'}
+function lgDraw(){$('lgBtns').innerHTML=LANGS.map(([c,n])=>`<div onclick="lgSet('${c}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin:6px 0;border-radius:14px;border:2px solid ${lgSel===c?'#dc2626':'#e5e7eb'};background:${lgSel===c?'#fef2f2':'#fff'};cursor:pointer;font-size:17px;color:#1e1b4b"><span style="width:24px;height:24px;border-radius:7px;border:2px solid #dc2626;display:grid;place-items:center;background:${lgSel===c?'#dc2626':'#fff'};color:#fff;font-size:15px">${lgSel===c?'✓':''}</span>${n}</div>`).join('')}
+function lgSet(c){lgSel=c;lgDraw()}
+function lgOk(){if(!lgSel)return toast('ഒരു ഭാഷ തിരഞ്ഞെടുക്കൂ · Choose a language');setUI(lgSel)}
+
+$('verHome').textContent='Version '+APP_VERSION;processRec();setType('expense');drawLang();trTree(document.body);document.documentElement.lang=UIC;trMO.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['placeholder','title']});if(!localStorage.getItem('em_ui_set'))lgShow();
 setTimeout(()=>{const b=$('cloudBtn');if(b&&b.textContent.includes('…')){b.textContent='☁ Login';$('sync').textContent='ഫോണിൽ മാത്രം സേവ് ആകുന്നു'}},8000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
