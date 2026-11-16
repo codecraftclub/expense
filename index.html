@@ -75,6 +75,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 .ib.kw{background:linear-gradient(135deg,#8b5cf6,#2563eb)}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#1e1b4b;color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:40;font-size:14px}
 @media(min-width:900px){#bud.on,#set.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
+.kc{display:inline-flex;align-items:center;gap:4px;background:#ede9fe;color:#4c1d95;border-radius:20px;padding:3px 4px 3px 10px;font-size:12px;margin:6px 4px 0 0}.kc button{border:0;background:#8b5cf6;color:#fff;border-radius:50%;width:18px;height:18px;line-height:1;padding:0;font-size:12px}
 </style>
 </head>
 <body>
@@ -94,7 +95,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     <button class="mic" id="mic" onclick="toggleMic()"><svg style="width:36px;height:36px" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></button>
     <small style="color:var(--mute)" id="micHint">മൈക്ക് അമർത്തി പറയൂ</small><div id="langSw" style="margin:8px 0 2px"></div>
     <textarea id="voiceText" rows="3" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea>
-    <small style="display:block;text-align:left;color:var(--mute);margin-top:8px">പഴയ തീയതിയിലെ എൻട്രിക്ക് തീയതി തിരഞ്ഞെടുക്കൂ (അല്ലെങ്കിൽ വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറയൂ)</small><input id="hDate" type="date" max="">
+    <div id="vSug" style="text-align:left"></div><small style="display:block;text-align:left;color:var(--mute);margin-top:8px">എൻട്രിയുടെ തീയതി: ഇന്നത്തേത് തനിയെ വരും. മാറ്റിയാൽ വീണ്ടും മാറ്റുന്നത് വരെ (ആപ്പ് അടയ്ക്കുന്നത് വരെ) അതുതന്നെ നിൽക്കും. വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറഞ്ഞാലും മതി</small><input id="hDate" type="date" onchange="setPick(this.value)">
     <button class="btn" id="goBtn" onclick="addEntry()">✔ ചേർക്കൂ</button>
     <div class="res" id="res"></div>
   </div>
@@ -131,15 +132,17 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     <small style="color:var(--mute)">Category-കൾ ചേർക്കാനും keywords ചേർക്കാനും ഇവിടെ തൊടൂ.</small>
     <button class="btn" onclick="openCat()">➕ Add Category</button>
     <button class="btn sec" onclick="openCat(1)">🔑 Add Extra Keywords</button></div>
+  <div class="card"><h3>🏦 Account Keywords</h3><small style="color:var(--mute)">അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ ഇവിടെ ചേർക്കാം.</small>
+    <select id="akAcc" onchange="akLoad(1)"></select><div id="akChips"></div><input id="akIn" placeholder="വാക്കുകൾ (കോമ ഇട്ട്)"><button class="btn" onclick="saveAk()">Keywords ചേർക്കുക</button></div>
   <div class="card"><button class="btn sec" style="margin-top:0" onclick="openFeedback()">💬 അഭിപ്രായം / Feedback</button>
     <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:10px">My Expense Manager · Version <span id="verTxt"></span></div></div>
 </section>
 </main>
 
 <div id="modal" onclick="if(event.target===this)closeAdd()"><div class="sheet"><h3 id="aTitle"></h3>
- <small>തീയതി</small><input id="aDate" type="date">
+ <small>തീയതി</small><input id="aDate" type="date" onchange="setPick(this.value)">
  <small>തുക ₹</small><input id="aAmt" type="number" inputmode="decimal" placeholder="തുക">
- <small id="aDescL"></small><input id="aDesc" placeholder="">
+ <small id="aDescL"></small><input id="aDesc" placeholder="" list="dlNotes" autocomplete="off">
  <div id="aCatBox"><small>Category</small><select id="aCat"></select></div>
  <small id="aAccL"></small><select id="aAcc"></select>
  <div id="aToBox" style="display:none"><small>To / എവിടേക്ക്</small><select id="aTo"></select></div>
@@ -154,8 +157,8 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <small style="color:var(--mute)">ഈ വാക്കുകൾ ടൈപ്പ് ചെയ്താൽ/പറഞ്ഞാൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
  <button class="btn" onclick="saveCat()">Category സേവ് ചെയ്യുക</button>
  <div id="xkBox" style="margin-top:18px;padding-top:12px;border-top:1px solid var(--line)"><h3 style="font-size:14px">🔑 Add Extra Keywords</h3>
-  <small style="color:var(--mute)">Category തിരഞ്ഞെടുക്കൂ</small><select id="xkCat" onchange="xkLoad()"></select>
-  <div id="xkHint" style="font-size:12px;color:var(--mute);margin:6px 0 0"></div>
+  <small style="color:var(--mute)">Category തിരഞ്ഞെടുക്കൂ</small><select id="xkCat" onchange="xkLoad(1)"></select>
+  <div id="xkHint" style="font-size:12px;color:var(--mute);margin:6px 0 0"></div><div id="xkChips"></div>
   <input id="xkIn" placeholder="ഈ category-യിലേക്ക് പോകേണ്ട കൂടുതൽ വാക്കുകൾ (കോമ ഇട്ട്)">
   <small style="color:var(--mute)">ഈ വാക്കുകൾ ടൈപ്പ് ചെയ്താൽ/പറഞ്ഞാൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
   <button class="btn" onclick="saveXk()">Extra keywords സേവ് ചെയ്യുക</button></div>
@@ -163,8 +166,11 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <button class="btn sec" onclick="closeCat()">അടയ്ക്കുക</button></div></div>
 <div id="amodal" onclick="if(event.target===this)closeAcc()"><div class="sheet" style="max-height:88vh;overflow:auto"><h3 id="amTitle"></h3><div id="amSum" style="font-size:14px;margin:2px 0 8px"></div>
 <div id="amList"></div><button class="btn sec" onclick="closeAcc()">അടയ്ക്കുക</button></div></div>
-<div id="ccmodal" onclick="if(event.target===this)closeCC()"><div class="sheet"><h3>✎ മാറ്റാം · Category / Account</h3><div id="ccInfo" style="font-size:14px;margin:4px 0 6px"></div>
- <small>Category</small><select id="ccSel"></select><small>Account</small><select id="ccAcc"></select><input id="ccNew" placeholder="പുതിയ category പേര് (വേണമെങ്കിൽ മാത്രം)">
+<div id="ccmodal" onclick="if(event.target===this)closeCC()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3>✎ മാറ്റാം · Expense</h3><div id="ccInfo" style="font-size:14px;margin:4px 0 6px"></div>
+ <small>എന്താവശ്യം / Item</small><input id="ccNote" list="dlNotes" autocomplete="off">
+ <small>Category</small><select id="ccSel" onchange="ccNewToggle()"></select>
+ <div id="ccNewBox" style="display:none;background:#fef2f2;border-radius:14px;padding:10px;margin-top:8px"><input id="ccNN" placeholder="പുതിയ category പേര്" style="margin-top:0"><input id="ccNI" placeholder="ഐക്കൺ (ഇമോജി) — താഴെ നിന്ന് തൊടാം"><div id="ccEmo" style="margin-top:4px"></div><div id="ccPal"></div><input id="ccNK" placeholder="keywords (comma)"></div>
+ <small>Account</small><select id="ccAcc"></select>
  <small style="color:var(--mute)">ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
  <button class="btn" onclick="saveCC()">മാറ്റുക</button><button class="btn sec" onclick="closeCC()">അടയ്ക്കുക</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
@@ -190,7 +196,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   <button data-tab="bud" onclick="go('bud')"><svg viewBox="0 0 24 24"><path d="M21 12A9 9 0 1 1 12 3v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>Budget</button>
   <button data-tab="set" onclick="go('set')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Settings</button>
 </nav>
-<div id="toast"></div>
+<div id="toast"></div><datalist id="dlNotes"></datalist>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -219,11 +225,29 @@ const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
 const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
 const dOf=(y,m,d)=>new Date(y,m,Math.min(d,new Date(y,m+1,0).getDate()));
 const todayStr=()=>f(new Date());
+let pick='';try{pick=sessionStorage.getItem('em_pd')||''}catch(e){}
+const curDate=()=>pick||todayStr();
+function syncDate(){const h=$('hDate');if(h&&document.activeElement!==h&&h.value!==curDate())h.value=curDate()}
+function setPick(v){pick=(!v||v===todayStr())?'':v;try{pick?sessionStorage.setItem('em_pd',pick):sessionStorage.removeItem('em_pd')}catch(e){}
+ if($('aDate'))$('aDate').value=curDate();if($('hDate'))$('hDate').value=curDate()}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncDate()});
 const PEN='<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
 const KEY='<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/></svg>';
 const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)};
 const accById=id=>D.acc.find(a=>a.id==id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Suggestions from earlier entries ---------- */
+function histNotes(){const s=new Set(),o=[],add=x=>{x=String(x||'').trim();const k=x.toLowerCase();if(x.length>1&&!/\(auto\)$/.test(x)&&!s.has(k)){s.add(k);o.push(x)}};
+ D.tx.forEach(t=>t.type!=='transfer'&&add(t.note));Object.keys(D.map||{}).forEach(add);return o.slice(0,400)}
+function fillDL(){$('dlNotes').innerHTML=histNotes().map(x=>`<option value="${esc(x)}">`).join('')}
+const segStart=v=>Math.max(v.lastIndexOf(','),v.lastIndexOf('\n'),v.lastIndexOf(';'));
+function vSug(){const b=$('vSug'),v=$('voiceText').value,q=v.slice(segStart(v)+1).trim().toLowerCase();if(!b)return;
+ if(!q||/\d/.test(q)){b.innerHTML='';return}
+ b.innerHTML=histNotes().filter(x=>{const l=x.toLowerCase();return l!==q&&(l.startsWith(q)||l.split(/\s+/).some(w=>w.startsWith(q)))}).slice(0,6)
+  .map(x=>`<button type="button" class="chip" style="border:0;margin:6px 6px 0 0" data-x="${esc(x)}" onclick="useSug(this.dataset.x)">${esc(x)}</button>`).join('')}
+function useSug(x){const ta=$('voiceText'),v=ta.value,i=segStart(v);ta.value=v.slice(0,i+1)+(i>=0?' ':'')+x+' ';ta.focus();vSug()}
+$('voiceText').addEventListener('input',vSug);['aDesc','ccNote'].forEach(id=>$(id).addEventListener('focus',fillDL));fillDL();
 
 /* ---------- Categories (icons, keywords, auto-classify) ---------- */
 const DEF=[
@@ -265,9 +289,9 @@ function ensureCat(n,emo,kind){if(!n||allCats().some(x=>x.n.toLowerCase()===Stri
  untombCat(n);let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;D.cats.push({n,ic:emo||'📦',c:PAL[h%PAL.length],kind,k:String(n).toLowerCase()})}
 function catList(ty){const seen=new Set(),o=[];
  [...allCats().filter(x=>x.kind===ty),...D.tx.filter(t=>t.type===ty&&t.cat).map(t=>catMeta(t.cat))].forEach(x=>{const k=x.n.toLowerCase();if(!seen.has(k)){seen.add(k);o.push(x)}});return o}
-const catOpts=ty=>catList(ty).map(x=>`<option value="${esc(x.n)}">${x.ic} ${esc(x.n)}</option>`).join('');
+const catOpts=ty=>catList(ty).map(x=>`<option value="${esc(x.n)}">${esc(x.n)} ${x.ic}</option>`).join('');
 let cColor=PAL[0],catKind='expense';
-function openCat(kw){catKind='expense';$('cN').value='';$('cI').value='';$('cK').value='';cColor=PAL[0];drawCat();$('cmodal').style.display='flex';
+function openCat(kw){catKind='expense';$('cN').value='';$('cI').value='';$('cK').value='';$('xkIn').value='';cColor=PAL[0];drawCat();$('cmodal').style.display='flex';
  if(kw)setTimeout(()=>$('xkBox').scrollIntoView({behavior:'smooth',block:'start'}),120)}
 function closeCat(){$('cmodal').style.display='none'}
 function setCK(k){catKind=k;drawCat()}
@@ -276,7 +300,7 @@ function drawCat(){
  $('cPal').innerHTML=PAL.map(c=>`<span onclick="cColor='${c}';drawCat()" style="width:30px;height:30px;border-radius:10px;background:${c};display:inline-block;margin:4px;${cColor===c?'outline:3px solid #1e1b4b;outline-offset:2px':''}"></span>`).join('');
  $('cEmo').innerHTML=EMO.map(e=>`<span onclick="$('cI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
  const pv=$('xkCat').value,cs=allCats().filter(c=>c.kind===catKind);
- $('xkCat').innerHTML='<option value="">— Category —</option>'+cs.map(c=>`<option value="${esc(c.n)}">${c.ic} ${esc(c.n)}</option>`).join('');
+ $('xkCat').innerHTML='<option value="">— Category —</option>'+cs.map(c=>`<option value="${esc(c.n)}">${esc(c.n)} ${c.ic}</option>`).join('');
  if(cs.some(c=>c.n===pv))$('xkCat').value=pv;xkLoad();
  $('cList').innerHTML=cs.map(c=>{const idx=D.cats.findIndex(x=>x.n.toLowerCase()===c.n.toLowerCase()&&x.kind===catKind);
   return `<div class="row" style="padding:7px 0"><div class="dot" style="background:${c.c};width:34px;height:34px">${c.ic}</div><div class="grow"><b>${esc(c.n)}</b></div><button class="ib kw" data-n="${esc(c.n)}" onclick="pickXk(this.dataset.n)">${KEY}</button>${idx>=0?`<button class="del" onclick="delCat(${idx})">×</button>`:''}</div>`}).join('')}
@@ -285,14 +309,19 @@ function saveCat(){const n=$('cN').value.trim();if(!n)return toast('പേര്
  untombCat(n);D.cats.push({n,ic:$('cI').value.trim()||'📦',c:cColor,kind:catKind,k:$('cK').value.trim().toLowerCase()});save();
  $('cN').value='';$('cI').value='';$('cK').value='';drawCat();render();toast('Category ചേർത്തു ✔')}
 function delCat(i){tomb('cat:'+D.cats[i].n.toLowerCase());D.cats.splice(i,1);save();drawCat();render()}
-function xkLoad(){const n=$('xkCat').value;
- if(!n){$('xkIn').value='';$('xkHint').textContent='';return}
- $('xkIn').value=(D.ckw||{})[n.toLowerCase()]||'';
+const kwList=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+const kwMerge=(a,b)=>{const s=new Set(),o=[];[...kwList(a),...kwList(b)].forEach(x=>{const k=x.toLowerCase();if(!s.has(k)){s.add(k);o.push(x)}});return o.join(',')};
+const chipsHtml=(arr,fn)=>arr.map((w,i)=>`<span class="kc">${esc(w)}<button type="button" onclick="${fn}(${i})">×</button></span>`).join('');
+function xkLoad(clr){const n=$('xkCat').value;if(clr)$('xkIn').value='';
+ if(!n){$('xkChips').innerHTML='';$('xkHint').textContent='';return}
+ $('xkChips').innerHTML=chipsHtml(kwList((D.ckw||{})[n.toLowerCase()]),'xkDel');
  const c=allCats().find(x=>x.n.toLowerCase()===n.toLowerCase()),b=(c&&c.k)||'';
  $('xkHint').textContent=b?('ഇപ്പോഴുള്ളവ: '+b.split(',').slice(0,10).join(', ')+(b.split(',').length>10?'…':'')):''}
-function pickXk(n){$('xkCat').value=n;xkLoad();$('xkBox').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('xkIn').focus(),300)}
+function xkDel(i){const n=$('xkCat').value.toLowerCase(),a=kwList((D.ckw||{})[n]);a.splice(i,1);D.ckw[n]=a.join(',');save();xkLoad();render()}
+function pickXk(n){$('xkCat').value=n;xkLoad(1);$('xkBox').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('xkIn').focus(),300)}
 function saveXk(){const n=$('xkCat').value;if(!n)return toast('ഏതെങ്കിലും ഒരു category തിരഞ്ഞെടുക്കൂ');
- D.ckw=D.ckw||{};D.ckw[n.toLowerCase()]=$('xkIn').value.trim();save();render();toast('Extra keywords സേവ് ചെയ്തു ✔')}
+ const v=$('xkIn').value.trim();if(!v)return toast('വാക്കുകൾ ടൈപ്പ് ചെയ്യൂ');
+ D.ckw=D.ckw||{};D.ckw[n.toLowerCase()]=kwMerge(D.ckw[n.toLowerCase()],v);save();$('xkIn').value='';xkLoad();render();toast('Extra keywords സേവ് ചെയ്തു ✔')}
 
 function go(t){document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id===t));
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));window.scrollTo(0,0)}
@@ -344,13 +373,13 @@ function render(){
  $('sBal').textContent=inr(D.acc.reduce((s,a)=>s+balance(a),0));
  $('recent').innerHTML=D.tx.slice(0,5).map(txRow).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  $('txList').innerHTML=listView();
- fillSelects();
+ fillSelects();syncDate();
  $('accList').innerHTML=Object.entries(GROUPS).map(([g,m])=>{if(g==='emi')return emiCard(m);
   const list=D.acc.filter(a=>a.group===g);const liab=g==='card'||g==='emi';
   const total=list.reduce((s,a)=>s+balance(a),0);
   return `<div class="card" style="border-top:5px solid ${m.c}"><div class="ghead"><h3>${m.ic} ${m.n}</h3><button class="add" onclick="addAcc('${g}')">+ ചേർക്കൂ</button></div>
   <div style="color:${m.c};font-weight:700;margin-bottom:4px">${liab?'ആകെ കുടിശ്ശിക: '+inr(-total):'ആകെ: '+inr(total)}</div>
-  ${list.map(a=>{const b=balance(a);return `<div class="row" style="cursor:pointer" onclick="openAccTx(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}</small></div><div class="amt" style="color:${liab?(b<0?'var(--exp)':'var(--inc)'):(b<0?'var(--exp)':'var(--ink)')}">${inr(liab?-b:b)}</div><button class="ib kw" onclick="event.stopPropagation();openKw('acc',${a.id})">${KEY}</button><button class="del" onclick="event.stopPropagation();delAcc(${a.id})">×</button></div>${g==='card'?cardHtml(a):''}`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}).join('')+autoCard();renderReports();renderBudget();drawSettings()}
+  ${list.map(a=>{const b=balance(a);return `<div class="row" style="cursor:pointer" onclick="openAccTx(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}</small></div><div class="amt" style="color:${liab?(b<0?'var(--exp)':'var(--inc)'):(b<0?'var(--exp)':'var(--ink)')}">${inr(liab?-b:b)}</div><button class="del" onclick="event.stopPropagation();delAcc(${a.id})">×</button></div>${g==='card'?cardHtml(a):''}`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}).join('')+autoCard();renderReports();renderBudget();drawSettings()}
 
 function addAcc(g){
  const name=prompt(GROUPS[g].n+' — പേര്:');if(!name)return;
@@ -474,7 +503,7 @@ function localParse(text0){let text=text0,dd=null;const dw=dateWords(text0);if(d
  if(!acc&&cardW&&A.filter(a=>a.group==='card').length===1)acc=A.find(a=>a.group==='card');
  if(!acc)acc=A[0];if(!acc)return null;
  let d=dd||todayStr();if(!dd){if(/ഇന്നലെ|yesterday/.test(t))d=f(new Date(Date.now()-864e5));else if(/മിനിഞ്ഞാന്ന്/.test(t))d=f(new Date(Date.now()-1728e5))}
- const hd=document.getElementById('hDate');if(hd&&hd.value)d=hd.value;
+ const hd=document.getElementById('hDate');if(!dd&&!/ഇന്നലെ|yesterday|മിനിഞ്ഞാന്ന്/.test(t)&&hd&&hd.value)d=hd.value;
  const note=txt.replace(/\d+(?:[.,]\d+)*/g,'').replace(/അക്കൗണ്ട[്ിൽ]*|\baccount\b|ഇൻ ഹാൻഡ്|ഹാൻഡ്|ഹാന്റ്|\bin hand\b|\bhand\b|കാർഡ\S*|\bcard\b|ബാങ്ക\S*|\bbank\b|രൂപ\S*|₹|\brs\b|ക്യാഷ\S*|കാഷ\S*|\bcash\b|ഇന്നലെ|ഇന്ന്|മിനിഞ്ഞാന്ന്|yesterday|today|അതർ|കാറ്റഗറി/gi,'').replace(new RegExp(acc.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'').replace(new RegExp(acc.name.split(/\s+/).filter(x=>x.length>1).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi'),'').replace(/\s+/g,' ').trim();
  let nt=note;hitKeys(acc).forEach(k=>{try{nt=nt.replace(new RegExp(norm(k).split('').map(c=>c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[\\s.\u200c\u200d]*'),'gi'),' ')}catch(e){}});
  return {type,amt,cat,acc:acc.id,to:0,date:d,note:cleanNote(nt.replace(/\s+/g,' ').trim())}}
@@ -485,8 +514,8 @@ function addEntry(){
   for(const sg of segs){const lt=localParse(sg);if(lt&&saveTx(lt))done.push(lt);else fail.push(sg)}
   const res=$('res');res.style.display='block';
   res.innerHTML=`🎤 ${esc(text)}<br>✅ ${done.length} എൻട്രി സേവ് ചെയ്തു`+done.map(t=>`<br>• ${catMeta(t.cat).ic} <b>${esc(t.cat)}</b> · ${inr(t.amt)} · ${esc(accById(t.acc).name)}${t.note?' · '+esc(t.note):''}${ccSel(t,1)}`).join('')+(fail.length?`<br>⚠ മനസ്സിലായില്ല (ഒന്നൊന്നായി പറയൂ): ${esc(fail.join(', '))}`:'')+(done.length?`<button class="btn sec" onclick="undoMany([${done.map(t=>t.id)}])">↩ Undo all</button>`:'');
-  $('voiceText').value=fail.join(', ');if(done.length)$('hDate').value='';return}
- const lt=localParse(text);if(lt){if(saveTx(lt)){showSaved(lt,text);$('voiceText').value='';$('hDate').value=''}return}
+  $('voiceText').value=fail.join(', ');return}
+ const lt=localParse(text);if(lt){if(saveTx(lt)){showSaved(lt,text);$('voiceText').value='';vSug()}return}
  toast('മനസ്സിലായില്ല — ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്')}
 
 /* ---------- EMI / auto renewals / card cycle ---------- */
@@ -507,7 +536,7 @@ function emiCard(m){const l=D.rec.filter(r=>r.kind==='emi'),A=D.acc.filter(a=>a.
  const left=l.reduce((t,r)=>t+r.total-Math.min(r.total,r.amt*r.done),0);
  return `<div class="card" style="border-top:5px solid ${m.c}"><div class="ghead"><h3>${m.ic} ${m.n}</h3><button class="add" onclick="$('emiForm').style.display='block'">+ ചേർക്കൂ</button></div>
  <div style="color:${m.c};font-weight:700">ആകെ ബാക്കി: ${inr(left)}</div><small style="color:var(--mute)">ഓരോ മാസവും EMI ഒരു ചെലവ് എൻട്രിയായി തനിയെ ചേരും (ഇരട്ടിക്കില്ല).${pendingMonth('emi')?' ഈ മാസം ഇനി: <b>'+inr(pendingMonth('emi'))+'</b>':''}</small>
- <div id="emiForm" style="display:none"><input id="eN" placeholder="EMI പേര്"><input id="eT" type="number" placeholder="ആകെ തുക ₹ (ഒഴിച്ചിട്ടാൽ തനിയെ)"><input id="eM" type="number" placeholder="മാസത്തവണ ₹"><small>തുടങ്ങുന്ന തീയതി</small><input id="eS" type="date"><small>അവസാന തീയതി</small><input id="eE" type="date"><select id="eA">${A.map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('')}</select><button class="btn" onclick="addEmi()">EMI സേവ് ചെയ്യുക</button></div>
+ <div id="emiForm" style="display:none"><input id="eN" placeholder="EMI പേര്" list="dlNotes" onfocus="fillDL()"><input id="eT" type="number" placeholder="ആകെ തുക ₹ (ഒഴിച്ചിട്ടാൽ തനിയെ)"><input id="eM" type="number" placeholder="മാസത്തവണ ₹"><small>തുടങ്ങുന്ന തീയതി</small><input id="eS" type="date"><small>അവസാന തീയതി</small><input id="eE" type="date"><select id="eA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><button class="btn" onclick="addEmi()">EMI സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const paid=Math.min(r.total,r.amt*r.done),pct=Math.round(paid/r.total*100),nx=r.done<r.count?addMonths(r.start,r.done):null;
   return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="ghead"><b>${esc(r.name)}</b><button class="del" onclick="delRec(${r.id})">×</button></div><small style="color:var(--mute)">${inr(r.amt)}/മാസം · ${esc(accById(r.acc)?.name||'?')} · ${r.done}/${r.count} മാസം${nx?' · അടുത്തത് '+nx:' · ✔ കഴിഞ്ഞു'}</small><div style="height:8px;background:#fef3c7;border-radius:6px;margin:6px 0"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:6px"></div></div><small>അടച്ചത് ${inr(paid)} · ബാക്കി ${inr(r.total-paid)}</small></div>`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}
 function pendingMonth(kind){const m=mk(0);return D.rec.filter(r=>r.kind===kind).reduce((s,r)=>{if(r.count&&r.done>=r.count)return s;const d=addMonths(r.start,r.done*(r.freq==='yearly'?12:1));return s+(d.slice(0,7)===m&&(!r.end||d<=r.end)?r.amt:0)},0)}
@@ -517,7 +546,7 @@ function addRec(){const name=$('rN').value.trim(),amt=+$('rM').value,st=$('rS').
 function autoCard(){const l=D.rec.filter(r=>r.kind==='auto'),A=D.acc.filter(a=>a.group!=='emi'),pm=pendingMonth('auto');
  return `<div class="card" style="border-top:5px solid #dc2626"><div class="ghead"><h3>🔁 Recurring Expenses</h3><button class="add" onclick="$('recForm').style.display='block'">+ ചേർക്കൂ</button></div>
  <small style="color:var(--mute)">ഓരോ മാസവും ഒരു ചെലവ് എൻട്രി തനിയെ ചേരും; ആകെ ചെലവിൽ ഇരട്ടിക്കില്ല.${pm?' ഈ മാസം ഇനി വരാനുള്ളത്: <b>'+inr(pm)+'</b>':''}</small>
- <div id="recForm" style="display:none"><input id="rN" placeholder="പേര്"><input id="rM" type="number" placeholder="തുക ₹"><select id="rC">${catOpts('expense')}</select><select id="rA">${A.map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('')}</select><select id="rF"><option value="monthly">മാസംതോറും</option><option value="yearly">വർഷംതോറും</option></select><small>തുടങ്ങുന്ന തീയതി</small><input id="rS" type="date" value="${todayStr()}"><input id="rK" type="number" placeholder="എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)"><button class="btn" onclick="addRec()">സേവ് ചെയ്യുക</button></div>
+ <div id="recForm" style="display:none"><input id="rN" placeholder="പേര്" list="dlNotes" onfocus="fillDL()"><input id="rM" type="number" placeholder="തുക ₹"><select id="rC">${catOpts('expense')}</select><select id="rA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><select id="rF"><option value="monthly">മാസംതോറും</option><option value="yearly">വർഷംതോറും</option></select><small>തുടങ്ങുന്ന തീയതി</small><input id="rS" type="date" value="${todayStr()}"><input id="rK" type="number" placeholder="എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)"><button class="btn" onclick="addRec()">സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+addMonths(r.start,r.done*(r.freq==='yearly'?12:1))}</small></div><div class="amt">${inr(r.amt)}</div><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
 function cardHtml(a){if(!a.sd||!a.dd)return '';
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
@@ -567,13 +596,13 @@ function renderReports(){
 function openAdd(){
  const ty=type,tr=ty==='transfer';
  $('aTitle').textContent={income:'⬇ വരവ് ചേർക്കൂ',expense:'⬆ ചെലവ് ചേർക്കൂ',transfer:'⇄ ട്രാൻസ്ഫർ'}[ty];
- $('aDate').value=todayStr();$('aAmt').value='';$('aDesc').value='';
+ $('aDate').value=curDate();fillDL();$('aAmt').value='';$('aDesc').value='';
  $('aDescL').textContent=tr?'റിമാർക്ക്':'എന്താവശ്യം';
  $('aAccL').textContent=tr?'From / എവിടെ നിന്ന്':'അക്കൗണ്ട്';
  $('aCatBox').style.display=tr?'none':'block';$('aToBox').style.display=tr?'block':'none';
- const ac=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('');
+ const ac=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
  $('aAcc').innerHTML=ac;$('aTo').innerHTML=ac;
- $('aCat').innerHTML='<option value="auto">✨ Auto (തനിയെ)</option>'+catOpts(ty);
+ $('aCat').innerHTML='<option value="auto">Auto (തനിയെ) ✨</option>'+catOpts(ty);
  $('modal').style.display='flex';setTimeout(()=>$('aAmt').focus(),150)}
 function closeAdd(){$('modal').style.display='none'}
 function saveAdd(){const amt=+$('aAmt').value;if(!amt||amt<=0)return toast('തുക നൽകൂ');
@@ -598,15 +627,25 @@ function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
  $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
  $('amodal').style.display='flex'}
 function closeAcc(){$('amodal').style.display='none'}
-let ccId=0;
+let ccId=0,ccColor=PAL[0];
 function openCC(id){const t=D.tx.find(x=>x.id===id);if(!t)return;ccId=id;
- $('ccInfo').textContent=(t.note?t.note+' · ':'')+inr(t.amt)+' · ഇപ്പോൾ: '+t.cat;
- $('ccSel').innerHTML=catOpts(t.type);$('ccSel').value=t.cat;$('ccNew').value='';
- $('ccAcc').innerHTML=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('');$('ccAcc').value=t.acc;$('ccmodal').style.display='flex'}
+ $('ccInfo').textContent=inr(t.amt)+' · '+t.date+' · ഇപ്പോൾ: '+t.cat;$('ccNote').value=t.note||'';fillDL();
+ $('ccSel').innerHTML=catOpts(t.type)+'<option value="__new__">➕ പുതിയ category ചേർക്കൂ</option>';$('ccSel').value=t.cat;if(!$('ccSel').value)$('ccSel').selectedIndex=0;
+ $('ccNN').value='';$('ccNI').value='';$('ccNK').value='';ccColor=PAL[0];ccNewToggle();
+ $('ccAcc').innerHTML=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');$('ccAcc').value=t.acc;$('ccmodal').style.display='flex'}
+function ccNewToggle(){const n=$('ccSel').value==='__new__';$('ccNewBox').style.display=n?'block':'none';if(!n)return;
+ $('ccEmo').innerHTML=EMO.map(e=>`<span onclick="$('ccNI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
+ $('ccPal').innerHTML=PAL.map(c=>`<span onclick="ccColor='${c}';ccNewToggle()" style="width:30px;height:30px;border-radius:10px;background:${c};display:inline-block;margin:4px;${ccColor===c?'outline:3px solid #1e1b4b;outline-offset:2px':''}"></span>`).join('')}
 function closeCC(){$('ccmodal').style.display='none'}
 function chgCat(id,cat){const t=D.tx.find(x=>x.id===id);if(!t||!cat)return;t.cat=cat;ensureCat(cat,null,t.type);
  const d=(t.note||'').trim().toLowerCase();if(d&&!/^other/i.test(cat))D.map[d]=cat;t.u=Date.now();save();render()}
-function saveCC(){const t=D.tx.find(x=>x.id===ccId);if(t&&$('ccAcc').value)t.acc=+$('ccAcc').value;const n=$('ccNew').value.trim()||$('ccSel').value;chgCat(ccId,n);closeCC();$('res').style.display='none';toast('മാറ്റി ✔')}
+function saveCC(){const t=D.tx.find(x=>x.id===ccId);if(!t)return closeCC();let cat=$('ccSel').value;
+ if(cat==='__new__'){const n=$('ccNN').value.trim(),kw=$('ccNK').value.trim().toLowerCase();if(!n)return toast('പുതിയ category-യുടെ പേര് നൽകൂ');
+  const ex=allCats().find(x=>x.n.toLowerCase()===n.toLowerCase()&&x.kind===t.type);
+  if(ex){cat=ex.n;if(kw){D.ckw=D.ckw||{};D.ckw[ex.n.toLowerCase()]=kwMerge(D.ckw[ex.n.toLowerCase()],kw)}}
+  else{untombCat(n);D.cats.push({n,ic:$('ccNI').value.trim()||'📦',c:ccColor,kind:t.type,k:kwMerge(n.toLowerCase(),kw)});cat=n}}
+ t.note=$('ccNote').value.trim();if($('ccAcc').value)t.acc=+$('ccAcc').value;
+ chgCat(ccId,cat);closeCC();$('res').style.display='none';toast('മാറ്റി ✔')}
 function ccSel(tx,inl){if(tx.type==='transfer')return '';return `<button class="ib ed" style="margin-left:8px;vertical-align:middle" onclick="openCC(${tx.id})">${PEN}</button>`}
 let kwKind='',kwKey='';
 function openKw(kind,key){kwKind=kind;kwKey=key;let cur='',hint='';
@@ -618,12 +657,12 @@ function closeKw(){$('kwmodal').style.display='none'}
 function saveKw(){const v=$('kwIn').value.trim();
  if(kwKind==='cat'){D.ckw=D.ckw||{};D.ckw[String(kwKey).toLowerCase()]=v}else{const a=accById(kwKey);if(a){a.kw=v;a.u=Date.now()}}
  save();closeKw();render();toast('Keywords സേവ് ചെയ്തു ✔')}
-const APP_VERSION='1.1';
+const APP_VERSION='1.2';
 const FEEDBACK_URL='https://docs.google.com/forms/d/e/1FAIpQLScjyB3pOn3Oo499jXxJNx5IoG41B7qxKh0dT--g0bhn0s7b4w/viewform?usp=publish-editor';
 function openFeedback(){if(!FEEDBACK_URL)return toast('ഫീഡ്ബാക്ക് ലിങ്ക് ഇതുവരെ ചേർത്തിട്ടില്ല');window.open(FEEDBACK_URL,'_blank','noopener')}
 let payCard=0;
 function openPay(id,amt){payCard=id;$('pTxt').textContent=accById(id).name+' — '+inr(amt)+' ബിൽ പെയ്ഡ് ആണോ?';$('pAmt').value=amt;
- $('pAcc').innerHTML=D.acc.filter(a=>a.group!=='emi'&&a.group!=='card').map(a=>`<option value="${a.id}">${GROUPS[a.group].ic} ${esc(a.name)}</option>`).join('');
+ $('pAcc').innerHTML=D.acc.filter(a=>a.group!=='emi'&&a.group!=='card').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
  $('pmodal').style.display='flex'}
 function closePay(){$('pmodal').style.display='none'}
 function confirmPay(){const amt=+$('pAmt').value,from=+$('pAcc').value;if(!from)return toast('പണം അടച്ച അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
@@ -660,7 +699,13 @@ function budWarn(tx){const b=D.bud||{},m=String(tx.date).slice(0,7);if(m!==mk(0)
  if(b.t>0&&tot(cur)>b.t)return '⚠ മാസ ബജറ്റ് കവിഞ്ഞു';return ''}
 
 /* ---------- Settings tab ---------- */
-function drawSettings(){const b=$('setLang');if(!b)return;
+function akLoad(clr){const s=$('akAcc');if(!s)return;if(clr)$('akIn').value='';const a=accById(s.value);$('akChips').innerHTML=a?chipsHtml(kwList(a.kw),'akDel'):''}
+function drawAk(){const s=$('akAcc');if(!s)return;const h=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
+ if(s.dataset.h!==h){const v=s.value;s.innerHTML=h;s.dataset.h=h;if(D.acc.some(a=>a.id==v))s.value=v}akLoad()}
+function akDel(i){const a=accById($('akAcc').value);if(!a)return;const l=kwList(a.kw);l.splice(i,1);a.kw=l.join(',');a.u=Date.now();save();akLoad()}
+function saveAk(){const a=accById($('akAcc').value);if(!a)return toast('അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');const v=$('akIn').value.trim();if(!v)return toast('വാക്കുകൾ ടൈപ്പ് ചെയ്യൂ');
+ a.kw=kwMerge(a.kw,v);a.u=Date.now();save();$('akIn').value='';akLoad();toast('Keywords സേവ് ചെയ്തു ✔')}
+function drawSettings(){const b=$('setLang');if(!b)return;drawAk();
  b.innerHTML=LANGS.map(([c,n])=>{const on=UI_CODE[UIC]===c;
   return `<div onclick="setUI('${c}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin:6px 0;border-radius:14px;border:2px solid ${on?'#dc2626':'#e5e7eb'};background:${on?'#fef2f2':'#fff'};cursor:pointer;font-size:16px"><span style="width:22px;height:22px;border-radius:50%;border:2px solid #dc2626;display:grid;place-items:center;background:${on?'#dc2626':'#fff'};color:#fff;font-size:13px">${on?'✓':''}</span>${n}</div>`}).join('');
  $('verTxt').textContent=APP_VERSION}
@@ -677,7 +722,7 @@ const I18N=`ലോഗിൻ പരിശോധിക്കുന്നു¦Check
 ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്¦Format: item + amount + account
 ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ¦Use a comma (,) between several items
 വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ¦For income, include the word "income"
-പഴയ തീയതിയിലെ എൻട്രിക്ക് തീയതി തിരഞ്ഞെടുക്കൂ (അല്ലെങ്കിൽ വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറയൂ)¦For an entry with an older date, pick the date (or say "October 5" by voice)
+എൻട്രിയുടെ തീയതി: ഇന്നത്തേത് തനിയെ വരും. മാറ്റിയാൽ വീണ്ടും മാറ്റുന്നത് വരെ (ആപ്പ് അടയ്ക്കുന്നത് വരെ) അതുതന്നെ നിൽക്കും. വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറഞ്ഞാലും മതി¦Entry date: today by default. If you change it, it stays until you change it again (or close the app). You can also say "October 5" by voice.
 ✔ ചേർക്കൂ¦✔ Add
 സമീപകാല ഇടപാടുകൾ¦Recent transactions
 To / എവിടേക്ക്¦To
@@ -831,7 +876,7 @@ EMI സേവ് ചെയ്യുക¦Save EMI
 റിമാർക്ക്¦Remark
 എന്താവശ്യം¦Purpose
 അക്കൗണ്ട്¦Account
-✨ Auto (തനിയെ)¦✨ Auto
+Auto (തനിയെ) ✨¦✨ Auto
 പണം അടച്ച അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ¦Choose the account the money was paid from
 Keywords സേവ് ചെയ്തു ✔¦Keywords saved ✔
 Undo ചെയ്തു¦Undone
@@ -867,7 +912,17 @@ Extra keywords സേവ് ചെയ്യുക¦Save extra keywords
 Extra keywords സേവ് ചെയ്തു ✔¦Extra keywords saved ✔
 ഏതെങ്കിലും ഒരു category തിരഞ്ഞെടുക്കൂ¦Choose a category first
 ഈ പേരിൽ category ഉണ്ട്¦A category with this name already exists
-ഇപ്പോഴുള്ളവ: ¦Current: `;
+ഇപ്പോഴുള്ളവ: ¦Current: 
+എന്താവശ്യം / Item¦Item
+➕ പുതിയ category ചേർക്കൂ¦➕ Add a new category
+പുതിയ category പേര്¦New category name
+✎ മാറ്റാം · Expense¦✎ Edit · Expense
+പുതിയ category-യുടെ പേര് നൽകൂ¦Enter the new category name
+വാക്കുകൾ ടൈപ്പ് ചെയ്യൂ¦Type the words first
+അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ ഇവിടെ ചേർക്കാം.¦Add the words you use when speaking an account name here.
+വാക്കുകൾ (കോമ ഇട്ട്)¦Words (comma separated)
+Keywords ചേർക്കുക¦Add keywords
+അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ¦Choose an account`;
 const I18N_EN=``;
 const I18N_EX=`ജനു¦Jan
 ഫെബ്¦Feb
