@@ -92,10 +92,11 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     <div class="s2">ചെലവ് / Expense<b id="sExp">₹0</b></div>
     <div class="s3">ബാലൻസ്<b id="sBal">₹0</b></div></div></div>
   <div class="card" style="text-align:center">
+    <textarea id="voiceText" rows="3" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea>
+    <div id="vSug" style="text-align:left"></div>
     <button class="mic" id="mic" onclick="toggleMic()"><svg style="width:36px;height:36px" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></button>
     <small style="color:var(--mute)" id="micHint">മൈക്ക് അമർത്തി പറയൂ</small><div id="langSw" style="margin:8px 0 2px"></div>
-    <textarea id="voiceText" rows="3" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea>
-    <div id="vSug" style="text-align:left"></div><small style="display:block;text-align:left;color:var(--mute);margin-top:8px">എൻട്രിയുടെ തീയതി: ഇന്നത്തേത് തനിയെ വരും. മാറ്റിയാൽ വീണ്ടും മാറ്റുന്നത് വരെ (ആപ്പ് അടയ്ക്കുന്നത് വരെ) അതുതന്നെ നിൽക്കും. വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറഞ്ഞാലും മതി</small><input id="hDate" type="date" onchange="setPick(this.value)">
+    <small style="display:block;text-align:left;color:var(--mute);margin-top:8px">എൻട്രിയുടെ തീയതി: ഇന്നത്തേത് തനിയെ വരും. മാറ്റിയാൽ വീണ്ടും മാറ്റുന്നത് വരെ (ആപ്പ് അടയ്ക്കുന്നത് വരെ) അതുതന്നെ നിൽക്കും. വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറഞ്ഞാലും മതി</small><input id="hDate" type="date" onchange="setPick(this.value)">
     <button class="btn" id="goBtn" onclick="addEntry()">✔ ചേർക്കൂ</button>
     <div class="res" id="res"></div>
   </div>
