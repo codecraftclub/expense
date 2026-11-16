@@ -16,6 +16,7 @@
 body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Malayalam",sans-serif;background:var(--bg)!important;color:var(--ink)!important;padding-bottom:84px}
 header{background:linear-gradient(135deg,#7f1d1d,#dc2626 55%,#f97316);color:#fff;padding:22px 18px 70px;border-radius:0 0 28px 28px}
 header h1{margin:0;font-size:20px}header small{opacity:.85}
+.hgear{padding:6px 8px}.hgear svg{width:20px;height:20px;display:block}
 .hbtn{float:right;background:#ffffff30;border:0;color:#fff;border-radius:12px;padding:6px 10px;font-size:13px;margin-left:6px}
 main{padding:0 14px;margin-top:-52px}
 .tab{display:none}.tab.on{display:block}
@@ -74,13 +75,13 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 .ib.ed{background:linear-gradient(135deg,#f59e0b,#ef4444)}
 .ib.kw{background:linear-gradient(135deg,#8b5cf6,#2563eb)}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#1e1b4b;color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:40;font-size:14px}
-@media(min-width:900px){#bud.on,#set.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
+@media(min-width:900px){#bud.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
 .kc{display:inline-flex;align-items:center;gap:4px;background:#ede9fe;color:#4c1d95;border-radius:20px;padding:3px 4px 3px 10px;font-size:12px;margin:6px 4px 0 0}.kc button{border:0;background:#8b5cf6;color:#fff;border-radius:50%;width:18px;height:18px;line-height:1;padding:0;font-size:12px}
 </style>
 </head>
 <body>
 <header>
-  <button class="hbtn" onclick="go('set')">⚙</button><button class="hbtn" id="cloudBtn" onclick="window.cloudToggle&&cloudToggle()">☁ …</button>
+  <button class="hbtn hgear" aria-label="Settings" title="Settings" onclick="go('set')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><button class="hbtn" id="cloudBtn" onclick="window.cloudToggle&&cloudToggle()">☁ …</button>
   <h1>🐷 My Expense Manager</h1><small id="today"></small><br><small id="sync" style="opacity:.85">ലോഗിൻ പരിശോധിക്കുന്നു…</small>
 </header>
 <main>
@@ -128,15 +129,42 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 
 <!-- SETTINGS -->
 <section class="tab" id="set">
-  <div class="card"><h3>🌐 ആപ്പ് ഭാഷ</h3><div id="setLang"></div></div>
-  <div class="card"><h3>🏷 Category Settings</h3>
-    <small style="color:var(--mute)">Category-കൾ ചേർക്കാനും keywords ചേർക്കാനും ഇവിടെ തൊടൂ.</small>
-    <button class="btn" onclick="openCat()">➕ Add Category</button>
-    <button class="btn sec" onclick="openCat(1)">🔑 Add Extra Keywords</button></div>
-  <div class="card"><h3>🏦 Account Keywords</h3><small style="color:var(--mute)">അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ ഇവിടെ ചേർക്കാം.</small>
-    <select id="akAcc" onchange="akLoad(1)"></select><div id="akChips"></div><input id="akIn" placeholder="വാക്കുകൾ (കോമ ഇട്ട്)"><button class="btn" onclick="saveAk()">Keywords ചേർക്കുക</button></div>
-  <div class="card"><button class="btn sec" style="margin-top:0" onclick="openFeedback()">💬 അഭിപ്രായം / Feedback</button>
-    <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:10px">My Expense Manager · Version <span id="verTxt"></span></div></div>
+  <div id="setMenu" class="ssub">
+    <div class="card" style="padding:6px 16px">
+      <div class="row" style="cursor:pointer" onclick="setSub('cat')"><div class="dot" style="background:#f59e0b">🏷</div><div class="grow"><b>Category settings</b><small>Category, keywords</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
+      <div class="row" style="cursor:pointer" onclick="setSub('acc')"><div class="dot" style="background:#2563eb">🏦</div><div class="grow"><b>Account settings</b><small>Account keywords</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
+      <div class="row" style="cursor:pointer" onclick="setSub('month')"><div class="dot" style="background:#059669">📅</div><div class="grow"><b>Month settings</b><small>Month starting date</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
+      <div class="row" style="cursor:pointer" onclick="setSub('lang')"><div class="dot" style="background:#8b5cf6">🌐</div><div class="grow"><b>App language</b><small>ആപ്പ് ഭാഷ</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
+    </div>
+    <div class="card"><button class="btn sec" style="margin-top:0" onclick="openFeedback()">💬 അഭിപ്രായം / Feedback</button>
+      <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:10px">My Expense Manager · Version <span id="verTxt"></span></div></div>
+  </div>
+
+  <div id="setCat" class="ssub" style="display:none"><button class="btn sec" style="margin:0 0 12px" onclick="setSub('')">← Settings</button>
+    <div class="card"><h3>🏷 Category settings</h3>
+      <small style="color:var(--mute)">Category-കൾ ചേർക്കാനും keywords ചേർക്കാനും ഇവിടെ തൊടൂ.</small>
+      <button class="btn" onclick="openCat()">➕ Add Category</button>
+      <button class="btn sec" onclick="openCat(1)">🔑 Add Extra Keywords</button></div>
+  </div>
+
+  <div id="setAcc" class="ssub" style="display:none"><button class="btn sec" style="margin:0 0 12px" onclick="setSub('')">← Settings</button>
+    <div class="card"><h3>🏦 Account settings</h3><small style="color:var(--mute)">അക്കൗണ്ടുകൾ ചേർക്കാനും മാറ്റാനും Accounts ടാബ് തുറക്കൂ.</small>
+      <button class="btn sec" onclick="go('accs')">🏦 Accounts തുറക്കൂ</button></div>
+    <div class="card"><h3>🔑 Account Keywords</h3><small style="color:var(--mute)">അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ ഇവിടെ ചേർക്കാം.</small>
+      <select id="akAcc" onchange="akLoad(1)"></select><div id="akChips"></div><input id="akIn" placeholder="വാക്കുകൾ (കോമ ഇട്ട്)"><button class="btn" onclick="saveAk()">Keywords ചേർക്കുക</button></div>
+  </div>
+
+  <div id="setMonth" class="ssub" style="display:none"><button class="btn sec" style="margin:0 0 12px" onclick="setSub('')">← Settings</button>
+    <div class="card"><h3>📅 Month settings</h3>
+      <small>Month starting date</small>
+      <select id="msdSel" onchange="saveMsd()"></select>
+      <div id="msdInfo" style="margin-top:10px;font-size:14px;color:var(--mute)"></div>
+      <small style="display:block;margin-top:8px;color:var(--mute)">ഉദാ: 25 തിരഞ്ഞെടുത്താൽ ഓരോ മാസവും 25-ാം തീയതി തുടങ്ങി അടുത്ത മാസം 24 വരെ ഒരു മാസമായി കണക്കാക്കും (Home-ലെ ഇപ്പോഴത്തെ മാസം, Reports, Budget).</small></div>
+  </div>
+
+  <div id="setLangBox" class="ssub" style="display:none"><button class="btn sec" style="margin:0 0 12px" onclick="setSub('')">← Settings</button>
+    <div class="card"><h3>🌐 ആപ്പ് ഭാഷ</h3><div id="setLang"></div></div>
+  </div>
 </section>
 </main>
 
@@ -195,7 +223,6 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   <button data-tab="accs" onclick="go('accs')"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg>Accounts</button>
   <button data-tab="rep" onclick="go('rep')"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Reports</button>
   <button data-tab="bud" onclick="go('bud')"><svg viewBox="0 0 24 24"><path d="M21 12A9 9 0 1 1 12 3v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>Budget</button>
-  <button data-tab="set" onclick="go('set')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Settings</button>
 </nav>
 <div id="toast"></div><datalist id="dlNotes"></datalist>
 
@@ -217,7 +244,7 @@ function mergeData(a,b){a=a||{};b=b||{};
  const recs=mk(a.rec,b.rec),all=[...(a.rec||[]),...(b.rec||[])];
  recs.forEach(r=>{r.done=Math.max(...all.filter(x=>x.id===r.id).map(x=>x.done||0))});
  const cm=new Map();for(const c of [...(b.cats||[]),...(a.cats||[])]){const k='cat:'+c.n.toLowerCase();if(!ds.has(k))cm.set(k,c)}
- return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:{t:(a.bud&&a.bud.t!=null)?a.bud.t:((b.bud&&b.bud.t!=null)?b.bud.t:null),c:{...((b.bud||{}).c||{}),...((a.bud||{}).c||{})}},ckw:{...(b.ckw||{}),...(a.ckw||{})},del}}
+ return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:{t:(a.bud&&a.bud.t!=null)?a.bud.t:((b.bud&&b.bud.t!=null)?b.bud.t:null),c:{...((b.bud||{}).c||{}),...((a.bud||{}).c||{})}},ckw:{...(b.ckw||{}),...(a.ckw||{})},msd:((a.msdU||0)>=(b.msdU||0)?a.msd:b.msd)||a.msd||b.msd||1,msdU:Math.max(a.msdU||0,b.msdU||0),del}}
 window.emMerge=(c,quiet)=>{if(!localStorage.getItem('em_bak'))localStorage.setItem('em_bak',JSON.stringify(D));D=mergeData(D,c);if(!D.acc.length)D.acc=[{id:1,name:'Cash',group:'cash',open:0}];
  
  localStorage.setItem('em_data',JSON.stringify(D));processRec();if(!quiet)save();render()};
@@ -324,7 +351,7 @@ function saveXk(){const n=$('xkCat').value;if(!n)return toast('ഏതെങ്�
  const v=$('xkIn').value.trim();if(!v)return toast('വാക്കുകൾ ടൈപ്പ് ചെയ്യൂ');
  D.ckw=D.ckw||{};D.ckw[n.toLowerCase()]=kwMerge(D.ckw[n.toLowerCase()],v);save();$('xkIn').value='';xkLoad();render();toast('Extra keywords സേവ് ചെയ്തു ✔')}
 
-function go(t){document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id===t));
+function go(t){if(t==='set')setSub('');document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id===t));
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));window.scrollTo(0,0)}
 
 function balance(a){let b=+a.open;D.tx.forEach(t=>{
@@ -540,7 +567,7 @@ function emiCard(m){const l=D.rec.filter(r=>r.kind==='emi'),A=D.acc.filter(a=>a.
  <div id="emiForm" style="display:none"><input id="eN" placeholder="EMI പേര്" list="dlNotes" onfocus="fillDL()"><input id="eT" type="number" placeholder="ആകെ തുക ₹ (ഒഴിച്ചിട്ടാൽ തനിയെ)"><input id="eM" type="number" placeholder="മാസത്തവണ ₹"><small>തുടങ്ങുന്ന തീയതി</small><input id="eS" type="date"><small>അവസാന തീയതി</small><input id="eE" type="date"><select id="eA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><button class="btn" onclick="addEmi()">EMI സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const paid=Math.min(r.total,r.amt*r.done),pct=Math.round(paid/r.total*100),nx=r.done<r.count?addMonths(r.start,r.done):null;
   return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="ghead"><b>${esc(r.name)}</b><button class="del" onclick="delRec(${r.id})">×</button></div><small style="color:var(--mute)">${inr(r.amt)}/മാസം · ${esc(accById(r.acc)?.name||'?')} · ${r.done}/${r.count} മാസം${nx?' · അടുത്തത് '+nx:' · ✔ കഴിഞ്ഞു'}</small><div style="height:8px;background:#fef3c7;border-radius:6px;margin:6px 0"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:6px"></div></div><small>അടച്ചത് ${inr(paid)} · ബാക്കി ${inr(r.total-paid)}</small></div>`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}
-function pendingMonth(kind){const m=mk(0);return D.rec.filter(r=>r.kind===kind).reduce((s,r)=>{if(r.count&&r.done>=r.count)return s;const d=addMonths(r.start,r.done*(r.freq==='yearly'?12:1));return s+(d.slice(0,7)===m&&(!r.end||d<=r.end)?r.amt:0)},0)}
+function pendingMonth(kind){const m=mk(0);return D.rec.filter(r=>r.kind===kind).reduce((s,r)=>{if(r.count&&r.done>=r.count)return s;const d=addMonths(r.start,r.done*(r.freq==='yearly'?12:1));return s+(mOf(d)===m&&(!r.end||d<=r.end)?r.amt:0)},0)}
 function addRec(){const name=$('rN').value.trim(),amt=+$('rM').value,st=$('rS').value;if(!name||!amt||!st)return toast('പേര്, തുക, തീയതി നൽകൂ');
  D.rec.push({id:Date.now(),kind:'auto',name,amt,acc:+$('rA').value,cat:$('rC').value,freq:$('rF').value,start:st,count:+$('rK').value||null,done:0});
  processRec();save();render();toast('Recurring Expense ചേർത്തു ✔')}
@@ -560,9 +587,14 @@ function cardHtml(a){if(!a.sd||!a.dd)return '';
 
 /* ---------- Reports ---------- */
 const MN=['ജനു','ഫെബ്','മാർ','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗ','സെപ്','ഒക്ടോ','നവം','ഡിസം'];
-const mk=o=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+o);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
-const mlabel=o=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+o);return MN[d.getMonth()]};
-const sumBy=(ty,m)=>{const o={};D.tx.forEach(t=>{if(t.type===ty&&t.date.slice(0,7)===m){const c=t.cat||'മറ്റുള്ളവ';o[c]=(o[c]||0)+t.amt}});return o};
+const MSD=()=>{const n=Math.floor(+D.msd);return n>=1&&n<=28?n:1};
+const mOf=ds=>{const p=String(ds).split('-');let y=+p[0],m=+p[1];if(+p[2]<MSD()){m--;if(m<1){m=12;y--}}return y+'-'+String(m).padStart(2,'0')};
+const mk=o=>{const c=mOf(f(new Date())).split('-'),d=new Date(+c[0],+c[1]-1+o,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+const mlabel=o=>MN[+mk(o).slice(5)-1];
+function periodRange(o){const c=mk(o).split('-'),y=+c[0],m=+c[1]-1,sd=MSD();return [new Date(y,m,sd),sd===1?new Date(y,m+1,0):new Date(y,m+1,sd-1)]}
+function periodLabel(o){const r=periodRange(o);if(MSD()===1)return r[0].toLocaleDateString(UIL(),{month:'long',year:'numeric'});
+ const g=x=>x.toLocaleDateString(UIL(),{day:'numeric',month:'short'});return g(r[0])+' – '+g(r[1])+' '+r[1].getFullYear()}
+const sumBy=(ty,m)=>{const o={};D.tx.forEach(t=>{if(t.type===ty&&mOf(t.date)===m){const c=t.cat||'മറ്റുള്ളവ';o[c]=(o[c]||0)+t.amt}});return o};
 const tot=o=>Object.values(o).reduce((a,b)=>a+b,0);
 const kfmt=n=>n>=1e5?(n/1e5).toFixed(1)+'L':n>=1e3?(n/1e3).toFixed(1)+'k':Math.round(n);
 function renderReports(){
@@ -681,7 +713,7 @@ function renderBudget(force){const box=$('bud');if(!box)return;
  D.bud=D.bud||{t:null,c:{}};D.bud.c=D.bud.c||{};
  const cur=sumBy('expense',mk(0)),sp={};for(const k in cur)sp[k.toLowerCase()]=(sp[k.toLowerCase()]||0)+cur[k];
  const T=D.bud.t||0,spent=tot(cur),cs=catList('expense'),ct=Object.values(D.bud.c).reduce((s,v)=>s+(+v||0),0);
- const mon=new Date().toLocaleDateString(UIL(),{month:'long',year:'numeric'});
+ const mon=periodLabel(0);
  box.innerHTML=`<div class="card"><h3>🎯 ഈ മാസത്തെ ബജറ്റ് <small style="color:var(--mute);font-weight:400">· ${mon}</small></h3>
   <small>മാസ ബജറ്റ് ₹</small><input id="bT" type="number" inputmode="decimal" value="${T||''}" placeholder="0">
   <button class="btn" onclick="saveTotBud()">ബജറ്റ് സേവ് ചെയ്യുക</button>
@@ -694,7 +726,7 @@ function saveTotBud(){const v=$('bT').value.trim(),n=v===''?0:+v;if(!(n>=0))retu
  D.bud.t=n;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
 function setCatBud(name,v){v=String(v).trim();const n=v===''?0:+v;if(!(n>=0)){renderBudget(true);return toast('ശരിയായ തുക നൽകൂ')}
  D.bud.c[String(name).toLowerCase()]=n;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
-function budWarn(tx){const b=D.bud||{},m=String(tx.date).slice(0,7);if(m!==mk(0))return '';
+function budWarn(tx){const b=D.bud||{},m=mOf(tx.date);if(m!==mk(0))return '';
  const cur=sumBy('expense',m),c=String(tx.cat||'').toLowerCase(),cb=+((b.c||{})[c])||0;let cs=0;for(const k in cur)if(k.toLowerCase()===c)cs+=cur[k];
  if(cb>0&&cs>cb)return '⚠ '+tx.cat+' ബജറ്റ് കവിഞ്ഞു';
  if(b.t>0&&tot(cur)>b.t)return '⚠ മാസ ബജറ്റ് കവിഞ്ഞു';return ''}
@@ -706,7 +738,14 @@ function drawAk(){const s=$('akAcc');if(!s)return;const h=D.acc.filter(a=>a.grou
 function akDel(i){const a=accById($('akAcc').value);if(!a)return;const l=kwList(a.kw);l.splice(i,1);a.kw=l.join(',');a.u=Date.now();save();akLoad()}
 function saveAk(){const a=accById($('akAcc').value);if(!a)return toast('അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');const v=$('akIn').value.trim();if(!v)return toast('വാക്കുകൾ ടൈപ്പ് ചെയ്യൂ');
  a.kw=kwMerge(a.kw,v);a.u=Date.now();save();$('akIn').value='';akLoad();toast('Keywords സേവ് ചെയ്തു ✔')}
-function drawSettings(){const b=$('setLang');if(!b)return;drawAk();
+const SUBS={'':'setMenu',cat:'setCat',acc:'setAcc',month:'setMonth',lang:'setLangBox'};
+function setSub(k){Object.entries(SUBS).forEach(([n,id])=>{const e=$(id);if(e)e.style.display=n===k?'':'none'});window.scrollTo(0,0)}
+function drawMonth(){const s=$('msdSel');if(!s)return;
+ if(!s.options.length)s.innerHTML=Array.from({length:28},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+ s.value=MSD();const r=periodRange(0),g=x=>x.toLocaleDateString(UIL(),{day:'numeric',month:'short',year:'numeric'});
+ $('msdInfo').innerHTML='ഇപ്പോഴത്തെ മാസം: <b style="color:var(--ink)">'+g(r[0])+' – '+g(r[1])+'</b>'}
+function saveMsd(){D.msd=+$('msdSel').value||1;D.msdU=Date.now();save();render();toast('ഇപ്പോഴത്തെ മാസം: '+periodLabel(0))}
+function drawSettings(){const b=$('setLang');if(!b)return;drawAk();drawMonth();
  b.innerHTML=LANGS.map(([c,n])=>{const on=UI_CODE[UIC]===c;
   return `<div onclick="setUI('${c}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin:6px 0;border-radius:14px;border:2px solid ${on?'#dc2626':'#e5e7eb'};background:${on?'#fef2f2':'#fff'};cursor:pointer;font-size:16px"><span style="width:22px;height:22px;border-radius:50%;border:2px solid #dc2626;display:grid;place-items:center;background:${on?'#dc2626':'#fff'};color:#fff;font-size:13px">${on?'✓':''}</span>${n}</div>`}).join('');
  $('verTxt').textContent=APP_VERSION}
@@ -906,6 +945,10 @@ Category ബജറ്റുകളുടെ ആകെ¦Total of category budgets
 മാസ ബജറ്റ് കവിഞ്ഞു¦Monthly budget exceeded
 ബജറ്റ് കവിഞ്ഞു¦budget exceeded
 🌐 ആപ്പ് ഭാഷ¦🌐 App language
+ഇപ്പോഴത്തെ മാസം:¦Current month:
+ഉദാ: 25 തിരഞ്ഞെടുത്താൽ ഓരോ മാസവും 25-ാം തീയതി തുടങ്ങി അടുത്ത മാസം 24 വരെ ഒരു മാസമായി കണക്കാക്കും (Home-ലെ ഇപ്പോഴത്തെ മാസം, Reports, Budget).¦Example: if you choose 25, each month runs from the 25th to the 24th of the next month (used in Reports and Budget).
+അക്കൗണ്ടുകൾ ചേർക്കാനും മാറ്റാനും Accounts ടാബ് തുറക്കൂ.¦Open the Accounts tab to add or edit accounts.
+🏦 Accounts തുറക്കൂ¦🏦 Open Accounts
 Category-കൾ ചേർക്കാനും keywords ചേർക്കാനും ഇവിടെ തൊടൂ.¦Tap here to add categories and keywords.
 Category തിരഞ്ഞെടുക്കൂ¦Choose a category
 ഈ category-യിലേക്ക് പോകേണ്ട കൂടുതൽ വാക്കുകൾ (കോമ ഇട്ട്)¦Extra words that should go to this category (comma separated)
