@@ -263,6 +263,7 @@ const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
 const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
 const dOf=(y,m,d)=>new Date(y,m,Math.min(d,new Date(y,m+1,0).getDate()));
 const todayStr=()=>f(new Date());
+const fd=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?m[3]+'-'+m[2]+'-'+m[1]:(s||'')};
 let pick='';try{pick=sessionStorage.getItem('em_pd')||''}catch(e){}
 const curDate=()=>pick||todayStr();
 function syncDate(){const h=$('hDate');if(h&&document.activeElement!==h&&h.value!==curDate())h.value=curDate()}
@@ -391,7 +392,7 @@ function txRow(t){
  const ic=cm.ic;
  const a=accById(t.acc),b=accById(t.to);
  const sub=t.type==='transfer'?`${esc(a?.name||'?')} → ${esc(b?.name||'?')}`:`${esc(a?.name||'?')}`;
- return `<div class="row"><div class="dot" style="background:${bg}">${ic}</div><div class="grow"><b>${esc(t.type==='transfer'?'Transfer':t.cat)}</b><small>${sub} · ${t.date}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${t.type}">${sign}${inr(t.amt)}</div>${t.type!=='transfer'?`<button class="ib ed" onclick="openCC(${t.id})">${PEN}</button>`:''}<button class="del" onclick="delTx(${t.id})">×</button></div>`}
+ return `<div class="row"><div class="dot" style="background:${bg}">${ic}</div><div class="grow"><b>${esc(t.type==='transfer'?'Transfer':t.cat)}</b><small>${sub} · ${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${t.type}">${sign}${inr(t.amt)}</div>${t.type!=='transfer'?`<button class="ib ed" onclick="openCC(${t.id})">${PEN}</button>`:''}<button class="del" onclick="delTx(${t.id})">×</button></div>`}
 
 const OPEN=new Set();function togCat(e){e.open?OPEN.add(e.dataset.k):OPEN.delete(e.dataset.k)}
 function listView(){
@@ -402,7 +403,7 @@ function listView(){
  return Object.entries(g).map(([c,a])=>({c,a,s:a.reduce((t,x)=>t+x.amt,0)})).sort((x,y)=>y.s-x.s).map((o,i)=>{
   const m=catMeta(o.c),col=m.c;
   return `<details ${OPEN.has(type+'|'+o.c)?'open':''} data-k="${esc(type+'|'+o.c)}" ontoggle="togCat(this)" class="card" style="border-left:6px solid ${col}"><summary class="ghead"><span style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${col}">${m.ic}</span><span><b>${esc(o.c)}</b><br><small style="color:var(--mute)">${o.a.length} എൻട്രി · തൊട്ടാൽ വിവരങ്ങൾ</small></span></span><span style="display:flex;align-items:center;gap:6px"><b class="${type}" style="font-size:17px">${inr(o.s)}</b></span></summary>
-  <div style="margin-top:8px">${o.a.map(x=>{const ac=accById(x.acc);return `<div class="row"><div class="grow"><b class="${type}">${inr(x.amt)}</b><small>${x.date}${x.note?' · '+esc(x.note):''}</small></div><span class="chip">${ac?GROUPS[ac.group].ic+' '+esc(ac.name):'?'}</span><button class="ib ed" onclick="openCC(${x.id})">${PEN}</button><button class="del" onclick="delTx(${x.id})">×</button></div>`}).join('')}</div></details>`}).join('')}
+  <div style="margin-top:8px">${o.a.map(x=>{const ac=accById(x.acc);return `<div class="row"><div class="grow"><b class="${type}">${inr(x.amt)}</b><small>${fd(x.date)}${x.note?' · '+esc(x.note):''}</small></div><span class="chip">${ac?GROUPS[ac.group].ic+' '+esc(ac.name):'?'}</span><button class="ib ed" onclick="openCC(${x.id})">${PEN}</button><button class="del" onclick="delTx(${x.id})">×</button></div>`}).join('')}</div></details>`}).join('')}
 
 function render(){
  $('today').textContent=new Date().toLocaleDateString(UIL(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -436,7 +437,7 @@ const r2=n=>Math.round(n*100)/100;
 function drawAccSet(){const box=$('setAccList');if(!box)return;
  box.innerHTML=Object.entries(GROUPS).map(([g,m])=>{const list=D.acc.filter(a=>a.group===g);if(!list.length)return '';const liab=g==='card'||g==='emi';
   return `<div style="font-weight:700;color:${m.c};margin:12px 0 2px;font-size:13px">${m.ic} ${m.n}</div>`+list.map(a=>{const b=balance(a);
-   return `<div class="row" style="cursor:pointer" onclick="openAccEdit(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}: ${inr(liab?-b:b)}${a.asOn?' · As on '+a.asOn:''}${g==='card'&&a.sd&&a.dd?'<br>ബിൽ തീയതി: '+a.sd+' · അവസാന തീയതി: '+a.dd:''}</small></div><span style="color:var(--p);display:grid">${PEN}</span></div>`}).join('')}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}
+   return `<div class="row" style="cursor:pointer" onclick="openAccEdit(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}: ${inr(liab?-b:b)}${a.asOn?' · As on '+fd(a.asOn):''}${g==='card'&&a.sd&&a.dd?'<br>ബിൽ തീയതി: '+a.sd+' · അവസാന തീയതി: '+a.dd:''}</small></div><span style="color:var(--p);display:grid">${PEN}</span></div>`}).join('')}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}
 function openAccEdit(id){const a=accById(id);if(!a)return;aeId=id;
  const liab=a.group==='card'||a.group==='emi';
  $('aeTitle').textContent='✎ '+GROUPS[a.group].ic+' '+a.name;
@@ -485,7 +486,7 @@ function liveMic(SR){
  run()}
 /* ---------- Add entry ---------- */
 function showSaved(tx,heard,extra){const res=$('res');res.style.display='block';
- res.innerHTML=`🎤 ${esc(heard)}<br>✅ സേവ് ചെയ്തു<br><b class="${tx.type}">${tx.type.toUpperCase()} · ${inr(tx.amt)}</b><br>${esc(tx.cat||'Transfer')} · ${esc(accById(tx.acc).name)} · ${tx.date}${tx.note?' · '+esc(tx.note):''}${extra||''}${ccSel(tx)}
+ res.innerHTML=`🎤 ${esc(heard)}<br>✅ സേവ് ചെയ്തു<br><b class="${tx.type}">${tx.type.toUpperCase()} · ${inr(tx.amt)}</b><br>${esc(tx.cat||'Transfer')} · ${esc(accById(tx.acc).name)} · ${fd(tx.date)}${tx.note?' · '+esc(tx.note):''}${extra||''}${ccSel(tx)}
  <button class="btn sec" onclick="undoTx(${tx.id})">↩ Undo</button>`}
 const MLN=[['പതിനൊന്ന',11],['പന്ത്രണ്ട',12],['പതിമൂന്ന',13],['പതിനാല',14],['പതിനഞ്ച',15],['പതിനാറ',16],['പതിനേഴ',17],['പതിനെട്ട',18],['പത്തൊമ്പത',19],['ഒന്ന',1],['രണ്ട',2],['മൂന്ന',3],['നാല',4],['അഞ്ച',5],['ആറ',6],['ഏഴ',7],['എട്ട',8],['ഒമ്പത',9],['ഒൻപത',9],['പത്ത',10],['ഇരുപത',20],['മുപ്പത',30],['നാല്പത',40],['നാൽപത',40],['നാൽപ്പത',40],['അമ്പത',50],['അൻപത',50],['അറുപത',60],['എഴുപത',70],['എൺപത',80],['തൊണ്ണൂറ',90],['നൂറ',100],['ഇരുനൂറ',200],['ഇരുന്നൂറ',200],['മുന്നൂറ',300],['മൂന്നൂറ',300],['നാനൂറ',400],['അഞ്ഞൂറ',500],['അറുനൂറ',600],['അറുന്നൂറ',600],['എഴുനൂറ',700],['എഴുന്നൂറ',700],['എണ്ണൂറ',800],['തൊള്ളായിര',900],['ആയിര',1000],['രണ്ടായിര',2000],['മൂവായിര',3000],['നാലായിര',4000],['അയ്യായിര',5000],['ആറായിര',6000],['ഏഴായിര',7000],['എണ്ണായിര',8000],['ഒമ്പതിനായിര',9000],['ഒൻപതിനായിര',9000],['പതിനായിര',10000],['ഇരുപതിനായിര',20000],['മുപ്പതിനായിര',30000],['നാല്പതിനായിര',40000],['നാൽപതിനായിര',40000],['അമ്പതിനായിര',50000],['അൻപതിനായിര',50000],['അറുപതിനായിര',60000],['എഴുപതിനായിര',70000],['എൺപതിനായിര',80000],['ലക്ഷ',100000]].sort((a,b)=>b[0].length-a[0].length);
 function mlNum(text){const w=text.split(/\s+/).filter(Boolean),val=w.map(x=>{x=x.replace(/[.,!?]/g,'');const m=MLN.find(e=>x.startsWith(e[0])&&x.length-e[0].length<=(e[0].length<=3?3:5));return m?m[1]:0});
@@ -608,7 +609,7 @@ function emiCard(m){const l=D.rec.filter(r=>r.kind==='emi'),A=D.acc.filter(a=>a.
  <div style="color:${m.c};font-weight:700">ആകെ ബാക്കി: ${inr(left)}</div><small style="color:var(--mute)">ഓരോ മാസവും EMI ഒരു ചെലവ് എൻട്രിയായി തനിയെ ചേരും (ഇരട്ടിക്കില്ല).${pendingMonth('emi')?' ഈ മാസം ഇനി: <b>'+inr(pendingMonth('emi'))+'</b>':''}</small>
  <div id="emiForm" style="display:none"><input id="eN" placeholder="EMI പേര്" list="dlNotes" onfocus="fillDL()"><input id="eT" type="number" placeholder="ആകെ തുക ₹ (ഒഴിച്ചിട്ടാൽ തനിയെ)"><input id="eM" type="number" placeholder="മാസത്തവണ ₹"><small>തുടങ്ങുന്ന തീയതി</small><input id="eS" type="date"><small>അവസാന തീയതി</small><input id="eE" type="date"><select id="eA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><button class="btn" onclick="addEmi()">EMI സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const paid=Math.min(r.total,r.amt*r.done),pct=Math.round(paid/r.total*100),nx=r.done<r.count?addMonths(r.start,r.done):null;
-  return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="ghead"><b>${esc(r.name)}</b><button class="del" onclick="delRec(${r.id})">×</button></div><small style="color:var(--mute)">${inr(r.amt)}/മാസം · ${esc(accById(r.acc)?.name||'?')} · ${r.done}/${r.count} മാസം${nx?' · അടുത്തത് '+nx:' · ✔ കഴിഞ്ഞു'}</small><div style="height:8px;background:#fef3c7;border-radius:6px;margin:6px 0"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:6px"></div></div><small>അടച്ചത് ${inr(paid)} · ബാക്കി ${inr(r.total-paid)}</small></div>`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}
+  return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="ghead"><b>${esc(r.name)}</b><button class="del" onclick="delRec(${r.id})">×</button></div><small style="color:var(--mute)">${inr(r.amt)}/മാസം · ${esc(accById(r.acc)?.name||'?')} · ${r.done}/${r.count} മാസം${nx?' · അടുത്തത് '+fd(nx):' · ✔ കഴിഞ്ഞു'}</small><div style="height:8px;background:#fef3c7;border-radius:6px;margin:6px 0"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:6px"></div></div><small>അടച്ചത് ${inr(paid)} · ബാക്കി ${inr(r.total-paid)}</small></div>`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}
 function pendingMonth(kind){const m=mk(0);return D.rec.filter(r=>r.kind===kind).reduce((s,r)=>{if(r.count&&r.done>=r.count)return s;const d=addMonths(r.start,r.done*(r.freq==='yearly'?12:1));return s+(mOf(d)===m&&(!r.end||d<=r.end)?r.amt:0)},0)}
 function addRec(){const name=$('rN').value.trim(),amt=+$('rM').value,st=$('rS').value;if(!name||!amt||!st)return toast('പേര്, തുക, തീയതി നൽകൂ');
  D.rec.push({id:Date.now(),kind:'auto',name,amt,acc:+$('rA').value,cat:$('rC').value,freq:$('rF').value,start:st,count:+$('rK').value||null,done:0});
@@ -617,7 +618,7 @@ function autoCard(){const l=D.rec.filter(r=>r.kind==='auto'),A=D.acc.filter(a=>a
  return `<div class="card" style="border-top:5px solid #dc2626"><div class="ghead"><h3>🔁 Recurring Expenses</h3><button class="add" onclick="$('recForm').style.display='block'">+ ചേർക്കൂ</button></div>
  <small style="color:var(--mute)">ഓരോ മാസവും ഒരു ചെലവ് എൻട്രി തനിയെ ചേരും; ആകെ ചെലവിൽ ഇരട്ടിക്കില്ല.${pm?' ഈ മാസം ഇനി വരാനുള്ളത്: <b>'+inr(pm)+'</b>':''}</small>
  <div id="recForm" style="display:none"><input id="rN" placeholder="പേര്" list="dlNotes" onfocus="fillDL()"><input id="rM" type="number" placeholder="തുക ₹"><select id="rC">${catOpts('expense')}</select><select id="rA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><select id="rF"><option value="monthly">മാസംതോറും</option><option value="yearly">വർഷംതോറും</option></select><small>തുടങ്ങുന്ന തീയതി</small><input id="rS" type="date" value="${todayStr()}"><input id="rK" type="number" placeholder="എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)"><button class="btn" onclick="addRec()">സേവ് ചെയ്യുക</button></div>
- ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+addMonths(r.start,r.done*(r.freq==='yearly'?12:1))}</small></div><div class="amt">${inr(r.amt)}</div><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
+ ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+fd(addMonths(r.start,r.done*(r.freq==='yearly'?12:1)))}</small></div><div class="amt">${inr(r.amt)}</div><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
 function cardHtml(a){if(!a.sd||!a.dd)return '';
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
  const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls);
@@ -698,13 +699,13 @@ function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
  $('amList').innerHTML=l.map(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
   const m=t.type==='transfer'?{ic:'⇄',c:'#2563eb'}:catMeta(t.cat);
   const ttl=t.type==='transfer'?(inn?'← '+esc(accById(t.acc)?.name||'?'):'→ '+esc(accById(t.to)?.name||'?')):esc(t.cat);
-  return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${t.date}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div></div>`}).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
+  return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div></div>`}).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
  $('amodal').style.display='flex'}
 function closeAcc(){$('amodal').style.display='none'}
 let ccId=0,ccColor=PAL[0];
 function openCC(id){const t=D.tx.find(x=>x.id===id);if(!t)return;ccId=id;
- $('ccInfo').textContent=inr(t.amt)+' · '+t.date+' · ഇപ്പോൾ: '+t.cat;$('ccNote').value=t.note||'';fillDL();
+ $('ccInfo').textContent=inr(t.amt)+' · '+fd(t.date)+' · ഇപ്പോൾ: '+t.cat;$('ccNote').value=t.note||'';fillDL();
  $('ccSel').innerHTML=catOpts(t.type)+'<option value="__new__">➕ പുതിയ category ചേർക്കൂ</option>';$('ccSel').value=t.cat;if(!$('ccSel').value)$('ccSel').selectedIndex=0;
  $('ccNN').value='';$('ccNI').value='';$('ccNK').value='';ccColor=PAL[0];ccNewToggle();
  $('ccAcc').innerHTML=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');$('ccAcc').value=t.acc;$('ccmodal').style.display='flex'}
