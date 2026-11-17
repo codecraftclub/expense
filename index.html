@@ -54,7 +54,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#ccmodal,#kwmodal,#lgmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -67,7 +67,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#ccmodal,#kwmodal,#lgmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -132,7 +132,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   <div id="setMenu" class="ssub">
     <div class="card" style="padding:6px 16px">
       <div class="row" style="cursor:pointer" onclick="setSub('cat')"><div class="dot" style="background:#f59e0b">🏷</div><div class="grow"><b>Category settings</b><small>Category, keywords</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
-      <div class="row" style="cursor:pointer" onclick="setSub('acc')"><div class="dot" style="background:#2563eb">🏦</div><div class="grow"><b>Account settings</b><small>Account keywords</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
+      <div class="row" style="cursor:pointer" onclick="setSub('acc')"><div class="dot" style="background:#2563eb">🏦</div><div class="grow"><b>Account settings</b><small>Accounts, balance, bill date, keywords</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
       <div class="row" style="cursor:pointer" onclick="setSub('month')"><div class="dot" style="background:#059669">📅</div><div class="grow"><b>Month settings</b><small>Month starting date</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
       <div class="row" style="cursor:pointer" onclick="setSub('lang')"><div class="dot" style="background:#8b5cf6">🌐</div><div class="grow"><b>App language</b><small>ആപ്പ് ഭാഷ</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
     </div>
@@ -148,8 +148,8 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   </div>
 
   <div id="setAcc" class="ssub" style="display:none"><button class="btn sec" style="margin:0 0 12px" onclick="setSub('')">← Settings</button>
-    <div class="card"><h3>🏦 Account settings</h3><small style="color:var(--mute)">അക്കൗണ്ടുകൾ ചേർക്കാനും മാറ്റാനും Accounts ടാബ് തുറക്കൂ.</small>
-      <button class="btn sec" onclick="go('accs')">🏦 Accounts തുറക്കൂ</button></div>
+    <div class="card"><h3>🏦 എന്റെ അക്കൗണ്ടുകൾ</h3><small style="color:var(--mute)">ഏതെങ്കിലും അക്കൗണ്ട് തൊട്ടാൽ ബാലൻസ്, ബിൽ തീയതി, As on date എന്നിവ മാറ്റാം.</small>
+      <div id="setAccList" style="margin-top:6px"></div></div>
     <div class="card"><h3>🔑 Account Keywords</h3><small style="color:var(--mute)">അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ ഇവിടെ ചേർക്കാം.</small>
       <select id="akAcc" onchange="akLoad(1)"></select><div id="akChips"></div><input id="akIn" placeholder="വാക്കുകൾ (കോമ ഇട്ട്)"><button class="btn" onclick="saveAk()">Keywords ചേർക്കുക</button></div>
   </div>
@@ -159,7 +159,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
       <small>Month starting date</small>
       <select id="msdSel" onchange="saveMsd()"></select>
       <div id="msdInfo" style="margin-top:10px;font-size:14px;color:var(--mute)"></div>
-      <small style="display:block;margin-top:8px;color:var(--mute)">ഉദാ: 25 തിരഞ്ഞെടുത്താൽ ഓരോ മാസവും 25-ാം തീയതി തുടങ്ങി അടുത്ത മാസം 24 വരെ ഒരു മാസമായി കണക്കാക്കും (Home-ലെ ഇപ്പോഴത്തെ മാസം, Reports, Budget).</small></div>
+      <small style="display:block;margin-top:8px;color:var(--mute)">ഉദാ: 25 തിരഞ്ഞെടുത്താൽ ഒക്ടോബർ 25 മുതൽ നവംബർ 24 വരെ "നവംബർ" മാസമായി കണക്കാക്കും (Reports, Budget).</small></div>
   </div>
 
   <div id="setLangBox" class="ssub" style="display:none"><button class="btn sec" style="margin:0 0 12px" onclick="setSub('')">← Settings</button>
@@ -195,6 +195,16 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <button class="btn sec" onclick="closeCat()">അടയ്ക്കുക</button></div></div>
 <div id="amodal" onclick="if(event.target===this)closeAcc()"><div class="sheet" style="max-height:88vh;overflow:auto"><h3 id="amTitle"></h3><div id="amSum" style="font-size:14px;margin:2px 0 8px"></div>
 <div id="amList"></div><button class="btn sec" onclick="closeAcc()">അടയ്ക്കുക</button></div></div>
+<div id="aemodal" onclick="if(event.target===this)closeAccEdit()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3 id="aeTitle"></h3>
+ <small>അക്കൗണ്ട് പേര്</small><input id="aeName" autocomplete="off">
+ <small id="aeBalL"></small><input id="aeBal" type="number" inputmode="decimal" step="0.01">
+ <div class="ghead" style="margin-top:8px"><small>As on date (ഓപ്ഷണൽ)</small><button type="button" class="add" onclick="$('aeAsOn').value=''">ഒഴിവാക്കൂ</button></div>
+ <input id="aeAsOn" type="date" style="margin-top:4px">
+ <small style="color:var(--mute);display:block;margin-top:4px">ഒഴിച്ചിട്ടാൽ: ഈ തുക ഇപ്പോഴത്തെ ബാലൻസ് ആകും. തീയതി നൽകിയാൽ: ആ തീയതിയിലെ ബാലൻസ് ഇതാണ്; അതിനു ശേഷമുള്ള ഇടപാടുകൾ മാത്രം ചേർത്ത് ഇപ്പോഴത്തേത് കണക്കാക്കും.</small>
+ <div id="aeBillBox" style="display:none"><small>ബിൽ തീയതി (മാസത്തിലെ ദിവസം 1-31)</small><input id="aeSd" type="number" inputmode="numeric" min="1" max="31">
+  <small>അവസാന തീയതി (ദിവസം 1-31)</small><input id="aeDd" type="number" inputmode="numeric" min="1" max="31"></div>
+ <small>Keywords (കോമ ഇട്ട്)</small><input id="aeKw" autocomplete="off">
+ <button class="btn" onclick="saveAccEdit()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeAccEdit()">റദ്ദാക്കുക</button></div></div>
 <div id="ccmodal" onclick="if(event.target===this)closeCC()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3>✎ മാറ്റാം · Expense</h3><div id="ccInfo" style="font-size:14px;margin:4px 0 6px"></div>
  <small>എന്താവശ്യം / Item</small><input id="ccNote" list="dlNotes" autocomplete="off">
  <small>Category</small><select id="ccSel" onchange="ccNewToggle()"></select>
@@ -354,7 +364,7 @@ function saveXk(){const n=$('xkCat').value;if(!n)return toast('ഏതെങ്�
 function go(t){if(t==='set')setSub('');document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id===t));
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));window.scrollTo(0,0)}
 
-function balance(a){let b=+a.open;D.tx.forEach(t=>{
+function balance(a){let b=+a.open;const so=a.asOn||'';D.tx.forEach(t=>{if(so&&t.date<=so)return;
  if(t.type==='income'&&t.acc==a.id)b+=t.amt;
  if(t.type==='expense'&&t.acc==a.id)b-=t.amt;
  if(t.type==='transfer'){if(t.acc==a.id)b-=t.amt;if(t.to==a.id)b+=t.amt}});return b}
@@ -418,6 +428,38 @@ function addAcc(g){
  D.acc.push(a);save();render()}
 function delAcc(id){if(D.tx.some(t=>t.acc===id||t.to===id))return toast('ഇടപാടുകൾ ഉള്ള അക്കൗണ്ട് ഡിലീറ്റ് ചെയ്യാനാവില്ല');
  if(confirm('ഡിലീറ്റ് ചെയ്യണോ?')){tomb(id);D.acc=D.acc.filter(a=>a.id!==id);save();render()}}
+
+
+/* ---------- Account settings: list + edit ---------- */
+let aeId=0;
+const r2=n=>Math.round(n*100)/100;
+function drawAccSet(){const box=$('setAccList');if(!box)return;
+ box.innerHTML=Object.entries(GROUPS).map(([g,m])=>{const list=D.acc.filter(a=>a.group===g);if(!list.length)return '';const liab=g==='card'||g==='emi';
+  return `<div style="font-weight:700;color:${m.c};margin:12px 0 2px;font-size:13px">${m.ic} ${m.n}</div>`+list.map(a=>{const b=balance(a);
+   return `<div class="row" style="cursor:pointer" onclick="openAccEdit(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}: ${inr(liab?-b:b)}${a.asOn?' · As on '+a.asOn:''}${g==='card'&&a.sd&&a.dd?'<br>ബിൽ തീയതി: '+a.sd+' · അവസാന തീയതി: '+a.dd:''}</small></div><span style="color:var(--p);display:grid">${PEN}</span></div>`}).join('')}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}
+function openAccEdit(id){const a=accById(id);if(!a)return;aeId=id;
+ const liab=a.group==='card'||a.group==='emi';
+ $('aeTitle').textContent='✎ '+GROUPS[a.group].ic+' '+a.name;
+ $('aeName').value=a.name;
+ $('aeBalL').textContent=liab?'കുടിശ്ശിക (₹)':'ബാലൻസ് (₹)';
+ const sv=a.asOn?+a.open:balance(a);$('aeBal').value=r2(liab?-sv:sv);
+ $('aeAsOn').value=a.asOn||'';
+ $('aeBillBox').style.display=a.group==='card'?'block':'none';
+ $('aeSd').value=a.sd||'';$('aeDd').value=a.dd||'';
+ $('aeKw').value=a.kw||'';
+ $('aemodal').style.display='flex'}
+function closeAccEdit(){$('aemodal').style.display='none'}
+function saveAccEdit(){const a=accById(aeId);if(!a)return;
+ const name=$('aeName').value.trim();if(!name)return toast('അക്കൗണ്ട് പേര് നൽകൂ');
+ if(D.acc.some(x=>x.id!==a.id&&x.name.toLowerCase()===name.toLowerCase()))return toast('ഈ പേരിൽ അക്കൗണ്ട് ഉണ്ട്');
+ const raw=$('aeBal').value.trim(),v=parseFloat(raw);if(raw===''||isNaN(v))return toast('ബാലൻസ് നൽകൂ');
+ const liab=a.group==='card'||a.group==='emi',tgt=liab?-v:v,as=$('aeAsOn').value||'';
+ if(as){a.open=r2(tgt);a.asOn=as}
+ else{delete a.asOn;const delta=balance(a)-(+a.open);a.open=r2(tgt-delta)}
+ a.name=name;
+ if(a.group==='card'){const cl=x=>{x=parseInt(x);return x>=1&&x<=31?x:0};a.sd=cl($('aeSd').value);a.dd=cl($('aeDd').value)}
+ a.kw=$('aeKw').value.trim();a.u=Date.now();
+ save();closeAccEdit();render();toast('അക്കൗണ്ട് അപ്ഡേറ്റ് ചെയ്തു ✔')}
 
 /* ---------- Voice ---------- */
 const LANGS=[['ml-IN','മലയാളം'],['en-IN','English']];
@@ -580,7 +622,7 @@ function cardHtml(a){if(!a.sd||!a.dd)return '';
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
  const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls);
  let cb=Math.max(0,-a.open),cy=0,pay=0;
- D.tx.forEach(t=>{if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=L?cb+=t.amt:cy+=t.amt}
+ D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=L?cb+=t.amt:cy+=t.amt}
   if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id))pay+=t.amt});
  const billed=Math.max(0,cb-pay),days=Math.ceil((due-new Date(Y,M,n.getDate()))/864e5),paid=cb>0&&billed===0;
  return `<div class="cinfo"><div><small>ബിൽ ${L}</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>പുതിയ സൈക്കിൾ</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
@@ -588,10 +630,10 @@ function cardHtml(a){if(!a.sd||!a.dd)return '';
 /* ---------- Reports ---------- */
 const MN=['ജനു','ഫെബ്','മാർ','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗ','സെപ്','ഒക്ടോ','നവം','ഡിസം'];
 const MSD=()=>{const n=Math.floor(+D.msd);return n>=1&&n<=28?n:1};
-const mOf=ds=>{const p=String(ds).split('-');let y=+p[0],m=+p[1];if(+p[2]<MSD()){m--;if(m<1){m=12;y--}}return y+'-'+String(m).padStart(2,'0')};
+const mOf=ds=>{const p=String(ds).split('-');let y=+p[0],m=+p[1];if(MSD()>1&&+p[2]>=MSD()){m++;if(m>12){m=1;y++}}return y+'-'+String(m).padStart(2,'0')};
 const mk=o=>{const c=mOf(f(new Date())).split('-'),d=new Date(+c[0],+c[1]-1+o,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
 const mlabel=o=>MN[+mk(o).slice(5)-1];
-function periodRange(o){const c=mk(o).split('-'),y=+c[0],m=+c[1]-1,sd=MSD();return [new Date(y,m,sd),sd===1?new Date(y,m+1,0):new Date(y,m+1,sd-1)]}
+function periodRange(o){const c=mk(o).split('-'),y=+c[0],m=+c[1]-1,sd=MSD();return sd===1?[new Date(y,m,1),new Date(y,m+1,0)]:[new Date(y,m-1,sd),new Date(y,m,sd-1)]}
 function periodLabel(o){const r=periodRange(o);if(MSD()===1)return r[0].toLocaleDateString(UIL(),{month:'long',year:'numeric'});
  const g=x=>x.toLocaleDateString(UIL(),{day:'numeric',month:'short'});return g(r[0])+' – '+g(r[1])+' '+r[1].getFullYear()}
 const sumBy=(ty,m)=>{const o={};D.tx.forEach(t=>{if(t.type===ty&&mOf(t.date)===m){const c=t.cat||'മറ്റുള്ളവ';o[c]=(o[c]||0)+t.amt}});return o};
@@ -745,7 +787,7 @@ function drawMonth(){const s=$('msdSel');if(!s)return;
  s.value=MSD();const r=periodRange(0),g=x=>x.toLocaleDateString(UIL(),{day:'numeric',month:'short',year:'numeric'});
  $('msdInfo').innerHTML='ഇപ്പോഴത്തെ മാസം: <b style="color:var(--ink)">'+g(r[0])+' – '+g(r[1])+'</b>'}
 function saveMsd(){D.msd=+$('msdSel').value||1;D.msdU=Date.now();save();render();toast('ഇപ്പോഴത്തെ മാസം: '+periodLabel(0))}
-function drawSettings(){const b=$('setLang');if(!b)return;drawAk();drawMonth();
+function drawSettings(){const b=$('setLang');if(!b)return;drawAk();drawMonth();drawAccSet();
  b.innerHTML=LANGS.map(([c,n])=>{const on=UI_CODE[UIC]===c;
   return `<div onclick="setUI('${c}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin:6px 0;border-radius:14px;border:2px solid ${on?'#dc2626':'#e5e7eb'};background:${on?'#fef2f2':'#fff'};cursor:pointer;font-size:16px"><span style="width:22px;height:22px;border-radius:50%;border:2px solid #dc2626;display:grid;place-items:center;background:${on?'#dc2626':'#fff'};color:#fff;font-size:13px">${on?'✓':''}</span>${n}</div>`}).join('');
  $('verTxt').textContent=APP_VERSION}
@@ -946,7 +988,7 @@ Category ബജറ്റുകളുടെ ആകെ¦Total of category budgets
 ബജറ്റ് കവിഞ്ഞു¦budget exceeded
 🌐 ആപ്പ് ഭാഷ¦🌐 App language
 ഇപ്പോഴത്തെ മാസം:¦Current month:
-ഉദാ: 25 തിരഞ്ഞെടുത്താൽ ഓരോ മാസവും 25-ാം തീയതി തുടങ്ങി അടുത്ത മാസം 24 വരെ ഒരു മാസമായി കണക്കാക്കും (Home-ലെ ഇപ്പോഴത്തെ മാസം, Reports, Budget).¦Example: if you choose 25, each month runs from the 25th to the 24th of the next month (used in Reports and Budget).
+ഉദാ: 25 തിരഞ്ഞെടുത്താൽ ഒക്ടോബർ 25 മുതൽ നവംബർ 24 വരെ "നവംബർ" മാസമായി കണക്കാക്കും (Reports, Budget).¦Example: if you choose 25, Oct 25 to Nov 24 counts as "November" (used in Reports and Budget).
 അക്കൗണ്ടുകൾ ചേർക്കാനും മാറ്റാനും Accounts ടാബ് തുറക്കൂ.¦Open the Accounts tab to add or edit accounts.
 🏦 Accounts തുറക്കൂ¦🏦 Open Accounts
 Category-കൾ ചേർക്കാനും keywords ചേർക്കാനും ഇവിടെ തൊടൂ.¦Tap here to add categories and keywords.
@@ -966,7 +1008,23 @@ Extra keywords സേവ് ചെയ്തു ✔¦Extra keywords saved ✔
 അക്കൗണ്ട് പറയുമ്പോൾ ഉപയോഗിക്കുന്ന വാക്കുകൾ ഇവിടെ ചേർക്കാം.¦Add the words you use when speaking an account name here.
 വാക്കുകൾ (കോമ ഇട്ട്)¦Words (comma separated)
 Keywords ചേർക്കുക¦Add keywords
-അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ¦Choose an account`;
+അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ¦Choose an account
+എന്റെ അക്കൗണ്ടുകൾ¦My accounts
+ഏതെങ്കിലും അക്കൗണ്ട് തൊട്ടാൽ ബാലൻസ്, ബിൽ തീയതി, As on date എന്നിവ മാറ്റാം.¦Tap an account to edit its balance, bill date and as-on date.
+അക്കൗണ്ട് പേര്¦Account name
+ബാലൻസ് (₹)¦Balance (₹)
+കുടിശ്ശിക (₹)¦Outstanding (₹)
+ഒഴിവാക്കൂ¦Clear
+As on date (ഓപ്ഷണൽ)¦As on date (optional)
+ഒഴിച്ചിട്ടാൽ: ഈ തുക ഇപ്പോഴത്തെ ബാലൻസ് ആകും. തീയതി നൽകിയാൽ: ആ തീയതിയിലെ ബാലൻസ് ഇതാണ്; അതിനു ശേഷമുള്ള ഇടപാടുകൾ മാത്രം ചേർത്ത് ഇപ്പോഴത്തേത് കണക്കാക്കും.¦If left empty: this amount becomes the current balance. If a date is given: this is the balance on that date; only transactions after it are added to get the current balance.
+ബിൽ തീയതി (മാസത്തിലെ ദിവസം 1-31)¦Bill date (day of month, 1-31)
+അവസാന തീയതി (ദിവസം 1-31)¦Due date (day of month, 1-31)
+ബിൽ തീയതി: ¦Bill date: 
+Keywords (കോമ ഇട്ട്)¦Keywords (comma separated)
+അക്കൗണ്ട് പേര് നൽകൂ¦Enter the account name
+ഈ പേരിൽ അക്കൗണ്ട് ഉണ്ട്¦An account with this name already exists
+ബാലൻസ് നൽകൂ¦Enter the balance
+അക്കൗണ്ട് അപ്ഡേറ്റ് ചെയ്തു ✔¦Account updated ✔`;
 const I18N_EN=``;
 const I18N_EX=`ജനു¦Jan
 ഫെബ്¦Feb
