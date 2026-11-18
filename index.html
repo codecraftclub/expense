@@ -43,6 +43,8 @@ input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--line);bor
 .income{color:var(--inc)}.expense{color:var(--exp)}.transfer{color:var(--tr)}
 h3{margin:0 0 6px;font-size:16px}
 .ghead{display:flex;justify-content:space-between;align-items:center}
+.catplus{display:none;width:34px;height:34px;border-radius:50%;border:0;background:#fee2e2;color:#b91c1c;font-size:24px;line-height:1;font-weight:700;padding:0;align-items:center;justify-content:center;flex:none}
+details[open]>summary .catplus{display:flex}
 .add{border:0;background:#fee2e2;color:var(--p);border-radius:10px;padding:6px 12px;font-weight:600}
 .del{border:0;background:none;color:#cbd5e1;font-size:20px}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff!important;box-shadow:0 -4px 20px #0000001a;border-radius:22px 22px 0 0;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))}
@@ -254,7 +256,14 @@ function mergeData(a,b){a=a||{};b=b||{};
  const recs=mk(a.rec,b.rec),all=[...(a.rec||[]),...(b.rec||[])];
  recs.forEach(r=>{r.done=Math.max(...all.filter(x=>x.id===r.id).map(x=>x.done||0))});
  const cm=new Map();for(const c of [...(b.cats||[]),...(a.cats||[])]){const k='cat:'+c.n.toLowerCase();if(!ds.has(k))cm.set(k,c)}
- return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:(()=>{const A=a.bud||{},B=b.bud||{},nb=(B.u||0)>(A.u||0),P=nb?B:A,Q=nb?A:B;return {t:P.t!=null?P.t:(Q.t!=null?Q.t:null),c:{...(Q.c||{}),...(P.c||{})},u:Math.max(A.u||0,B.u||0)}})(),ckw:{...(b.ckw||{}),...(a.ckw||{})},msd:((a.msdU||0)>=(b.msdU||0)?a.msd:b.msd)||a.msd||b.msd||1,msdU:Math.max(a.msdU||0,b.msdU||0),del}}
+ return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:(()=>{const A=a.bud||{},B=b.bud||{},Ac=A.c||{},Bc=B.c||{},au=A.cu||{},bu=B.cu||{},c={},cu={};
+  const val=v=>(v==null||v==='')?-1:+v;
+  for(const k of new Set([...Object.keys(Ac),...Object.keys(Bc)])){const ta=au[k]||0,tb=bu[k]||0;let pb;
+   if(!(k in Ac))pb=true;else if(!(k in Bc))pb=false;else if(ta!==tb)pb=tb>ta;else pb=val(Bc[k])>val(Ac[k]);
+   c[k]=pb?Bc[k]:Ac[k];cu[k]=Math.max(ta,tb)}
+  const tA=A.tu||0,tB=B.tu||0;let t;
+  if(tA!==tB)t=tB>tA?B.t:A.t;else t=(A.t==null&&B.t==null)?null:Math.max(+A.t||0,+B.t||0);
+  return {t:t==null?null:t,tu:Math.max(tA,tB),c,cu}})(),ckw:{...(b.ckw||{}),...(a.ckw||{})},msd:((a.msdU||0)>=(b.msdU||0)?a.msd:b.msd)||a.msd||b.msd||1,msdU:Math.max(a.msdU||0,b.msdU||0),del}}
 window.emMerge=(c,quiet)=>{if(!localStorage.getItem('em_bak'))localStorage.setItem('em_bak',JSON.stringify(D));D=mergeData(D,c);if(!D.acc.length)D.acc=[{id:1,name:'Cash',group:'cash',open:0}];
  
  localStorage.setItem('em_data',JSON.stringify(D));processRec();if(!quiet)save();render()};
@@ -408,7 +417,7 @@ function listView(){
  const g={};list.forEach(x=>{const c=x.cat||'മറ്റുള്ളവ';(g[c]=g[c]||[]).push(x)});
  return Object.entries(g).map(([c,a])=>({c,a,s:a.reduce((t,x)=>t+x.amt,0)})).sort((x,y)=>y.s-x.s).map((o,i)=>{
   const m=catMeta(o.c),col=m.c;
-  return `<details ${OPEN.has(type+'|'+o.c)?'open':''} data-k="${esc(type+'|'+o.c)}" ontoggle="togCat(this)" class="card" style="border-left:6px solid ${col}"><summary class="ghead"><span style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${col}">${m.ic}</span><span><b>${esc(o.c)}</b><br><small style="color:var(--mute)">${o.a.length} എൻട്രി · തൊട്ടാൽ വിവരങ്ങൾ</small></span></span><span style="display:flex;align-items:center;gap:6px"><b class="${type}" style="font-size:17px">${inr(o.s)}</b></span></summary>
+  return `<details ${OPEN.has(type+'|'+o.c)?'open':''} data-k="${esc(type+'|'+o.c)}" ontoggle="togCat(this)" class="card" style="border-left:6px solid ${col}"><summary class="ghead"><span style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${col}">${m.ic}</span><span><b>${esc(o.c)}</b><br><small style="color:var(--mute)">${o.a.length} എൻട്രി · തൊട്ടാൽ വിവരങ്ങൾ</small></span></span><span style="display:flex;align-items:center;gap:8px"><b class="${type}" style="font-size:17px">${inr(o.s)}</b><button type="button" class="catplus" aria-label="Add" data-c="${esc(o.c)}" onclick="event.preventDefault();event.stopPropagation();addToCat(this.dataset.c)">+</button></span></summary>
   <div style="margin-top:8px">${o.a.map(x=>{const ac=accById(x.acc);return `<div class="row"><div class="grow"><b class="${type}">${inr(x.amt)}</b><small>${fd(x.date)}${x.note?' · '+esc(x.note):''}</small></div><span class="chip">${ac?GROUPS[ac.group].ic+' '+esc(ac.name):'?'}</span><button class="ib ed" onclick="openCC(${x.id})">${PEN}</button><button class="del" onclick="delTx(${x.id})">×</button></div>`}).join('')}</div></details>`}).join('')}
 
 function render(){
@@ -686,6 +695,7 @@ function openAdd(){
  $('aAcc').innerHTML=ac;$('aTo').innerHTML=ac;
  $('aCat').innerHTML='<option value="auto">Auto (തനിയെ) ✨</option>'+catOpts(ty);
  $('modal').style.display='flex';setTimeout(()=>$('aAmt').focus(),150)}
+function addToCat(c){openAdd();const s=$('aCat');if(s&&[...s.options].some(o=>o.value===c))s.value=c}
 function closeAdd(){$('modal').style.display='none'}
 function saveAdd(){const amt=+$('aAmt').value;if(!amt||amt<=0)return toast('തുക നൽകൂ');
  const ty=type,desc=$('aDesc').value.trim(),sel=ty==='transfer'?'':$('aCat').value;
@@ -777,9 +787,9 @@ function renderBudget(force){const box=$('bud');if(!box)return;
   ${ct>0?`<div style="margin-top:10px;font-size:14px;color:var(--mute)">Category ബജറ്റുകളുടെ ആകെ: <b style="color:var(--ink)">${inr(ct)}</b></div>`:''}</div>`;
  const f=box.querySelector('[data-focus="1"]');if(f)f.focus()}
 function saveTotBud(){const v=$('bT').value.trim(),n=v===''?0:+v;if(!(n>=0))return toast('ശരിയായ തുക നൽകൂ');
- D.bud.t=n;D.bud.u=Date.now();budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
+ D.bud.t=n;D.bud.tu=Date.now();budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
 function setCatBud(name,v){v=String(v).trim();const n=v===''?null:+v;if(n!==null&&!(n>=0)){renderBudget(true);return toast('ശരിയായ തുക നൽകൂ')}
- D.bud.c[String(name).toLowerCase()]=n;D.bud.u=Date.now();budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
+ {const k=String(name).toLowerCase();D.bud.c[k]=n;D.bud.cu=D.bud.cu||{};D.bud.cu[k]=Date.now()}budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
 function budWarn(tx){const b=D.bud||{},m=mOf(tx.date);if(m!==mk(0))return '';
  const cur=sumBy('expense',m),c=String(tx.cat||'').toLowerCase(),cr=(b.c||{})[c],cb=(cr==null||cr==='')?-1:+cr;let cs=0;for(const k in cur)if(k.toLowerCase()===c)cs+=cur[k];
  if(cb>=0&&cs>cb)return '⚠ '+tx.cat+' ബജറ്റ് കവിഞ്ഞു';
@@ -1097,7 +1107,10 @@ import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com
 const app=initializeApp({apiKey:"AIzaSyAC9KeZ2XtiEXbKbS7T5eavKqWS1MXgiLE",authDomain:"expense-manager-5651c.firebaseapp.com",projectId:"expense-manager-5651c",storageBucket:"expense-manager-5651c.firebasestorage.app",messagingSenderId:"490114275639",appId:"1:490114275639:web:e9b9b9b921978eeef5a2b2",measurementId:"G-NYVBBDEDQV"});
 const auth=getAuth(app),db=getFirestore(app),el=id=>document.getElementById(id);
 let uid=null,timer=null,unsub=null,lastRaw='';
-const say=m=>{el('sync').textContent=m};
+const say=m=>{const e=el('sync');if(e.textContent!==m)e.textContent=m};
+const canon=v=>{if(Array.isArray(v)){return v.map(canon).sort((x,y)=>{const p=JSON.stringify(x),q=JSON.stringify(y);return p<q?-1:p>q?1:0})}if(v&&typeof v==='object'){const o={};Object.keys(v).sort().forEach(k=>o[k]=canon(v[k]));return o}return v};
+const same=(a,b)=>{try{return JSON.stringify(canon(typeof a==='string'?JSON.parse(a):a))===JSON.stringify(canon(typeof b==='string'?JSON.parse(b):b))}catch(e){return false}};
+let lastPull=0;
 window.cloudToggle=()=>{
  if(uid){if(confirm('Sign out ചെയ്യണോ?'))signOut(auth);return}
  window.lShow&&lShow('in');el('lmodal').style.display='flex'};
@@ -1108,14 +1121,13 @@ window.emailLogin=async mode=>{const g=id=>el(id).value.trim(),err=m=>{el('lErr'
   if(mode==='new'){const e=g('sE'),p=el('sP').value;if(!e||!p)return err('ഇമെയിലും പാസ്‌വേഡും നൽകൂ');if(p.length<6)return err('പാസ്‌വേഡ് കുറഞ്ഞത് 6 അക്ഷരം വേണം');if(p!==el('sP2').value)return err('രണ്ട് പാസ്‌വേഡും ഒരുപോലെയല്ല');await createUserWithEmailAndPassword(auth,e,p)}
   else{const e=g('lE'),p=el('lP').value;if(!e||!p)return err('ഇമെയിലും പാസ്‌വേഡും നൽകൂ');await signInWithEmailAndPassword(auth,e,p)}
   el('lmodal').style.display='none'}catch(x){err(x.code||x.message)}};
-window.cloudPush=now=>{if(!uid)return;clearTimeout(timer);say('☁ സിങ്ക് ചെയ്യുന്നു…');
- timer=setTimeout(async()=>{try{const r=doc(db,'users',uid),snap=await getDoc(r);
-  if(snap.exists())window.emMerge(JSON.parse(snap.data().data),true);
+window.cloudPush=now=>{if(!uid)return;clearTimeout(timer);if(!now)say('☁ സിങ്ക് ചെയ്യുന്നു…');
+ timer=setTimeout(async()=>{try{const r=doc(db,'users',uid),snap=await getDoc(r),rem=snap.exists()?snap.data().data:null;lastPull=Date.now();
+  if(rem&&!same(rem,window.emGet()))window.emMerge(JSON.parse(rem),true);
   const out=JSON.stringify(window.emGet());
-  if(!snap.exists()||snap.data().data!==out)await setDoc(r,{data:out,updated:Date.now()});
-  lastRaw=out;
-  say('☁ ക്ലൗഡിൽ സേവ് ആയി')}catch(e){say('⚠ '+(e.code||e.message))}},now?0:700)};
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)window.cloudPush(true)});
+  if(!rem||!same(rem,out))await setDoc(r,{data:out,updated:Date.now()});
+  lastRaw=out;say('☁ ക്ലൗഡിൽ സേവ് ആയി')}catch(e){say('⚠ '+(e.code||e.message))}},now?0:700)};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastPull>30000)window.cloudPush(true)});
 onAuthStateChanged(auth,async u=>{
  uid=u?u.uid:null;el('cloudBtn').textContent=u?'☁ '+(u.displayName||u.email||'Account').split(/[ @]/)[0]:'☁ Login';
  if(unsub){unsub();unsub=null}
@@ -1124,10 +1136,11 @@ onAuthStateChanged(auth,async u=>{
  unsub=onSnapshot(doc(db,'users',u.uid),snap=>{
   if(!snap.exists()||snap.metadata.hasPendingWrites)return;
   const raw=snap.data().data;if(!raw||raw===lastRaw)return;lastRaw=raw;
+  if(same(raw,window.emGet()))return;
   try{window.emMerge(JSON.parse(raw),true)}catch(e){return}
-  if(JSON.stringify(window.emGet())!==raw)window.cloudPush(true);else say('☁ അപ്ഡേറ്റ് ചെയ്തു')},e=>say('⚠ '+(e.code||e.message)));
+  if(!same(raw,window.emGet()))window.cloudPush(true)},e=>say('⚠ '+(e.code||e.message)));
  window.cloudPush(true)});
-['focus','online','pageshow'].forEach(ev=>window.addEventListener(ev,()=>{if(uid)window.cloudPush(true)}));
+window.addEventListener('online',()=>{if(uid)window.cloudPush(true)});
 </script>
 </body>
 </html>
