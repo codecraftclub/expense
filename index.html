@@ -254,10 +254,11 @@ function mergeData(a,b){a=a||{};b=b||{};
  const recs=mk(a.rec,b.rec),all=[...(a.rec||[]),...(b.rec||[])];
  recs.forEach(r=>{r.done=Math.max(...all.filter(x=>x.id===r.id).map(x=>x.done||0))});
  const cm=new Map();for(const c of [...(b.cats||[]),...(a.cats||[])]){const k='cat:'+c.n.toLowerCase();if(!ds.has(k))cm.set(k,c)}
- return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:{t:(a.bud&&a.bud.t!=null)?a.bud.t:((b.bud&&b.bud.t!=null)?b.bud.t:null),c:{...((b.bud||{}).c||{}),...((a.bud||{}).c||{})}},ckw:{...(b.ckw||{}),...(a.ckw||{})},msd:((a.msdU||0)>=(b.msdU||0)?a.msd:b.msd)||a.msd||b.msd||1,msdU:Math.max(a.msdU||0,b.msdU||0),del}}
+ return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:(()=>{const A=a.bud||{},B=b.bud||{},nb=(B.u||0)>(A.u||0),P=nb?B:A,Q=nb?A:B;return {t:P.t!=null?P.t:(Q.t!=null?Q.t:null),c:{...(Q.c||{}),...(P.c||{})},u:Math.max(A.u||0,B.u||0)}})(),ckw:{...(b.ckw||{}),...(a.ckw||{})},msd:((a.msdU||0)>=(b.msdU||0)?a.msd:b.msd)||a.msd||b.msd||1,msdU:Math.max(a.msdU||0,b.msdU||0),del}}
 window.emMerge=(c,quiet)=>{if(!localStorage.getItem('em_bak'))localStorage.setItem('em_bak',JSON.stringify(D));D=mergeData(D,c);if(!D.acc.length)D.acc=[{id:1,name:'Cash',group:'cash',open:0}];
  
  localStorage.setItem('em_data',JSON.stringify(D));processRec();if(!quiet)save();render()};
+setTimeout(()=>{try{capDates()}catch(e){}},0);
 window.emSet=(d,u)=>{D=d;D.bud=D.bud||{t:null,c:{}};D.bud.c=D.bud.c||{};delete D.gk;D.acc=D.acc||[];D.tx=D.tx||[];D.rec=D.rec||[];D.cats=D.cats||[];D.map=D.map||{};localStorage.setItem('em_data',JSON.stringify(D));localStorage.setItem('em_upd',u||Date.now());processRec();render()};
 const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
 const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
@@ -266,9 +267,10 @@ const todayStr=()=>f(new Date());
 const fd=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?m[3]+'-'+m[2]+'-'+m[1]:(s||'')};
 let pick='';try{pick=sessionStorage.getItem('em_pd')||''}catch(e){}
 const curDate=()=>pick||todayStr();
-function syncDate(){const h=$('hDate');if(h&&document.activeElement!==h&&h.value!==curDate())h.value=curDate()}
-function setPick(v){pick=(!v||v===todayStr())?'':v;try{pick?sessionStorage.setItem('em_pd',pick):sessionStorage.removeItem('em_pd')}catch(e){}
- if($('aDate'))$('aDate').value=curDate();if($('hDate'))$('hDate').value=curDate()}
+function syncDate(){capDates();const h=$('hDate');if(h&&document.activeElement!==h&&h.value!==curDate())h.value=curDate()}
+function capDates(){const t=todayStr();['aDate','hDate'].forEach(i=>{const e=$(i);if(e)e.max=t})}
+function setPick(v){if(v&&v>todayStr()){toast('⛔ ഭാവിയിലെ തീയതി തിരഞ്ഞെടുക്കാൻ പറ്റില്ല');v=''}pick=(!v||v===todayStr())?'':v;try{pick?sessionStorage.setItem('em_pd',pick):sessionStorage.removeItem('em_pd')}catch(e){}
+ if($('aDate'))$('aDate').value=curDate();if($('hDate'))$('hDate').value=curDate();capDates()}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncDate()});
 const PEN='<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
 const KEY='<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/></svg>';
@@ -379,6 +381,10 @@ function fillSelects(){}
 function saveTx(tx){
  if(!tx.amt||tx.amt<=0)return toast('തുക നൽകൂ');
  if(tx.type==='transfer'&&tx.acc===tx.to)return toast('രണ്ട് വ്യത്യസ്ത അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
+ if(String(tx.date||'')>todayStr())return toast('⛔ ഭാവിയിലെ തീയതിയിൽ എൻട്രി ചേർക്കാൻ പറ്റില്ല');
+ {const nk=v=>String(v||'').trim().toLowerCase();
+  const dup=D.tx.find(t=>t.type===tx.type&&t.date===tx.date&&Number(t.amt)===Number(tx.amt)&&nk(t.note)===nk(tx.note)&&(tx.type!=='transfer'||(t.acc===tx.acc&&t.to===tx.to)));
+  if(dup&&!confirm('⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം!\nഇതേ തീയതി ('+fd(tx.date)+'), ഇതേ തുക ('+inr(tx.amt)+')'+(nk(tx.note)?', ഇതേ പേര് ('+tx.note+')':'')+' ഉള്ള '+(tx.type==='transfer'?'ട്രാൻസ്ഫർ':'എൻട്രി')+' ഇതിനകം ഉണ്ട്.\nഎന്നാലും ചേർക്കണോ?'))return false}
  if(tx.type!=='transfer'&&!tx.cat)tx.cat=tx.type==='income'?'Other Income':'Other';
  if(tx.type!=='transfer'&&tx.note&&String(tx.note).trim().length>=2&&!/^other/i.test(tx.cat||''))D.map[String(tx.note).trim().toLowerCase()]=tx.cat;
  tx.id=Date.now()*1000+(window._lid=((window._lid||0)+1)%1000);D.tx.unshift(tx);D.tx.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);save();
@@ -672,7 +678,7 @@ function renderReports(){
 function openAdd(){
  const ty=type,tr=ty==='transfer';
  $('aTitle').textContent={income:'⬇ വരവ് ചേർക്കൂ',expense:'⬆ ചെലവ് ചേർക്കൂ',transfer:'⇄ ട്രാൻസ്ഫർ'}[ty];
- $('aDate').value=curDate();fillDL();$('aAmt').value='';$('aDesc').value='';
+ $('aDate').value=curDate();capDates();fillDL();$('aAmt').value='';$('aDesc').value='';
  $('aDescL').textContent=tr?'റിമാർക്ക്':'എന്താവശ്യം';
  $('aAccL').textContent=tr?'From / എവിടെ നിന്ന്':'അക്കൗണ്ട്';
  $('aCatBox').style.display=tr?'none':'block';$('aToBox').style.display=tr?'block':'none';
@@ -706,7 +712,7 @@ function closeAcc(){$('amodal').style.display='none'}
 let ccId=0,ccColor=PAL[0];
 function openCC(id){const t=D.tx.find(x=>x.id===id);if(!t)return;ccId=id;
  $('ccInfo').textContent=inr(t.amt)+' · '+fd(t.date)+' · ഇപ്പോൾ: '+t.cat;$('ccNote').value=t.note||'';fillDL();
- $('ccSel').innerHTML=catOpts(t.type)+'<option value="__new__">➕ പുതിയ category ചേർക്കൂ</option>';$('ccSel').value=t.cat;if(!$('ccSel').value)$('ccSel').selectedIndex=0;
+ $('ccSel').innerHTML='<option value="__new__">➕ പുതിയ category ചേർക്കൂ</option>'+catOpts(t.type);$('ccSel').value=t.cat;if(!$('ccSel').value)$('ccSel').selectedIndex=Math.min(1,$('ccSel').options.length-1);
  $('ccNN').value='';$('ccNI').value='';$('ccNK').value='';ccColor=PAL[0];ccNewToggle();
  $('ccAcc').innerHTML=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');$('ccAcc').value=t.acc;$('ccmodal').style.display='flex'}
 function ccNewToggle(){const n=$('ccSel').value==='__new__';$('ccNewBox').style.display=n?'block':'none';if(!n)return;
@@ -751,32 +757,32 @@ function undoTx(id){tomb(id);tomb(id+1);D.tx=D.tx.filter(t=>t.id!==id);D.rec=D.r
 let budEd=null;
 const BUD_PEN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
 function penBtn(k){return `<button type="button" aria-label="Edit" onclick="budEd=this.dataset.k;renderBudget(true)" data-k="${esc(k)}" style="border:0;background:#f1f3f9;color:var(--mute);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;padding:0">${BUD_PEN}</button>`}
-function budCol(sp,b){const r=sp/b;return r>1?'#e11d48':r>=.8?'#f59e0b':'#059669'}
+function budCol(sp,b){const r=b>0?sp/b:(sp>0?2:0);return r>1?'#e11d48':r>=.8?'#f59e0b':'#059669'}
 function budBar(sp,b){const col=budCol(sp,b);
- return `<div style="height:10px;background:#eef0f7;border-radius:6px;margin:6px 0 4px;overflow:hidden"><div style="width:${Math.min(100,Math.round(sp/b*100))}%;height:100%;background:${col};border-radius:6px"></div></div><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute)"><span>${inr(sp)} / ${inr(b)}</span><b style="color:${col}">${sp>b?'⚠ '+inr(sp-b)+' ബജറ്റിൽ കൂടുതൽ ചെലവായി':inr(b-sp)+' ശേഷിക്കുന്നു'}</b></div>`}
+ return `<div style="height:10px;background:#eef0f7;border-radius:6px;margin:6px 0 4px;overflow:hidden"><div style="width:${b>0?Math.min(100,Math.round(sp/b*100)):(sp>0?100:0)}%;height:100%;background:${col};border-radius:6px"></div></div><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute)"><span>${inr(sp)} / ${inr(b)}</span><b style="color:${col}">${sp>b?'⚠ '+inr(sp-b)+' ബജറ്റിൽ കൂടുതൽ ചെലവായി':(b===0?'ചെലവില്ല ✔':inr(b-sp)+' ശേഷിക്കുന്നു')}</b></div>`}
 function renderBudget(force){const box=$('bud');if(!box)return;
  const ae=document.activeElement;if(!force&&ae&&ae.tagName==='INPUT'&&box.contains(ae))return;
  D.bud=D.bud||{t:null,c:{}};D.bud.c=D.bud.c||{};
  const cur=sumBy('expense',mk(0)),sp={};for(const k in cur)sp[k.toLowerCase()]=(sp[k.toLowerCase()]||0)+cur[k];
- const T=D.bud.t||0,spent=tot(cur),cs=catList('expense'),ct=Object.values(D.bud.c).reduce((s,v)=>s+(+v||0),0);
+ const T=D.bud.t||0,spent=tot(cur),cs=catList('expense').slice().sort((x,y)=>{const a=x.n.toLowerCase(),b=y.n.toLowerCase();return (sp[b]||0)-(sp[a]||0)||((+D.bud.c[b]||0)-(+D.bud.c[a]||0))}),ct=Object.values(D.bud.c).reduce((s,v)=>s+(+v||0),0);
  const mon=periodLabel(0);
  box.innerHTML=`<div class="card"><h3>🎯 ഈ മാസത്തെ ബജറ്റ് <small style="color:var(--mute);font-weight:400">· ${mon}</small></h3>
   ${(T>0&&budEd!=='__t')?`<div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0"><div><small>മാസ ബജറ്റ്</small><div style="font-size:26px;font-weight:800">${inr(T)}</div></div>${penBtn('__t')}</div>`
   :`<small>മാസ ബജറ്റ് ₹</small><input id="bT" data-focus="${budEd==='__t'?1:''}" type="number" inputmode="decimal" value="${T||''}" placeholder="0">
   <button class="btn" onclick="saveTotBud()">ബജറ്റ് സേവ് ചെയ്യുക</button>`}
   ${T>0?budBar(spent,T):'<div class="empty">ബജറ്റ് ഇതുവരെ സെറ്റ് ചെയ്തിട്ടില്ല</div>'}</div>
-  <div class="card"><h3>🏷 ഓരോ category-ക്കും ബജറ്റ്</h3><small style="color:var(--mute)">ബജറ്റ് വേണ്ടാത്തവ ഒഴിച്ചിടൂ. 0 നൽകിയാൽ ബജറ്റ് ഒഴിവാകും.</small>
-  ${cs.map(c=>{const k=c.n.toLowerCase(),b=+D.bud.c[k]||0,s=sp[k]||0;
-   return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${c.c};width:34px;height:34px">${c.ic}</span><b style="flex:1;min-width:0">${esc(c.n)}</b>${(b>0&&budEd!==k)?`<b style="font-size:17px">${inr(b)}</b>${penBtn(k)}`:`<input type="number" inputmode="decimal" data-n="${esc(c.n)}" data-focus="${budEd===k?1:''}" value="${b||''}" placeholder="₹" onchange="setCatBud(this.dataset.n,this.value)" onblur="if(budEd){budEd=null;renderBudget(true)}" onkeydown="if(event.key==='Enter')this.blur()" style="width:110px;margin:0;padding:8px">`}</div>${b>0?budBar(s,b):(s?`<small style="color:var(--mute)">${inr(s)}</small>`:'')}</div>`}).join('')}
+  <div class="card"><h3>🏷 ഓരോ category-ക്കും ബജറ്റ്</h3><small style="color:var(--mute)">ബജറ്റ് വേണ്ടാത്തവ ഒഴിച്ചിടൂ. ഒന്നും ചെലവാക്കാൻ ഉദ്ദേശിക്കാത്തവയ്ക്ക് 0 നൽകൂ.</small>
+  ${cs.map(c=>{const k=c.n.toLowerCase(),raw=D.bud.c[k],has=raw!=null&&raw!==''&&!isNaN(+raw),b=has?+raw:0,s=sp[k]||0;
+   return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${c.c};width:34px;height:34px">${c.ic}</span><b style="flex:1;min-width:0">${esc(c.n)}</b>${(has&&budEd!==k)?`<b style="font-size:17px">${inr(b)}</b>${penBtn(k)}`:`<input type="number" inputmode="decimal" data-n="${esc(c.n)}" data-focus="${budEd===k?1:''}" value="${has?b:''}" placeholder="₹" onchange="setCatBud(this.dataset.n,this.value)" onblur="if(budEd){budEd=null;renderBudget(true)}" onkeydown="if(event.key==='Enter')this.blur()" style="width:110px;margin:0;padding:8px">`}</div>${has?budBar(s,b):(s?`<small style="color:var(--mute)">${inr(s)}</small>`:'')}</div>`}).join('')}
   ${ct>0?`<div style="margin-top:10px;font-size:14px;color:var(--mute)">Category ബജറ്റുകളുടെ ആകെ: <b style="color:var(--ink)">${inr(ct)}</b></div>`:''}</div>`;
  const f=box.querySelector('[data-focus="1"]');if(f)f.focus()}
 function saveTotBud(){const v=$('bT').value.trim(),n=v===''?0:+v;if(!(n>=0))return toast('ശരിയായ തുക നൽകൂ');
- D.bud.t=n;budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
-function setCatBud(name,v){v=String(v).trim();const n=v===''?0:+v;if(!(n>=0)){renderBudget(true);return toast('ശരിയായ തുക നൽകൂ')}
- D.bud.c[String(name).toLowerCase()]=n;budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
+ D.bud.t=n;D.bud.u=Date.now();budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
+function setCatBud(name,v){v=String(v).trim();const n=v===''?null:+v;if(n!==null&&!(n>=0)){renderBudget(true);return toast('ശരിയായ തുക നൽകൂ')}
+ D.bud.c[String(name).toLowerCase()]=n;D.bud.u=Date.now();budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
 function budWarn(tx){const b=D.bud||{},m=mOf(tx.date);if(m!==mk(0))return '';
- const cur=sumBy('expense',m),c=String(tx.cat||'').toLowerCase(),cb=+((b.c||{})[c])||0;let cs=0;for(const k in cur)if(k.toLowerCase()===c)cs+=cur[k];
- if(cb>0&&cs>cb)return '⚠ '+tx.cat+' ബജറ്റ് കവിഞ്ഞു';
+ const cur=sumBy('expense',m),c=String(tx.cat||'').toLowerCase(),cr=(b.c||{})[c],cb=(cr==null||cr==='')?-1:+cr;let cs=0;for(const k in cur)if(k.toLowerCase()===c)cs+=cur[k];
+ if(cb>=0&&cs>cb)return '⚠ '+tx.cat+' ബജറ്റ് കവിഞ്ഞു';
  if(b.t>0&&tot(cur)>b.t)return '⚠ മാസ ബജറ്റ് കവിഞ്ഞു';return ''}
 
 /* ---------- Settings tab ---------- */
@@ -986,7 +992,7 @@ Sign out ചെയ്യണോ?¦Sign out?
 ബജറ്റിൽ കൂടുതൽ ചെലവായി¦over budget
 ശേഷിക്കുന്നു¦left
 🏷 ഓരോ category-ക്കും ബജറ്റ്¦🏷 Budget for each category
-ബജറ്റ് വേണ്ടാത്തവ ഒഴിച്ചിടൂ. 0 നൽകിയാൽ ബജറ്റ് ഒഴിവാകും.¦Leave blank where no budget is needed. Enter 0 to remove a budget.
+ബജറ്റ് വേണ്ടാത്തവ ഒഴിച്ചിടൂ. ഒന്നും ചെലവാക്കാൻ ഉദ്ദേശിക്കാത്തവയ്ക്ക് 0 നൽകൂ.¦Leave blank where no budget is needed. Enter 0 if you plan to spend nothing.
 Category ബജറ്റുകളുടെ ആകെ¦Total of category budgets
 ബജറ്റ് സേവ് ചെയ്തു ✔¦Budget saved ✔
 ശരിയായ തുക നൽകൂ¦Enter a valid amount
@@ -1087,10 +1093,10 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyAC9KeZ2XtiEXbKbS7T5eavKqWS1MXgiLE",authDomain:"expense-manager-5651c.firebaseapp.com",projectId:"expense-manager-5651c",storageBucket:"expense-manager-5651c.firebasestorage.app",messagingSenderId:"490114275639",appId:"1:490114275639:web:e9b9b9b921978eeef5a2b2",measurementId:"G-NYVBBDEDQV"});
 const auth=getAuth(app),db=getFirestore(app),el=id=>document.getElementById(id);
-let uid=null,timer=null;
+let uid=null,timer=null,unsub=null,lastRaw='';
 const say=m=>{el('sync').textContent=m};
 window.cloudToggle=()=>{
  if(uid){if(confirm('Sign out ചെയ്യണോ?'))signOut(auth);return}
@@ -1107,13 +1113,21 @@ window.cloudPush=now=>{if(!uid)return;clearTimeout(timer);say('☁ സിങ്�
   if(snap.exists())window.emMerge(JSON.parse(snap.data().data),true);
   const out=JSON.stringify(window.emGet());
   if(!snap.exists()||snap.data().data!==out)await setDoc(r,{data:out,updated:Date.now()});
+  lastRaw=out;
   say('☁ ക്ലൗഡിൽ സേവ് ആയി')}catch(e){say('⚠ '+(e.code||e.message))}},now?0:700)};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)window.cloudPush(true)});
 onAuthStateChanged(auth,async u=>{
  uid=u?u.uid:null;el('cloudBtn').textContent=u?'☁ '+(u.displayName||u.email||'Account').split(/[ @]/)[0]:'☁ Login';
+ if(unsub){unsub();unsub=null}
  if(!u){say('ഫോണിൽ മാത്രം സേവ് ആകുന്നു · Login ചെയ്യൂ');return}
  say('☁ ലോഡ് ചെയ്യുന്നു…');
+ unsub=onSnapshot(doc(db,'users',u.uid),snap=>{
+  if(!snap.exists()||snap.metadata.hasPendingWrites)return;
+  const raw=snap.data().data;if(!raw||raw===lastRaw)return;lastRaw=raw;
+  try{window.emMerge(JSON.parse(raw),true)}catch(e){return}
+  if(JSON.stringify(window.emGet())!==raw)window.cloudPush(true);else say('☁ അപ്ഡേറ്റ് ചെയ്തു')},e=>say('⚠ '+(e.code||e.message)));
  window.cloudPush(true)});
+['focus','online','pageshow'].forEach(ev=>window.addEventListener(ev,()=>{if(uid)window.cloudPush(true)}));
 </script>
 </body>
 </html>
