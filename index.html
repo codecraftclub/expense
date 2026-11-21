@@ -123,6 +123,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 
 <!-- ACCOUNTS -->
 <section class="tab" id="accs">
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><small style="color:var(--mute)">+ അമർത്തി ഏത് അക്കൗണ്ടിലേക്കും നേരിട്ട് ചേർക്കാം</small><button class="plus" onclick="openAddAcc()">+</button></div>
   <div id="accList"></div>
 </section>
 <section class="tab" id="rep"><div id="repBox"></div></section>
@@ -179,6 +180,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 </main>
 
 <div id="modal" onclick="if(event.target===this)closeAdd()"><div class="sheet"><h3 id="aTitle"></h3>
+ <div class="seg" id="aSeg" style="display:none;margin:6px 0"><button data-t="income" onclick="setAddTy('income')">⬇ Income</button><button data-t="expense" onclick="setAddTy('expense')">⬆ Expense</button><button data-t="transfer" onclick="setAddTy('transfer')">⇄ Transfer</button></div>
  <small>തീയതി</small><input id="aDate" type="date" onchange="setPick(this.value)">
  <small>തുക ₹</small><input id="aAmt" type="number" inputmode="decimal" placeholder="തുക">
  <small id="aDescL"></small><input id="aDesc" placeholder="" list="dlNotes" autocomplete="off">
@@ -203,7 +205,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   <button class="btn" onclick="saveXk()">Extra keywords സേവ് ചെയ്യുക</button></div>
  <h3 style="margin-top:18px;font-size:14px">എല്ലാ categories</h3><div id="cList"></div>
  <button class="btn sec" onclick="closeCat()">അടയ്ക്കുക</button></div></div>
-<div id="amodal" onclick="if(event.target===this)closeAcc()"><div class="sheet" style="max-height:88vh;overflow:auto"><h3 id="amTitle"></h3><div id="amSum" style="font-size:14px;margin:2px 0 8px"></div>
+<div id="amodal" onclick="if(event.target===this)closeAcc()"><div class="sheet" style="max-height:88vh;overflow:auto"><h3 id="amTitle"></h3><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 8px"><div id="amSum" style="font-size:14px"></div><button class="plus" onclick="closeAcc();openAddAcc(amId)">+</button></div>
 <div id="amList"></div><button class="btn sec" onclick="closeAcc()">അടയ്ക്കുക</button></div></div>
 <div id="aemodal" onclick="if(event.target===this)closeAccEdit()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3 id="aeTitle"></h3>
  <small>അക്കൗണ്ട് പേര്</small><input id="aeName" autocomplete="off">
@@ -703,21 +705,25 @@ function renderReports(){
  <div class="card"><h3>📊 ഈ മാസം vs കഴിഞ്ഞ മാസം</h3><small style="color:var(--mute)">നിറമുള്ളത്: ഈ മാസം · ചാരനിറം: കഴിഞ്ഞ മാസം</small>${cmp}</div>
  <div class="card"><h3>📈 6 മാസത്തെ വരവ് / ചെലവ്</h3><svg viewBox="0 0 320 155" style="width:100%;height:auto;stroke:none">${bars}</svg><div style="text-align:center;font-size:12px;color:var(--mute)"><span style="color:#10b981">■</span> വരവ് &nbsp; <span style="color:#fb7185">■</span> ചെലവ്</div></div>`}
 
-function openAdd(){
- const ty=type,tr=ty==='transfer';
+let addTy=null;
+function openAddAcc(id){addTy='expense';openAdd(id)}
+function setAddTy(t){const a=$('aAmt').value,d=$('aDesc').value,ac=$('aAcc').value;addTy=t;openAdd(ac);$('aAmt').value=a;$('aDesc').value=d}
+function openAdd(preAcc){
+ const ty=addTy||type,tr=ty==='transfer';
+ $('aSeg').style.display=addTy?'':'none';document.querySelectorAll('#aSeg button').forEach(b=>b.classList.toggle('on',b.dataset.t===ty));
  $('aTitle').textContent={income:'⬇ വരവ് ചേർക്കൂ',expense:'⬆ ചെലവ് ചേർക്കൂ',transfer:'⇄ ട്രാൻസ്ഫർ'}[ty];
  $('aDate').value=curDate();capDates();fillDL();$('aAmt').value='';$('aDesc').value='';
  $('aDescL').textContent=tr?'റിമാർക്ക്':'എന്താവശ്യം';
  $('aAccL').textContent=tr?'From / എവിടെ നിന്ന്':'അക്കൗണ്ട്';
  $('aCatBox').style.display=tr?'none':'block';$('aToBox').style.display=tr?'block':'none';
  const ac=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
- $('aAcc').innerHTML=ac;$('aTo').innerHTML=ac;
+ $('aAcc').innerHTML=ac;$('aTo').innerHTML=ac;if(preAcc&&typeof preAcc!=='object'&&[...$('aAcc').options].some(o=>o.value==preAcc))$('aAcc').value=preAcc;
  $('aCat').innerHTML='<option value="auto">Auto (തനിയെ) ✨</option>'+catOpts(ty);
  $('modal').style.display='flex';setTimeout(()=>$('aAmt').focus(),150)}
 function addToCat(c){openAdd();const s=$('aCat');if(s&&[...s.options].some(o=>o.value===c))s.value=c}
-function closeAdd(){$('modal').style.display='none'}
+function closeAdd(){$('modal').style.display='none';addTy=null}
 function saveAdd(){const amt=+$('aAmt').value;if(!amt||amt<=0)return toast('തുക നൽകൂ');
- const ty=type,desc=$('aDesc').value.trim(),sel=ty==='transfer'?'':$('aCat').value;
+ const ty=addTy||type,desc=$('aDesc').value.trim(),sel=ty==='transfer'?'':$('aCat').value;
  const tx={type:ty,amt,cat:sel,acc:+$('aAcc').value,to:ty==='transfer'?+$('aTo').value:0,date:$('aDate').value||todayStr(),note:desc};
  if(ty!=='transfer'){
   if(sel==='auto'||!sel){let c=classify(desc,ty);
@@ -768,7 +774,7 @@ function closeKw(){$('kwmodal').style.display='none'}
 function saveKw(){const v=$('kwIn').value.trim();
  if(kwKind==='cat'){D.ckw=D.ckw||{};D.ckw[String(kwKey).toLowerCase()]=v}else{const a=accById(kwKey);if(a){a.kw=v;a.u=Date.now()}}
  save();closeKw();render();toast('Keywords സേവ് ചെയ്തു ✔')}
-const APP_VERSION='1.4';
+const APP_VERSION='1.6';
 const FEEDBACK_URL='https://docs.google.com/forms/d/e/1FAIpQLScjyB3pOn3Oo499jXxJNx5IoG41B7qxKh0dT--g0bhn0s7b4w/viewform?usp=publish-editor';
 function openFeedback(){if(!FEEDBACK_URL)return toast('ഫീഡ്ബാക്ക് ലിങ്ക് ഇതുവരെ ചേർത്തിട്ടില്ല');window.open(FEEDBACK_URL,'_blank','noopener')}
 let payCard=0;
@@ -861,7 +867,8 @@ function drawSettings(){const b=$('setLang');if(!b)return;drawAk();drawMonth();d
 const UI_CODE={ml:'ml-IN',en:'en-IN',kn:'kn-IN',ta:'ta-IN',te:'te-IN'},UI_OF={'ml-IN':'ml','en-IN':'en','kn-IN':'kn','ta-IN':'ta','te-IN':'te'};
 let UIC=localStorage.getItem('em_ui')||'ml';if(!UI_CODE[UIC])UIC='ml';
 const UIL=()=>UI_CODE[UIC];
-const I18N=`ലോഗിൻ പരിശോധിക്കുന്നു¦Checking login
+const I18N=`+ അമർത്തി ഏത് അക്കൗണ്ടിലേക്കും നേരിട്ട് ചേർക്കാം¦Tap + to add directly to any account
+ലോഗിൻ പരിശോധിക്കുന്നു¦Checking login
 വരവ് / Income¦Income
 ചെലവ് / Expense¦Expense
 ബാലൻസ്¦Balance
