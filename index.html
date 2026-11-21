@@ -229,7 +229,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <small>ഏത് അക്കൗണ്ടിൽ നിന്ന്</small><select id="pAcc"></select>
  <button class="btn" onclick="confirmPay()">അതെ, Paid</button><button class="btn sec" onclick="closePay()">അല്ല</button></div></div>
 <div id="lmodal" onclick="if(event.target===this)this.style.display='none'"><div class="sheet">
- <div id="lLogin"><h3>☁ Login</h3><input id="lE" type="email" placeholder="ഇമെയിൽ"><input id="lP" type="password" placeholder="പാസ്‌വേഡ്">
+ <div id="lLogin"><h3>☁ Login</h3><input id="lE" type="email" name="email" autocomplete="username" placeholder="ഇമെയിൽ"><input id="lP" type="password" name="password" autocomplete="current-password" placeholder="പാസ്‌വേഡ്">
   <button class="btn" onclick="emailLogin('in')">Login</button>
   <button class="btn sec" onclick="lShow('new')">പുതിയ അക്കൗണ്ട് ഉണ്ടാക്കൂ</button><button class="btn sec" onclick="lShow('reset')">പാസ്‌വേഡ് മറന്നോ?</button><button class="btn sec" onclick="googleLogin()">Google ഉപയോഗിക്കൂ</button></div>
  <div id="lNew" style="display:none"><h3>പുതിയ അക്കൗണ്ട്</h3><input id="sE" type="email" placeholder="ഇമെയിൽ"><input id="sP" type="password" placeholder="പാസ്‌വേഡ് (കുറഞ്ഞത് 6 അക്ഷരം)"><input id="sP2" type="password" placeholder="പാസ്‌വേഡ് വീണ്ടും">
@@ -616,7 +616,7 @@ function addEntry(){
  const text=$('voiceText').value.trim();if(!text)return toast('ആദ്യം എന്തെങ്കിലും പറയൂ');
  const segs=text.split(/,(?!\d)|[;،\n]|\s+(?:പിന്നെ|പിന്നീട്|then)\s+/i).map(x=>x.trim()).filter(Boolean);
  if(segs.length>1){const done=[],fail=[];
-  for(const sg of segs){const lt=localParse(sg);if(lt&&saveTx(lt))done.push(lt);else fail.push(sg)}
+  for(const sg of segs){let ok=false,lt=null;try{lt=localParse(sg);ok=!!(lt&&saveTx(lt))}catch(e){ok=!!(lt&&lt.id)}if(ok)done.push(lt);else fail.push(sg)}
   const res=$('res');res.style.display='block';
   res.innerHTML=`🎤 ${esc(text)}<br>✅ ${done.length} എൻട്രി സേവ് ചെയ്തു`+done.map(t=>`<br>• ${catMeta(t.cat).ic} <b>${esc(t.cat)}</b> · ${inr(t.amt)} · ${esc(accById(t.acc).name)}${t.note?' · '+esc(t.note):''}${ccSel(t,1)}`).join('')+(fail.length?`<br>⚠ മനസ്സിലായില്ല (ഒന്നൊന്നായി പറയൂ): ${esc(fail.join(', '))}`:'')+(done.length?`<button class="btn sec" onclick="undoMany([${done.map(t=>t.id)}])">↩ Undo all</button>`:'');
   $('voiceText').value=fail.join(', ');return}
@@ -756,7 +756,7 @@ function saveCC(){const t=D.tx.find(x=>x.id===ccId);if(!t)return closeCC();let c
   if(ex){cat=ex.n;if(kw){D.ckw=D.ckw||{};D.ckw[ex.n.toLowerCase()]=kwMerge(D.ckw[ex.n.toLowerCase()],kw)}}
   else{untombCat(n);D.cats.push({n,ic:$('ccNI').value.trim()||'📦',c:ccColor,kind:t.type,k:kwMerge(n.toLowerCase(),kw)});cat=n}}
  t.note=$('ccNote').value.trim();if($('ccAcc').value)t.acc=+$('ccAcc').value;
- chgCat(ccId,cat);closeCC();$('res').style.display='none';toast('മാറ്റി ✔')}
+ const _id=ccId;closeCC();$('res').style.display='none';try{chgCat(_id,cat)}catch(e){console.error(e)}toast('മാറ്റി ✔')}
 function ccSel(tx,inl){if(tx.type==='transfer')return '';return `<button class="ib ed" style="margin-left:8px;vertical-align:middle" onclick="openCC(${tx.id})">${PEN}</button>`}
 let kwKind='',kwKey='';
 function openKw(kind,key){kwKind=kind;kwKey=key;let cur='',hint='';
@@ -768,7 +768,7 @@ function closeKw(){$('kwmodal').style.display='none'}
 function saveKw(){const v=$('kwIn').value.trim();
  if(kwKind==='cat'){D.ckw=D.ckw||{};D.ckw[String(kwKey).toLowerCase()]=v}else{const a=accById(kwKey);if(a){a.kw=v;a.u=Date.now()}}
  save();closeKw();render();toast('Keywords സേവ് ചെയ്തു ✔')}
-const APP_VERSION='1.3';
+const APP_VERSION='1.4';
 const FEEDBACK_URL='https://docs.google.com/forms/d/e/1FAIpQLScjyB3pOn3Oo499jXxJNx5IoG41B7qxKh0dT--g0bhn0s7b4w/viewform?usp=publish-editor';
 function openFeedback(){if(!FEEDBACK_URL)return toast('ഫീഡ്ബാക്ക് ലിങ്ക് ഇതുവരെ ചേർത്തിട്ടില്ല');window.open(FEEDBACK_URL,'_blank','noopener')}
 let payCard=0;
@@ -799,7 +799,7 @@ function budBar(sp,b){const col=budCol(sp,b);
  return `<div style="height:10px;background:#eef0f7;border-radius:6px;margin:6px 0 4px;overflow:hidden"><div style="width:${b>0?Math.min(100,Math.round(sp/b*100)):(sp>0?100:0)}%;height:100%;background:${col};border-radius:6px"></div></div><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute)"><span>${inr(sp)} / ${inr(b)}</span><b style="color:${col}">${sp>b?'⚠ '+inr(sp-b)+' ബജറ്റിൽ കൂടുതൽ ചെലവായി':(b===0?'ചെലവില്ല ✔':(sp>=b*.8?'⚠ '+Math.round(sp/b*100)+'% ആയി · '+inr(b-sp)+' ബാക്കി':inr(b-sp)+' ശേഷിക്കുന്നു'))}</b></div>`}
 function renderBudget(force){const box=$('bud');if(!box)return;
  const ae=document.activeElement;if(!force&&ae&&ae.tagName==='INPUT'&&box.contains(ae))return;
- D.bud=D.bud||{t:null,c:{}};BM.c=BM.c||{};const BM=bFor(mk(budOff));
+ D.bud=D.bud||{t:null,c:{}};const BM=bFor(mk(budOff));BM.c=BM.c||{};
  const cur=sumBy('expense',mk(budOff)),sp={};for(const k in cur)sp[k.toLowerCase()]=(sp[k.toLowerCase()]||0)+cur[k];
  const T=BM.t||0,spent=tot(cur),cs=catList('expense').slice().sort((x,y)=>{const a=x.n.toLowerCase(),b=y.n.toLowerCase();return (sp[b]||0)-(sp[a]||0)||((+BM.c[b]||0)-(+BM.c[a]||0))}),ct=Object.values(BM.c).reduce((s,v)=>s+(+v||0),0);
  const mon=periodLabel(budOff);
@@ -1147,10 +1147,12 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {getAuth,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyAC9KeZ2XtiEXbKbS7T5eavKqWS1MXgiLE",authDomain:"expense-manager-5651c.firebaseapp.com",projectId:"expense-manager-5651c",storageBucket:"expense-manager-5651c.firebasestorage.app",messagingSenderId:"490114275639",appId:"1:490114275639:web:e9b9b9b921978eeef5a2b2",measurementId:"G-NYVBBDEDQV"});
-const auth=getAuth(app),db=getFirestore(app),el=id=>document.getElementById(id);
+let auth;try{auth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence]})}catch(e){auth=getAuth(app)}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+const db=getFirestore(app),el=id=>document.getElementById(id);
 let uid=null,timer=null,unsub=null,lastRaw='';
 const say=m=>{const e=el('sync');if(e.textContent!==m)e.textContent=m};
 const canon=v=>{if(Array.isArray(v)){return v.map(canon).sort((x,y)=>{const p=JSON.stringify(x),q=JSON.stringify(y);return p<q?-1:p>q?1:0})}if(v&&typeof v==='object'){const o={};Object.keys(v).sort().forEach(k=>o[k]=canon(v[k]));return o}return v};
@@ -1173,6 +1175,7 @@ window.cloudPush=now=>{if(!uid)return;clearTimeout(timer);if(!now)say('☁ സ�
   if(!rem||!same(rem,out))await setDoc(r,{data:out,updated:Date.now()});
   lastRaw=out;say('☁ ക്ലൗഡിൽ സേവ് ആയി')}catch(e){say('⚠ '+(e.code||e.message))}},now?0:700)};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastPull>30000)window.cloudPush(true)});
+try{const _cb=document.getElementById('cloudBtn');if(_cb&&!auth.currentUser)_cb.textContent='☁ …'}catch(e){}
 onAuthStateChanged(auth,async u=>{
  uid=u?u.uid:null;el('cloudBtn').textContent=u?'☁ '+(u.displayName||u.email||'Account').split(/[ @]/)[0]:'☁ Login';
  if(unsub){unsub();unsub=null}
