@@ -366,7 +366,8 @@ function ensureCat(n,emo,kind){if(!n||allCats().some(x=>x.n.toLowerCase()===Stri
  untombCat(n);let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;D.cats.push({n,ic:emo||'📦',c:PAL[h%PAL.length],kind,k:String(n).toLowerCase()})}
 function catList(ty){const seen=new Set(),o=[];
  [...allCats().filter(x=>x.kind===ty),...D.tx.filter(t=>t.type===ty&&t.cat).map(t=>catMeta(t.cat))].forEach(x=>{const k=x.n.toLowerCase();if(!seen.has(k)){seen.add(k);o.push(x)}});return o}
-const catOpts=ty=>catList(ty).map(x=>`<option value="${esc(x.n)}">${esc(x.n)} ${x.ic}</option>`).join('');
+const byName=(a,b)=>String(a.n).localeCompare(String(b.n),undefined,{sensitivity:'base',numeric:true});
+const catOpts=ty=>catList(ty).slice().sort(byName).map(x=>`<option value="${esc(x.n)}">${esc(x.n)} ${x.ic}</option>`).join('');
 let cColor=PAL[0],catKind='expense';
 function openCat(kw){catKind='expense';$('cN').value='';$('cI').value='';$('cK').value='';$('xkIn').value='';cColor=PAL[0];drawCat();$('cmodal').style.display='flex';
  if(kw)setTimeout(()=>$('xkBox').scrollIntoView({behavior:'smooth',block:'start'}),120)}
@@ -376,7 +377,7 @@ function drawCat(){
  document.querySelectorAll('#cseg button').forEach(b=>b.classList.toggle('on',b.dataset.t===catKind));
  $('cPal').innerHTML=PAL.map(c=>`<span onclick="cColor='${c}';drawCat()" style="width:30px;height:30px;border-radius:10px;background:${c};display:inline-block;margin:4px;${cColor===c?'outline:3px solid #1e1b4b;outline-offset:2px':''}"></span>`).join('');
  $('cEmo').innerHTML=EMO.map(e=>`<span onclick="$('cI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
- const pv=$('xkCat').value,cs=allCats().filter(c=>c.kind===catKind);
+ const pv=$('xkCat').value,cs=allCats().filter(c=>c.kind===catKind).sort(byName);
  $('xkCat').innerHTML='<option value="">— Category —</option>'+cs.map(c=>`<option value="${esc(c.n)}">${esc(c.n)} ${c.ic}</option>`).join('');
  if(cs.some(c=>c.n===pv))$('xkCat').value=pv;xkLoad();
  $('cList').innerHTML=cs.map(c=>{const idx=D.cats.findIndex(x=>x.n.toLowerCase()===c.n.toLowerCase()&&x.kind===catKind);
@@ -693,15 +694,18 @@ function periodLabel(o){const r=periodRange(o);if(MSD()===1)return r[0].toLocale
 const sumBy=(ty,m)=>{const o={};D.tx.forEach(t=>{if(t.type===ty&&mOf(t.date)===m){const c=t.cat||'മറ്റുള്ളവ';o[c]=(o[c]||0)+t.amt}});return o};
 const tot=o=>Object.values(o).reduce((a,b)=>a+b,0);
 const kfmt=n=>n>=1e5?(n/1e5).toFixed(1)+'L':n>=1e3?(n/1e3).toFixed(1)+'k':Math.round(n);
+let repOff=0;function repGo(d){repOff=Math.max(-36,Math.min(0,repOff+d));renderReports()}
 function renderReports(){
- const cur=sumBy('expense',mk(0)),prev=sumBy('expense',mk(-1)),tc=tot(cur),tp=tot(prev),inc=tot(sumBy('income',mk(0)));
+ const navB='border:0;background:#f1f3f9;color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:18px;padding:0;flex:none';
+ const mon=periodLabel(repOff),thisL=repOff===0?'ഈ മാസം':mon,prevL=repOff===0?'കഴിഞ്ഞ മാസം':periodLabel(repOff-1);
+ const cur=sumBy('expense',mk(repOff)),prev=sumBy('expense',mk(repOff-1)),tc=tot(cur),tp=tot(prev),inc=tot(sumBy('income',mk(repOff)));
  if(!D.tx.some(t=>t.type!=='transfer'))return $('repBox').innerHTML='<div class="card empty">റിപ്പോർട്ട് കാണാൻ ഇടപാടുകൾ ചേർക്കൂ</div>';
  const ch=tp?Math.round((tc-tp)/tp*100):null,ents=Object.entries(cur).sort((a,b)=>b[1]-a[1]);
  const chTxt=ch===null?'—':(ch>0?'▲ ':'▼ ')+Math.abs(ch)+'%',chCol=ch>0?'#e11d48':'#059669';
  let off=0;
  const arcs=ents.map(([c,v],i)=>{const p=v/tc*100,e=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${catMeta(c).c}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-off}"/>`;off+=p;return e}).join('');
  const donut=tc?`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center"><svg viewBox="0 0 42 42" style="width:170px;height:170px;stroke:none"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#eef0f7" stroke-width="6"/>${arcs}<text x="21" y="20.5" text-anchor="middle" font-size="3.2" fill="#6b7280" style="stroke:none">ചെലവ്</text><text x="21" y="25" text-anchor="middle" font-size="4" font-weight="700" fill="#1e1b4b" style="stroke:none">₹${kfmt(tc)}</text></svg>
-  <div style="flex:1;min-width:140px">${ents.map(([c,v],i)=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px"><span style="width:12px;height:12px;border-radius:4px;background:${catMeta(c).c}"></span><span style="flex:1">${catMeta(c).ic} ${esc(c)}</span><b>${Math.round(v/tc*100)}%</b></div>`).join('')}</div></div>`:'<div class="empty">ഈ മാസം ചെലവ് ഇല്ല</div>';
+  <div style="flex:1;min-width:140px">${ents.map(([c,v],i)=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px"><span style="width:12px;height:12px;border-radius:4px;background:${catMeta(c).c}"></span><span style="flex:1">${catMeta(c).ic} ${esc(c)}</span><b>${Math.round(v/tc*100)}%</b></div>`).join('')}</div></div>`:'<div class="empty">ഈ കാലയളവിൽ ചെലവ് ഇല്ല</div>';
  const cats=[...new Set([...Object.keys(cur),...Object.keys(prev)])].sort((a,b)=>(cur[b]||0)-(cur[a]||0)||(prev[b]||0)-(prev[a]||0));
  const mx=Math.max(1,...cats.map(c=>Math.max(cur[c]||0,prev[c]||0)));
  const cmp=cats.map((c,i)=>{const a=cur[c]||0,b=prev[c]||0,d=b?Math.round((a-b)/b*100):null;
@@ -709,17 +713,18 @@ function renderReports(){
   return `<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;font-size:14px"><b>${esc(c)}</b><small>${tag}</small></div>
   <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div style="height:11px;width:${a/mx*100}%;min-width:${a?4:0}px;background:linear-gradient(90deg,${catMeta(c).c},${catMeta(c).c}99);border-radius:6px"></div><small>${inr(a)}</small></div>
   <div style="display:flex;align-items:center;gap:8px;margin-top:3px"><div style="height:8px;width:${b/mx*100}%;min-width:${b?4:0}px;background:#cbd5e1;border-radius:6px"></div><small style="color:var(--mute)">${inr(b)}</small></div></div>`}).join('')||'<div class="empty">ഡാറ്റ ഇല്ല</div>';
- const ms=[-5,-4,-3,-2,-1,0].map(o=>({l:mlabel(o),i:tot(sumBy('income',mk(o))),e:tot(sumBy('expense',mk(o)))}));
+ const ms=[-5,-4,-3,-2,-1,0].map(o=>repOff+o).map(o=>({l:mlabel(o),i:tot(sumBy('income',mk(o))),e:tot(sumBy('expense',mk(o)))}));
  const M=Math.max(1,...ms.map(m=>Math.max(m.i,m.e))),H=110;
  const bars=ms.map((m,x)=>{const hi=m.i/M*H,he=m.e/M*H,X=x*52+8;return `<rect x="${X}" y="${130-hi}" width="18" height="${hi}" rx="4" fill="#10b981"/><rect x="${X+20}" y="${130-he}" width="18" height="${he}" rx="4" fill="#fb7185"/><text x="${X+19}" y="147" text-anchor="middle" font-size="10" fill="#6b7280" style="stroke:none">${m.l}</text>${m.i?`<text x="${X+9}" y="${126-hi}" text-anchor="middle" font-size="8" fill="#059669" style="stroke:none">${kfmt(m.i)}</text>`:''}${m.e?`<text x="${X+29}" y="${126-he}" text-anchor="middle" font-size="8" fill="#e11d48" style="stroke:none">${kfmt(m.e)}</text>`:''}`}).join('');
  const top=ents[0];
- $('repBox').innerHTML=`<div class="card"><div class="sum">
-  <div class="s2">ഈ മാസം ചെലവ്<b>${inr(tc)}</b></div>
-  <div class="s3">കഴിഞ്ഞ മാസം<b>${inr(tp)}</b></div>
+ $('repBox').innerHTML=`<div class="card" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px"><button type="button" aria-label="Previous month" style="${navB}" onclick="repGo(-1)" ${repOff<=-36?'disabled':''}>‹</button><b style="font-size:16px;text-align:center">${mon}${repOff===0?'':' <button type="button" onclick="repOff=0;renderReports()" style="border:0;background:#eef2ff;color:#4338ca;border-radius:10px;padding:2px 8px;font-size:12px;margin-left:6px">ഈ മാസം</button>'}</b><button type="button" aria-label="Next month" style="${navB}" onclick="repGo(1)" ${repOff>=0?'disabled':''}>›</button></div>
+  <div class="card" style="grid-column:1/-1"><div class="sum">
+  <div class="s2">${thisL} ചെലവ്<b>${inr(tc)}</b></div>
+  <div class="s3">${prevL}<b>${inr(tp)}</b></div>
   <div style="background:#fff;border:2px solid ${chCol};color:${chCol}">മാറ്റം<b>${chTxt}</b></div></div>
-  <div style="margin-top:10px;font-size:14px;color:var(--mute)">ഈ മാസത്തെ വരവ്: <b class="income">${inr(inc)}</b> · മിച്ചം: <b>${inr(inc-tc)}</b>${top?'<br>ഏറ്റവും കൂടുതൽ ചെലവ്: <b>'+esc(top[0])+'</b> ('+inr(top[1])+')':''}</div></div>
- <div class="card"><h3>🍩 ഈ മാസത്തെ ചെലവ് — കാറ്റഗറി തിരിച്ച്</h3>${donut}</div>
- <div class="card"><h3>📊 ഈ മാസം vs കഴിഞ്ഞ മാസം</h3><small style="color:var(--mute)">നിറമുള്ളത്: ഈ മാസം · ചാരനിറം: കഴിഞ്ഞ മാസം</small>${cmp}</div>
+  <div style="margin-top:10px;font-size:14px;color:var(--mute)">വരവ് (${mon}): <b class="income">${inr(inc)}</b> · മിച്ചം: <b>${inr(inc-tc)}</b>${top?'<br>ഏറ്റവും കൂടുതൽ ചെലവ്: <b>'+esc(top[0])+'</b> ('+inr(top[1])+')':''}</div></div>
+ <div class="card"><h3>🍩 ${mon} — കാറ്റഗറി തിരിച്ച് ചെലവ്</h3>${donut}</div>
+ <div class="card"><h3>📊 ${thisL} vs ${prevL}</h3><small style="color:var(--mute)">നിറമുള്ളത്: ${thisL} · ചാരനിറം: ${prevL}</small>${cmp}</div>
  <div class="card"><h3>📈 6 മാസത്തെ വരവ് / ചെലവ്</h3><svg viewBox="0 0 320 155" style="width:100%;height:auto;stroke:none">${bars}</svg><div style="text-align:center;font-size:12px;color:var(--mute)"><span style="color:#10b981">■</span> വരവ് &nbsp; <span style="color:#fb7185">■</span> ചെലവ്</div></div>`}
 
 let addTy=null;
@@ -754,10 +759,18 @@ function saveAccKw(){const a=accById(amId);if(!a)return;a.kw=$('amKw').value.tri
 function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
  const l=D.tx.filter(t=>t.acc==id||(t.type==='transfer'&&t.to==id));let ex=0,inc=0;
  $('amTitle').textContent=GROUPS[a.group].ic+' '+a.name;
- $('amList').innerHTML=l.map(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
+ const cyc=a.group==='card'&&a.sd>0,groups=[];let curG=null,plain='';
+ const cyS=d=>{const p=String(d).split('-'),y=+p[0],m=+p[1]-1;let s=dOf(y,m,a.sd);if(String(d)>f(s))s=dOf(y,m+1,a.sd);return f(s)};
+ l.forEach(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
   const m=t.type==='transfer'?{ic:'⇄',c:'#2563eb'}:catMeta(t.cat);
   const ttl=t.type==='transfer'?(inn?'← '+esc(accById(t.acc)?.name||'?'):'→ '+esc(accById(t.to)?.name||'?')):esc(t.cat);
-  return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div><button class="del" onclick="accDel(${t.id})">×</button></div>`}).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
+  const h=`<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div><button class="del" onclick="accDel(${t.id})">×</button></div>`;
+  if(cyc){const k=cyS(t.date);if(!curG||curG.k!==k){curG={k,ex:0,inc:0,h:''};groups.push(curG)}inn?curG.inc+=t.amt:curG.ex+=t.amt;curG.h+=h}else plain+=h});
+ let html=plain;
+ if(cyc){html=groups.map(g=>{const sp=g.k.split('-'),S=new Date(+sp[0],+sp[1]-1,+sp[2]),P=dOf(S.getFullYear(),S.getMonth()-1,a.sd),st=new Date(P.getFullYear(),P.getMonth(),P.getDate()+1);
+   const due=a.dd>0?dOf(S.getFullYear(),S.getMonth()+(a.dd>a.sd?0:1),a.dd):null,open=g.k>=todayStr();
+   return `<div style="margin:16px 0 4px;padding:8px 10px;border-top:3px dashed ${open?'#16a34a':'#ef4444'};background:${open?'#f0fdf4':'#fff5f5'};border-radius:10px;font-size:12.5px;line-height:1.5"><b>${open?'🟢 നടപ്പ് സൈക്കിൾ (അടുത്ത ബില്ലിൽ വരും)':'🧾 ബിൽ സൈക്കിൾ'}</b><br>${fd(f(st))} → ${fd(g.k)}<br>ബിൽ തീയതി ${fd(g.k)}${due?' · അവസാന തീയതി '+fd(f(due)):''}<br>ചെലവ്: <b>${inr(g.ex)}</b>${g.inc?' · അടവ്/വരവ്: <b>'+inr(g.inc)+'</b>':''}</div>`+g.h}).join('')}
+ $('amList').innerHTML=html||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
  $('amodal').style.display='flex'}
 function accDel(id){delTx(id);openAccTx(amId)}
@@ -1266,10 +1279,10 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 /* ---------- Screenshot import (OCR, Paytm payment history etc.) ---------- */
 const SS={rows:[],busy:false,n:0,mode:'normal'};
 const SSMON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-const PMM={food:'Food',medical:'Health',health:'Health',taxi:'Travel',travel:'Travel',fuel:'Fuel',groceries:'Grocery',grocery:'Grocery',shopping:'Shopping',bills:'Bills',utilities:'Bills','bill payments':'Bills',recharge:'Recharge','mobile recharge':'Recharge',entertainment:'Entertainment',education:'Education',rent:'Rent',insurance:'Insurance',emi:'EMI',others:'Other',other:'Other'};
+const PMM={food:'Food',medical:'Health',health:'Health',taxi:'Travel',travel:'Travel',fuel:'Fuel',groceries:'Grocery',grocery:'Grocery',shopping:'Shopping',bills:'Bills',utilities:'Bills','bill payments':'Bills','credit card bills':'Bills','utility bills':'Bills','apps and software':'Other',recharge:'Recharge','mobile recharge':'Recharge',entertainment:'Entertainment',education:'Education',rent:'Rent',insurance:'Insurance',emi:'EMI',others:'Other',other:'Other'};
 const PMEMO={Food:'🍽️',Travel:'🚌',Fuel:'⛽',Grocery:'🛒',Shopping:'🛍️',Bills:'💡',Recharge:'📱',Entertainment:'🎬',Education:'📚',Rent:'🏠',Insurance:'🛡️',EMI:'🏦',Health:'💊',Other:'📦'};
 const ssClean=l=>l.replace(/[|\[\]{}©®«»•·]/g,' ').replace(/\s+/g,' ').replace(/\s*\bFrom\b.*$/i,'').trim();
-const SSSKIP=/(^paytm\b|\bupi\b|payment history|total spent|total received|powered by|^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4})/i;
+const SSSKIP=/(^paytm\b|\bupi\b|recent spends|most recent|payment history|total spent|total received|powered by|^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4})/i;
 function ssDate(ln){const l=ln.toLowerCase(),t=new Date();
  if(/^yes?t[a-z]{2,6}d?a?[yv]/.test(l)||/^yesterday/.test(l)){t.setDate(t.getDate()-1);return f(t)}
  if(/^tod[a-z]?[yv]\b/.test(l)||/^today\b/.test(l))return f(t);
@@ -1290,19 +1303,25 @@ function ssAmt(ln){
  m=/^(.*?)\s*([-–—−_~+])\s*7\s+(\d[\d,]*(?:\.\d{1,2})?)\s*$/.exec(ln);
  if(m)return {name:m[1],sign:m[2],sym:'',amt:'7'+m[3]};
  return null}
+const ssStRe=/^(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*(\d{2,4})\s+(.+?)\s+(\d[\d,]*\.\d{2})\s*([DCdc])?\s*$/i;
 function ssParse(txt){const rows=[];let cur=null;
  const lines=String(txt||'').split(/\n/).map(ssClean).filter(Boolean);
+ {/* Card statement format: "03 Nov 26  <details>  IN  734.97  D" (D = debit, C = credit) */
+  const st=lines.map(l=>ssStRe.exec(l)).filter(Boolean);
+  if(st.length>=3)return st.map(m=>{let y=+m[3];if(y<100)y+=2000;const raw=m[5].replace(/,/g,'');
+   const nm=m[4].replace(/^[^A-Za-z0-9\u0D00-\u0D7F]+/,'').replace(/^UPI[\s\-:]*/i,'').replace(/\s+IN$/i,'').trim()||m[4];
+   return {name:nm,amt:parseFloat(raw),income:/c/i.test(m[6]||''),sym:'₹',rawAmt:raw,date:f(dOf(y,SSMON[m[2].toLowerCase()],+m[1])),pm:'',chk:false}}).filter(r=>r.amt>0)}
  for(const ln of lines){
   if(SSSKIP.test(ln))continue;
   const m=ssAmt(ln);
   if(m&&(m.name.match(/[A-Za-z\u0D00-\u0D7F]/g)||[]).length>=2&&!SSSKIP.test(m.name)){
    const raw=m.amt.replace(/,/g,'');
-   cur={name:m.name.replace(/[\s\-–—_~:]+$/,'').trim(),amt:parseFloat(raw),income:m.sign==='+',sym:m.sym,rawAmt:raw,date:'',pm:''};
+   cur={name:m.name.replace(/[\s\-–—_~:]+$/,'').replace(/^[^A-Za-z\u0D00-\u0D7F]+/,'').trim(),amt:parseFloat(raw),income:m.sign==='+',sym:m.sym,rawAmt:raw,date:'',pm:''};
    cur.chk=m.sym!=='₹'&&/^[237]\d{3,}$/.test(raw.split('.')[0]);
    rows.push(cur);continue}
   if(!cur)continue;
   if(/^(from|to)\b.{0,8}$/i.test(ln))continue;
-  const dt=ssDate(ln);if(dt&&!cur.date){cur.date=dt;continue}
+  const dt=ssDate(ln);if(dt&&!cur.date){cur.date=dt;const rest=ln.replace(/\s*\d{1,2}\s*[A-Za-z]{3,9}\.?(,?\s*\d{4})?\s*$/,''),c2=ssCatWord(rest);if(c2&&!cur.pm)cur.pm=c2;continue}
   const cw=ssCatWord(ln);if(cw&&!cur.pm&&ln.length<=24){cur.pm=cw;continue}
   if(!cur.date&&!cur.pm&&/^[A-Za-z0-9 .&'\/-]{2,30}$/.test(ln))cur.name+=' '+ln;
  }
@@ -1344,7 +1363,7 @@ function ssMode(m){if(SS.busy)return toast('വായിക്കുന്നു
  if(t&&$('ssTo').value===$('ssAcc').value){const o=[...$('ssTo').options].find(x=>x.value!==$('ssAcc').value);if(o)$('ssTo').value=o.value}
  ssRematch()}
 const ssAN=id=>{const o=$(id).selectedOptions[0];return o?o.text.replace(/\s*\S*$/,''):'?'};
-function ssCatOpts(r){const ty=r.income?'income':'expense';let o=catList(ty).map(x=>x.n);if(!o.some(n=>n.toLowerCase()===r.cat.toLowerCase()))o.unshift(r.cat);
+function ssCatOpts(r){const ty=r.income?'income':'expense';let o=catList(ty).slice().sort(byName).map(x=>x.n);if(!o.some(n=>n.toLowerCase()===r.cat.toLowerCase()))o.unshift(r.cat);
  return o.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===r.cat.toLowerCase()?' selected':''}>${esc(n)}</option>`).join('')}
 function ssDraw(){const b=$('ssRows');
  b.innerHTML=SS.rows.map((r,i)=>`<div id="ssr${i}" style="border:1.5px solid ${r.dup?'#f59e0b':'#fecaca'};border-radius:12px;padding:8px;margin-top:8px;${r.on?'':'opacity:.55'}">
