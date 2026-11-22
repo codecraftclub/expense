@@ -407,8 +407,8 @@ function saveTx(tx){
  if(tx.type==='transfer'&&tx.acc===tx.to)return toast('രണ്ട് വ്യത്യസ്ത അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
  if(String(tx.date||'')>todayStr())return toast('⛔ ഭാവിയിലെ തീയതിയിൽ എൻട്രി ചേർക്കാൻ പറ്റില്ല');
  {const nk=v=>String(v||'').trim().toLowerCase();
-  const dup=D.tx.find(t=>t.type===tx.type&&t.date===tx.date&&Number(t.amt)===Number(tx.amt)&&nk(t.note)===nk(tx.note)&&(tx.type!=='transfer'||(t.acc===tx.acc&&t.to===tx.to)));
-  if(dup&&!confirm('⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം!\nഇതേ തീയതി ('+fd(tx.date)+'), ഇതേ തുക ('+inr(tx.amt)+')'+(nk(tx.note)?', ഇതേ പേര് ('+tx.note+')':'')+' ഉള്ള '+(tx.type==='transfer'?'ട്രാൻസ്ഫർ':'എൻട്രി')+' ഇതിനകം ഉണ്ട്.\nഎന്നാലും ചേർക്കണോ?'))return false}
+  const dup=D.tx.find(t=>t.type===tx.type&&t.date===tx.date&&Number(t.amt)===Number(tx.amt)&&(tx.type!=='transfer'||(t.acc===tx.acc&&t.to===tx.to)));
+  if(dup&&!confirm('⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം!\nഇതേ തീയതി ('+fd(tx.date)+'), ഇതേ തുക ('+inr(tx.amt)+') ഉള്ള '+(tx.type==='transfer'?'ട്രാൻസ്ഫർ':'എൻട്രി')+(nk(dup.note)?' ('+dup.note+')':'')+' ഇതിനകം ഉണ്ട്.\nഎന്നാലും ചേർക്കണോ?'))return false}
  if(tx.type!=='transfer'&&!tx.cat)tx.cat=tx.type==='income'?'Other Income':'Other';
  if(tx.type!=='transfer'&&tx.note&&String(tx.note).trim().length>=2&&!/^other/i.test(tx.cat||''))D.map[String(tx.note).trim().toLowerCase()]=tx.cat;
  tx.id=Date.now()*1000+(window._lid=((window._lid||0)+1)%1000);D.tx.unshift(tx);D.tx.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);save();
@@ -1208,6 +1208,18 @@ function ssCatFor(r){
  const c=classify(r.name,'expense');if(c)return c;
  const t=PMM[r.pm];return t||'Other'}
 const ssNk=v=>String(v||'').trim().toLowerCase();
+/* Duplicate check by AMOUNT (+date), name ignored. Each existing entry can be matched only once,
+   so two genuine same-amount entries on one day are not wrongly flagged. */
+function ssMatch(r){
+ const ty=r.income?'income':'expense',used=new Set(SS.rows.map(q=>q.mid).filter(Boolean));
+ const cand=D.tx.filter(t=>t.type===ty&&Number(t.amt)===Number(r.amt)&&!used.has(t.id));
+ const ex=cand.find(t=>t.date===r.date);
+ r.dup=false;r.mid=null;r.near=null;
+ if(ex){r.dup=true;r.mid=ex.id;r.dupNote=ex.note||''}
+ else if(SS.rows.some(q=>q.date===r.date&&Number(q.amt)===Number(r.amt)&&q.income===r.income&&ssNk(q.name)===ssNk(r.name))){r.dup=true;r.dupNote='ഈ ലിസ്റ്റിൽ തന്നെ'}
+ else{const dt=x=>new Date(x+'T00:00:00').getTime(),n=cand.find(t=>Math.abs(dt(t.date)-dt(r.date))<=2*864e5);
+  if(n)r.near={date:n.date,note:n.note||''}}
+}
 function ssCatOpts(r){const ty=r.income?'income':'expense';let o=catList(ty).map(x=>x.n);if(!o.some(n=>n.toLowerCase()===r.cat.toLowerCase()))o.unshift(r.cat);
  return o.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===r.cat.toLowerCase()?' selected':''}>${esc(n)}</option>`).join('')}
 function ssDraw(){const b=$('ssRows');
@@ -1217,7 +1229,7 @@ function ssDraw(){const b=$('ssRows');
 <input type="number" inputmode="decimal" value="${r.amt}" oninput="SS.rows[${i}].amt=+this.value" style="width:92px;flex:none;margin:0"></div>
 <div style="display:flex;gap:6px;margin-top:6px"><input type="date" value="${r.date}" max="${todayStr()}" onchange="SS.rows[${i}].date=this.value" style="flex:1.4;min-width:0;margin:0;padding:10px 6px;font-size:14px${r.noDate?';border-color:#f59e0b':''}">
 <select onchange="SS.rows[${i}].cat=this.value" style="flex:1;min-width:0;margin:0;padding:10px 6px;font-size:14px">${ssCatOpts(r)}</select><button type="button" title="Delete" onclick="ssDelRow(${i})" style="flex:none;border:0;border-radius:10px;background:#fee2e2;color:#b91c1c;padding:0 8px;font-size:16px">🗑</button></div>
-${r.income?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതിനകം ഉണ്ട്</small>':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
+${r.income?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതേ തുക+തീയതി ഇതിനകം ഉണ്ട്'+(r.dupNote?' ('+esc(r.dupNote)+')':'')+'</small> ':''}${(!r.dup&&r.near)?'<small style="color:#b45309">⚠ ഇതേ തുക '+fd(r.near.date)+'-ൽ ഉണ്ട്'+(r.near.note?' ('+esc(r.near.note)+')':'')+' — ഒത്തുനോക്കൂ</small> ':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
 </div>`).join('');
  $('ssSave').style.display=SS.rows.length?'':'none';$('ssDelAll').style.display=SS.rows.length?'':'none';
  const n=SS.rows.filter(r=>r.on).length;$('ssSave').textContent='✔ '+n+' എൻട്രി സേവ് ചെയ്യൂ / Save'}
@@ -1270,7 +1282,7 @@ async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)ret
    xb.onclick=e=>{e.stopPropagation();ssDelShot(sid)};wrap.appendChild(im);wrap.appendChild(xb);$('ssThumbs').appendChild(wrap);
    const cv=await ssPrep(files[cur]);const res=await worker.recognize(cv);
    ssParse(res.data.text).forEach(r=>{r.src=sid;r.cat=ssCatFor(r);r.noDate=!r.date||!!r.guess;if(!r.date)r.date=todayStr();if(r.date>todayStr())r.date=todayStr();
-    r.dup=D.tx.some(t=>t.type===(r.income?'income':'expense')&&t.date===r.date&&Number(t.amt)===Number(r.amt)&&ssNk(t.note)===ssNk(r.name))||SS.rows.some(q=>q.date===r.date&&q.amt===r.amt&&ssNk(q.name)===ssNk(r.name)&&q.income===r.income);
+    ssMatch(r);
    r.on=!r.dup&&!r.income;SS.rows.push(r)});
   }
   msg(SS.rows.length?SS.rows.length+' എൻട്രി കണ്ടെത്തി':'എൻട്രികൾ ഒന്നും വായിക്കാൻ പറ്റിയില്ല. കൂടുതൽ വ്യക്തമായ സ്ക്രീൻഷോട്ട് ശ്രമിക്കൂ.');
