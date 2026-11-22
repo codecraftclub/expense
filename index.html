@@ -777,10 +777,10 @@ function txInfo(id){const t=D.tx.find(x=>x.id===id);if(!t)return toast('എൻ�
   row('തരം',tr?'⇄ Transfer':t.type==='income'?'⬇ വരവ്':'⬆ ചെലവ്')+(tr?row('From → To',esc(_an(t.acc))+' → '+esc(_an(t.to))):row('Category',esc(t.cat||''))+row('അക്കൗണ്ട്',esc(_an(t.acc))))+
   row('തീയതി',fd(t.date))+row(tr?'റിമാർക്ക്':'വിവരണം',t.note?esc(t.note):'—');
  $('txmodal').style.display='flex'}
-function ssView(i){const r=SS.rows[i];if(!r)return toast('വരി കണ്ടെത്താനായില്ല');
+function ssView(i){const me=SS.rows[i],r=me&&me.dupRef;if(!r)return toast('വരി കണ്ടെത്താനായില്ല');i=SS.rows.indexOf(r);
  const tr=SS.mode==='transfer',row=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"><small style="margin:0">${k}</small><b style="text-align:right">${v}</b></div>`;
  $('txInfoBody').innerHTML=`<div style="font-size:26px;font-weight:800;margin:4px 0 8px">${inr(r.amt)}</div>`+
-  `<small style="color:#b45309;display:block;margin-bottom:6px">ഇമ്പോർട്ട് ലിസ്റ്റിലെ വരി #${i+1} — ഇതുവരെ സേവ് ചെയ്തിട്ടില്ല</small>`+
+  `<small style="color:#b45309;display:block;margin-bottom:6px">ഇമ്പോർട്ട് ലിസ്റ്റിലെ ${i>=0?'വരി #'+(i+1):'(ഒഴിവാക്കിയ) വരി'} — ഇതുവരെ സേവ് ചെയ്തിട്ടില്ല</small>`+
   row(tr?'റിമാർക്ക്':'വിവരണം',r.name?esc(r.name):'—')+row('തീയതി',fd(r.date))+(tr?row('From → To',esc(_an(r.f||+$('ssAcc').value))+' → '+esc(_an(r.t||+$('ssTo').value))):row('Category',esc(r.cat||''))+row('അക്കൗണ്ട്',esc(ssAN('ssAcc'))))+
   row('ടിക്ക്',r.on?'✔ സേവ് ചെയ്യും':'✖ ഒഴിവാക്കി');
  $('txmodal').style.display='flex'}
@@ -1276,9 +1276,9 @@ function ssMatch(r,pool){pool=pool||SS.rows;
  const gf=+$('ssAcc').value,gt=+$('ssTo').value,fa=r.f||gf,ta=r.t||gt;
  const cand=D.tx.filter(t=>t.type===ty&&Number(t.amt)===Number(r.amt)&&!used.has(t.id)&&(!tr||(t.acc===fa&&t.to===ta)));
  const ex=cand.find(t=>t.date===r.date);
- r.dup=false;r.mid=null;r.near=null;r.dupNote='';r.dupRow=-1;
+ r.dup=false;r.mid=null;r.near=null;r.dupNote='';r.dupRef=null;
  if(ex){r.dup=true;r.mid=ex.id;r.dupNote=ex.note||''}
- else if((r.dupRow=pool.findIndex(q=>q.date===r.date&&Number(q.amt)===Number(r.amt)&&(tr||q.income===r.income)&&(!tr||((q.f||gf)===fa&&(q.t||gt)===ta))&&ssNk(q.name)===ssNk(r.name)))>=0){r.dup=true;r.dupNote='ഈ ലിസ്റ്റിൽ തന്നെ'}
+ else if((r.dupRef=pool.find(q=>q.date===r.date&&Number(q.amt)===Number(r.amt)&&(tr||q.income===r.income)&&(!tr||((q.f||gf)===fa&&(q.t||gt)===ta))&&ssNk(q.name)===ssNk(r.name)))||null){r.dup=true;r.dupNote='ഈ ലിസ്റ്റിൽ തന്നെ'}
  else{const dt=x=>new Date(x+'T00:00:00').getTime(),n=D.tx.find(t=>t.type===ty&&Number(t.amt)===Number(r.amt)&&(!tr||(t.acc===fa&&t.to===ta))&&Math.abs(dt(t.date)-dt(r.date))<=2*864e5);
   if(n)r.near={date:n.date,note:n.note||'',id:n.id}}
 }
@@ -1301,7 +1301,7 @@ function ssDraw(){const b=$('ssRows');
 <input type="number" inputmode="decimal" value="${r.amt}" oninput="SS.rows[${i}].amt=+this.value" style="width:92px;flex:none;margin:0"></div>
 <div style="display:flex;gap:6px;margin-top:6px"><input type="date" value="${r.date}" max="${todayStr()}" onchange="SS.rows[${i}].date=this.value" style="flex:1.4;min-width:0;margin:0;padding:10px 6px;font-size:14px${r.noDate?';border-color:#f59e0b':''}">
 ${SS.mode==='transfer'?`<span style="flex:1"></span>`:`<select onchange="SS.rows[${i}].cat=this.value" style="flex:1;min-width:0;margin:0;padding:10px 6px;font-size:14px">${ssCatOpts(r)}</select>`}<button type="button" title="Delete" onclick="ssDelRow(${i})" style="flex:none;border:0;border-radius:10px;background:#fee2e2;color:#b91c1c;padding:0 8px;font-size:16px">🗑</button></div>
-${SS.mode==='transfer'?'<div style="display:flex;gap:6px;margin-top:6px;align-items:center">'+ssAccSel(i,'f',r.f||+$('ssAcc').value)+'<span>→</span>'+ssAccSel(i,'t',r.t||+$('ssTo').value)+'</div>':''}${(r.income&&SS.mode!=='transfer')?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതേ തുക+തീയതി ഇതിനകം ഉണ്ട്'+(r.dupNote?' ('+esc(r.dupNote)+')':'')+'</small> '+((r.mid||r.dupRow>=0)?'<button type="button" class="chip" style="border:0;cursor:pointer" onclick="event.stopPropagation();'+(r.mid?'txInfo('+r.mid+')':'ssView('+r.dupRow+')')+'">👁 കാണൂ</button>':''):''}${(!r.dup&&r.near)?'<small style="color:#b45309">⚠ ഇതേ തുക '+fd(r.near.date)+'-ൽ ഉണ്ട്'+(r.near.note?' ('+esc(r.near.note)+')':'')+'</small> <button type="button" class="chip" style="border:0;cursor:pointer" onclick="event.stopPropagation();txInfo('+r.near.id+')">👁 കാണൂ</button>':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
+${SS.mode==='transfer'?'<div style="display:flex;gap:6px;margin-top:6px;align-items:center">'+ssAccSel(i,'f',r.f||+$('ssAcc').value)+'<span>→</span>'+ssAccSel(i,'t',r.t||+$('ssTo').value)+'</div>':''}${(r.income&&SS.mode!=='transfer')?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതേ തുക+തീയതി ഇതിനകം ഉണ്ട്'+(r.dupNote?' ('+esc(r.dupNote)+')':'')+'</small> '+((r.mid||r.dupRef)?'<button type="button" class="chip" style="border:0;cursor:pointer" onclick="event.stopPropagation();'+(r.mid?'txInfo('+r.mid+')':'ssView('+i+')')+'">👁 കാണൂ</button>':''):''}${(!r.dup&&r.near)?'<small style="color:#b45309">⚠ ഇതേ തുക '+fd(r.near.date)+'-ൽ ഉണ്ട്'+(r.near.note?' ('+esc(r.near.note)+')':'')+'</small> <button type="button" class="chip" style="border:0;cursor:pointer" onclick="event.stopPropagation();txInfo('+r.near.id+')">👁 കാണൂ</button>':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
 </div>`).join('');
  $('ssSave').style.display=SS.rows.length?'':'none';$('ssDelAll').style.display=SS.rows.length?'':'none';
  const n=SS.rows.filter(r=>r.on).length;$('ssSave').textContent='✔ '+n+' എൻട്രി സേവ് ചെയ്യൂ / Save'}
