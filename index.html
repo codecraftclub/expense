@@ -1302,6 +1302,8 @@ function ssAmt(ln){
  if(m)return {name:m[1],sign:'-',sym:'₹',amt:m[3]};
  m=/^(.*?)\s*([-–—−_~+])\s*7\s+(\d[\d,]*(?:\.\d{1,2})?)\s*$/.exec(ln);
  if(m)return {name:m[1],sign:m[2],sym:'',amt:'7'+m[3]};
+ m=/^(.*[A-Za-z])\s*([^A-Za-z0-9\s,.]{0,2})\s*(\d[\d,]*\.\d{2})\s*$/.exec(ln);
+ if(m)return {name:m[1].replace(/\s+[A-Za-z]$/,''),sign:'-',sym:m[2],amt:m[3]};
  return null}
 const ssStRe=/^(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*(\d{2,4})\s+(.+?)\s+(\d[\d,]*\.\d{2})\s*([DCdc])?\s*$/i;
 function ssParse(txt){const rows=[];let cur=null;
@@ -1327,7 +1329,8 @@ function ssParse(txt){const rows=[];let cur=null;
  }
  rows.forEach((r,i)=>{if(!r.date&&i>0&&rows[i-1].date){r.date=rows[i-1].date;r.guess=true}});
  {const ns=rows.filter(r=>!r.sym),s7=ns.filter(r=>r.rawAmt.length>=2&&r.rawAmt[0]==='7');
-  if(s7.length&&s7.length>=Math.ceil(ns.length*0.6))s7.forEach(r=>{r.rawAmt=r.rawAmt.slice(1);r.amt=parseFloat(r.rawAmt);r.fix7=true;r.chk=false})}
+  if(s7.length&&s7.length>=Math.ceil(ns.length*0.6))s7.forEach(r=>{r.rawAmt=r.rawAmt.slice(1);r.amt=parseFloat(r.rawAmt);r.fix7=true;r.chk=false});
+  else{const s2=ns.filter(r=>r.rawAmt.length>=3&&r.rawAmt[0]==='2');if(ns.length>=4&&s2.length>=Math.ceil(ns.length*0.8))s2.forEach(r=>{r.rawAmt=r.rawAmt.slice(1);r.amt=parseFloat(r.rawAmt);r.fix7=true;r.chk=false})}}
  return rows.filter(r=>r.amt>0)}
 function ssCatFor(r){
  if(r.income)return 'Other Income';
@@ -1423,7 +1426,9 @@ async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)ret
   msg('OCR ലൈബ്രറി ലോഡ് ചെയ്യുന്നു… (ആദ്യമായി ഇന്റർനെറ്റ് വേണം)');
   await loadTess();
   let cur=0;
-  worker=await Tesseract.createWorker('eng',1,{langPath:'https://tessdata.projectnaptha.com/4.0.0_fast',logger:m=>{if(m.status==='recognizing text')msg('വായിക്കുന്നു… ചിത്രം '+(cur+1)+'/'+files.length+' · '+Math.round((m.progress||0)*100)+'%')}});
+  const rawBox=()=>{let b=$('ssRaw');if(!b){b=document.createElement('details');b.id='ssRaw';b.style.cssText='margin-top:8px;font-size:12px';b.innerHTML='<summary>🔎 OCR വായിച്ച text കാണുക</summary><pre style="white-space:pre-wrap;word-break:break-word"></pre>';$('ssMsg').insertAdjacentElement('afterend',b)}return b.querySelector('pre')};
+   rawBox().textContent='';
+   worker=await Tesseract.createWorker('eng',1,{langPath:'https://tessdata.projectnaptha.com/4.0.0_fast',logger:m=>{if(m.status==='recognizing text')msg('വായിക്കുന്നു… ചിത്രം '+(cur+1)+'/'+files.length+' · '+Math.round((m.progress||0)*100)+'%')}});
   await worker.setParameters({tessedit_pageseg_mode:'6',preserve_interword_spaces:'1'});
   for(cur=0;cur<files.length;cur++){
    const sid=++SS.n;const wrap=document.createElement('span');wrap.dataset.s=sid;wrap.style.cssText='position:relative;display:inline-block;margin:6px 6px 0 0;vertical-align:top';
@@ -1431,7 +1436,7 @@ async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)ret
    im.onclick=()=>{im.style.height=im.style.height==='90px'?'auto':'90px';im.style.maxWidth='100%'};
    const xb=document.createElement('button');xb.type='button';xb.textContent='✕';xb.title='Delete';xb.style.cssText='position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#b91c1c;color:#fff;font-size:13px;line-height:24px;padding:0';
    xb.onclick=e=>{e.stopPropagation();ssDelShot(sid)};wrap.appendChild(im);wrap.appendChild(xb);$('ssThumbs').appendChild(wrap);
-   const cv=await ssPrep(files[cur]);const res=await worker.recognize(cv);
+   const cv=await ssPrep(files[cur]);const res=await worker.recognize(cv);rawBox().textContent+='--- ചിത്രം '+(cur+1)+' ---\n'+res.data.text+'\n';
    const newR=[];ssParse(res.data.text).forEach(r=>{r.src=sid;r.cat=ssCatFor(r);r.noDate=!r.date||!!r.guess;if(!r.date)r.date=todayStr();if(r.date>todayStr())r.date=todayStr();
     SS.rows.push(r);newR.push(r)});
    ssMatchAll();newR.forEach(r=>{r.on=!r.dup&&(SS.mode==='transfer'||!r.income)});
