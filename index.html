@@ -56,7 +56,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -69,7 +69,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -140,6 +140,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
       <div class="row" style="cursor:pointer" onclick="setSub('month')"><div class="dot" style="background:#059669">📅</div><div class="grow"><b>Month settings</b><small>Month starting date</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
       <div class="row" style="cursor:pointer" onclick="setSub('lang')"><div class="dot" style="background:#8b5cf6">🌐</div><div class="grow"><b>App language</b><small>ആപ്പ് ഭാഷ</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
       <div class="row" style="cursor:pointer" onclick="setSub('exp')"><div class="dot" style="background:#0ea5e9">📤</div><div class="grow"><b>Export / Backup</b><small>CSV, JSON ഡൗൺലോഡ്</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
+      <div class="row" style="cursor:pointer" onclick="dfOpen()"><div class="dot" style="background:#e11d48">🔍</div><div class="grow"><b>Duplicate finder</b><small>ഒരേ തുകയുള്ള എൻട്രികൾ കണ്ടെത്തി ഒഴിവാക്കാം</small></div><span style="color:var(--mute);font-size:22px">›</span></div>
     </div>
     <div class="card"><button class="btn sec" style="margin-top:0" onclick="openFeedback()">💬 അഭിപ്രായം / Feedback</button>
       <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:10px">My Expense Manager · Version <span id="verTxt"></span></div></div>
@@ -227,6 +228,9 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <div id="ccToBox" style="display:none"><small>To (ഈ അക്കൗണ്ടിലേക്ക്)</small><select id="ccTo"></select></div>
  <small id="ccHint" style="color:var(--mute)">ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
  <button class="btn" onclick="saveCC()">മാറ്റുക</button><button class="btn sec" onclick="closeCC()">അടയ്ക്കുക</button></div></div>
+<div id="dfmodal" onclick="if(event.target===this)dfClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 style="margin:0">🔍 ഡ്യൂപ്ലിക്കേറ്റ് ഫൈൻഡർ</h3><button type="button" onclick="dfClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div>
+<div style="display:flex;gap:8px;margin:6px 0"><button type="button" id="dfM1" class="btn" style="margin:0;flex:1" onclick="dfMode(1)">ഒരേ തുക + തീയതി</button><button type="button" id="dfM2" class="btn sec" style="margin:0;flex:1" onclick="dfMode(2)">ഒരേ തുക മാത്രം</button></div>
+<small id="dfSum" style="display:block;color:var(--mute);margin:6px 0"></small><div id="dfList"></div><button class="btn sec" onclick="dfClose()">അടയ്ക്കുക</button></div></div>
 <div id="txmodal" onclick="if(event.target===this)closeTxInfo()"><div class="sheet"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="txTitle" style="margin:0">🔎 ഇപ്പോഴുള്ള എൻട്രി</h3><button type="button" onclick="closeTxInfo()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="txInfoBody"></div><button class="btn" onclick="closeTxInfo()">ശരി</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
 <div id="lgmodal"><div class="sheet"><h3 style="text-align:center">🌐 ഭാഷ തിരഞ്ഞെടുക്കൂ · Choose language</h3><div id="lgBtns"></div><button class="btn" onclick="lgOk()">✔ OK</button></div></div>
@@ -752,9 +756,10 @@ function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
  $('amList').innerHTML=l.map(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
   const m=t.type==='transfer'?{ic:'⇄',c:'#2563eb'}:catMeta(t.cat);
   const ttl=t.type==='transfer'?(inn?'← '+esc(accById(t.acc)?.name||'?'):'→ '+esc(accById(t.to)?.name||'?')):esc(t.cat);
-  return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div></div>`}).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
+  return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div><button class="del" onclick="accDel(${t.id})">×</button></div>`}).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
  $('amodal').style.display='flex'}
+function accDel(id){delTx(id);openAccTx(amId)}
 function closeAcc(){$('amodal').style.display='none'}
 let ccId=0,ccColor=PAL[0];
 function openCC(id){const t=D.tx.find(x=>x.id===id);if(!t)return;ccId=id;
@@ -771,6 +776,21 @@ function ccNewToggle(){const n=$('ccSel').value==='__new__';$('ccNewBox').style.
  $('ccEmo').innerHTML=EMO.map(e=>`<span onclick="$('ccNI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
  $('ccPal').innerHTML=PAL.map(c=>`<span onclick="ccColor='${c}';ccNewToggle()" style="width:30px;height:30px;border-radius:10px;background:${c};display:inline-block;margin:4px;${ccColor===c?'outline:3px solid #1e1b4b;outline-offset:2px':''}"></span>`).join('')}
 const _an=id=>(accById(id)||{}).name||'?';
+let DFM=1;
+function dfOpen(){DFM=1;dfDraw();$('dfmodal').style.display='flex'}
+function dfClose(){$('dfmodal').style.display='none'}
+function dfMode(m){DFM=m;dfDraw()}
+function dfEnt(t){const ms=Math.floor(t.id/1000);if(!(ms>1.5e12&&ms<=Date.now()+864e5))return '';const d=new Date(ms);return 'ചേർത്തത് '+fd(f(d))+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+function dfDel(id){delTx(id);dfDraw()}
+function dfDraw(){
+ const g={};D.tx.forEach(t=>{if(/\(auto\)\s*$/.test(t.note||''))return;
+  const k=t.type+'|'+Number(t.amt)+(t.type==='transfer'?'|'+t.acc+'>'+t.to:'')+(DFM===1?'|'+t.date:'');(g[k]=g[k]||[]).push(t)});
+ const gs=Object.values(g).filter(a=>a.length>1).sort((a,b)=>b[0].date.localeCompare(a[0].date)||Number(b[0].amt)-Number(a[0].amt));
+ $('dfM1').className='btn'+(DFM===1?'':' sec');$('dfM2').className='btn'+(DFM===2?'':' sec');
+ const n=gs.reduce((s,a)=>s+a.length,0);
+ $('dfSum').textContent=gs.length?gs.length+' ഗ്രൂപ്പ് · '+n+' എൻട്രി — ഒഴിവാക്കേണ്ടത് × അമർത്തി ഡിലീറ്റ് ചെയ്യൂ (Undo കിട്ടും)':'';
+ $('dfList').innerHTML=gs.map(a=>`<div style="border:1.5px solid #f59e0b;border-radius:12px;padding:6px 8px;margin-top:8px"><div style="font-weight:700;color:#b45309;margin-bottom:2px">${inr(a[0].amt)} · ${a.length} എൻട്രി</div>`+
+  a.map(t=>txRow(t).replace(/<button class="ib ed"[\s\S]*?<\/button>/,'').replace(/delTx\((\d+)\)/,'dfDel($1)').replace('</small>',(dfEnt(t)?'<br>'+dfEnt(t):'')+'</small>')).join('')+`</div>`).join('')||'<div class="empty">ഡ്യൂപ്ലിക്കേറ്റ് ഒന്നുമില്ല ✔</div>'}
 function txInfo(id){const t=D.tx.find(x=>x.id===id);if(!t)return toast('\u0d0e\u0d7b\u0d1f\u0d4d\u0d30\u0d3f \u0d15\u0d23\u0d4d\u0d1f\u0d46\u0d24\u0d4d\u0d24\u0d3e\u0d28\u0d3e\u0d2f\u0d3f\u0d32\u0d4d\u0d32');
  const ms=Math.floor(t.id/1000),ok=ms>1.5e12&&ms<=Date.now()+864e5,d=new Date(ms);
  const ent=ok?fd(f(d))+', '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):null;
@@ -784,13 +804,11 @@ function txInfo0(id){const t=D.tx.find(x=>x.id===id);if(!t)return toast('എൻ�
   row('തരം',tr?'⇄ Transfer':t.type==='income'?'⬇ വരവ്':'⬆ ചെലവ്')+(tr?row('From → To',esc(_an(t.acc))+' → '+esc(_an(t.to))):row('Category',esc(t.cat||''))+row('അക്കൗണ്ട്',esc(_an(t.acc))))+
   row('തീയതി',fd(t.date))+row(tr?'റിമാർക്ക്':'വിവരണം',t.note?esc(t.note):'—');
  $('txmodal').style.display='flex'}
-function ssView(i){const me=SS.rows[i],r=me&&me.dupRef;if(!r)return toast('വരി കണ്ടെത്താനായില്ല');i=SS.rows.indexOf(r);
- const tr=SS.mode==='transfer',row=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"><small style="margin:0">${k}</small><b style="text-align:right">${v}</b></div>`;
- $('txInfoBody').innerHTML=`<div style="font-size:26px;font-weight:800;margin:4px 0 8px">${inr(r.amt)}</div>`+
-  `<small style="color:#b45309;display:block;margin-bottom:6px">ഇമ്പോർട്ട് ലിസ്റ്റിലെ ${i>=0?'വരി #'+(i+1):'(ഒഴിവാക്കിയ) വരി'} — ഇതുവരെ സേവ് ചെയ്തിട്ടില്ല</small>`+
-  row(tr?'റിമാർക്ക്':'വിവരണം',r.name?esc(r.name):'—')+row('തീയതി',fd(r.date))+(tr?row('From → To',esc(_an(r.f||+$('ssAcc').value))+' → '+esc(_an(r.t||+$('ssTo').value))):row('Category',esc(r.cat||''))+row('അക്കൗണ്ട്',esc(ssAN('ssAcc'))))+
-  row('ടിക്ക്',r.on?'✔ സേവ് ചെയ്യും':'✖ ഒഴിവാക്കി');
- $('txTitle').textContent='\ud83d\udd0e \u0d07\u0d2a\u0d4d\u0d2a\u0d4b\u0d34\u0d41\u0d33\u0d4d\u0d33 \u0d0e\u0d7b\u0d1f\u0d4d\u0d30\u0d3f';$('txmodal').style.display='flex'}
+function ssView(i){const me=SS.rows[i],r=me&&me.dupRef,j=r?SS.rows.indexOf(r):-1;
+ if(j<0)return toast('ആ വരി ഇപ്പോൾ ലിസ്റ്റിൽ ഇല്ല');
+ const el=$('ssr'+j);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});
+ const o=el.style.boxShadow;el.style.boxShadow='0 0 0 4px #2563eb';setTimeout(()=>{el.style.boxShadow=o},1800);
+ toast('വരി #'+(j+1)+' ഇതാ')}
 let LASTIMP=null;
 function impDone(ids,prev,n){LASTIMP={ids,prev};
  let b=$('undoBar');if(!b){b=document.createElement('div');b.id='undoBar';b.style.cssText='position:fixed;left:12px;right:12px;bottom:90px;z-index:9999;background:#1e1b4b;color:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);font-size:14px';document.body.appendChild(b)}
@@ -1289,7 +1307,7 @@ function ssMatchAll(){
  claim(true);claim(false);
  rows.forEach((r,i)=>{if(r.mid)return;const fa=r.f||gf,ta=r.t||gt;
   const ref=rows.slice(0,i).find(q=>q.date===r.date&&Number(q.amt)===Number(r.amt)&&(tr||q.income===r.income)&&(!tr||((q.f||gf)===fa&&(q.t||gt)===ta))&&ssNk(q.name)===ssNk(r.name));
-  if(ref){r.dupRef=ref;r.dup=true;r.dupNote='\u0d08 \u0d32\u0d3f\u0d38\u0d4d\u0d31\u0d4d\u0d31\u0d3f\u0d32\u0d4d \u0d24\u0d28\u0d4d\u0d28\u0d46'}
+  if(ref){r.dupRef=ref;r.dup=true;r.dupNote='ഈ ലിസ്റ്റിലെ വരി #'+(rows.indexOf(ref)+1)+' തന്നെ'}
   else{const dt=x=>new Date(x+'T00:00:00').getTime(),n=D.tx.find(t=>t.type===ty(r)&&Number(t.amt)===Number(r.amt)&&(!tr||(t.acc===fa&&t.to===ta))&&Math.abs(dt(t.date)-dt(r.date))<=2*864e5);
    if(n)r.near={date:n.date,note:n.note||'',id:n.id}}});
 }
@@ -1308,7 +1326,7 @@ const ssAN=id=>{const o=$(id).selectedOptions[0];return o?o.text.replace(/\s*\S*
 function ssCatOpts(r){const ty=r.income?'income':'expense';let o=catList(ty).map(x=>x.n);if(!o.some(n=>n.toLowerCase()===r.cat.toLowerCase()))o.unshift(r.cat);
  return o.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===r.cat.toLowerCase()?' selected':''}>${esc(n)}</option>`).join('')}
 function ssDraw(){const b=$('ssRows');
- b.innerHTML=SS.rows.map((r,i)=>`<div style="border:1.5px solid ${r.dup?'#f59e0b':'#fecaca'};border-radius:12px;padding:8px;margin-top:8px;${r.on?'':'opacity:.55'}">
+ b.innerHTML=SS.rows.map((r,i)=>`<div id="ssr${i}" style="border:1.5px solid ${r.dup?'#f59e0b':'#fecaca'};border-radius:12px;padding:8px;margin-top:8px;${r.on?'':'opacity:.55'}">
 <div style="display:flex;gap:6px;align-items:center"><input type="checkbox" ${r.on?'checked':''} onchange="SS.rows[${i}].on=this.checked;ssDraw()" style="width:22px;height:22px;flex:none;margin:0">
 <input value="${esc(r.name)}" placeholder="${SS.mode==='transfer'?'റിമാർക്ക് / Remark':''}" oninput="SS.rows[${i}].name=this.value" onchange="ssEdit(${i})" style="flex:1;min-width:0;margin:0">
 <input type="number" inputmode="decimal" value="${r.amt}" oninput="SS.rows[${i}].amt=+this.value" onchange="ssEdit(${i})" style="width:92px;flex:none;margin:0"></div>
