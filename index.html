@@ -56,7 +56,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -69,7 +69,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -95,9 +95,9 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     <div class="s2">ചെലവ് / Expense<b id="sExp">₹0</b></div>
     <div class="s3">ബാലൻസ്<b id="sBal">₹0</b></div></div></div>
   <div class="card" style="text-align:center">
-    <textarea id="voiceText" rows="3" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><textarea id="voiceText" rows="3" style="flex:1;min-width:0;margin:0" placeholder="ഫോർമാറ്റ്: വിവരം + തുക + അക്കൗണ്ട്&#10;ഒന്നിലധികം ഉണ്ടെങ്കിൽ കോമ (,) ഇടൂ&#10;വരവ് ആണെങ്കിൽ വരവ് എന്ന വാക്ക് ചേർക്കൂ"></textarea><button class="mic" id="mic" style="width:68px;height:68px;margin:0;flex:none" onclick="toggleMic()"><svg style="width:36px;height:36px" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></button></div>
     <div id="vSug" style="text-align:left"></div>
-    <button class="mic" id="mic" onclick="toggleMic()"><svg style="width:36px;height:36px" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></button>
+    <button class="btn sec" id="ssBtn" onclick="openSS()" style="margin-top:8px">📷 സ്ക്രീൻഷോട്ടിൽ നിന്ന് ചേർക്കൂ</button>
     <small style="color:var(--mute)" id="micHint">മൈക്ക് അമർത്തി പറയൂ</small><div id="langSw" style="margin:8px 0 2px"></div>
     <small style="display:block;text-align:left;color:var(--mute);margin-top:8px">എൻട്രിയുടെ തീയതി: ഇന്നത്തേത് തനിയെ വരും. മാറ്റിയാൽ വീണ്ടും മാറ്റുന്നത് വരെ (ആപ്പ് അടയ്ക്കുന്നത് വരെ) അതുതന്നെ നിൽക്കും. വോയ്സിൽ "ഒക്ടോബർ 5-ന്" എന്ന് പറഞ്ഞാലും മതി</small><input id="hDate" type="date" onchange="setPick(this.value)">
     <button class="btn" id="goBtn" onclick="addEntry()">✔ ചേർക്കൂ</button>
@@ -226,6 +226,11 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <button class="btn" onclick="saveCC()">മാറ്റുക</button><button class="btn sec" onclick="closeCC()">അടയ്ക്കുക</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
 <div id="lgmodal"><div class="sheet"><h3 style="text-align:center">🌐 ഭാഷ തിരഞ്ഞെടുക്കൂ · Choose language</h3><div id="lgBtns"></div><button class="btn" onclick="lgOk()">✔ OK</button></div></div>
+<div id="ssmodal" onclick="if(event.target===this)closeSS()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3>📷 സ്ക്രീൻഷോട്ടിൽ നിന്ന് ചേർക്കൂ</h3>
+ <small>ഏത് അക്കൗണ്ടിലേക്ക് / Account</small><select id="ssAcc"></select>
+ <small style="display:block;margin-top:10px">സ്ക്രീൻഷോട്ട് (Paytm Payment History) / Screenshot</small><input id="ssFile" type="file" accept="image/*" multiple onchange="ssRun(this.files)">
+  <div id="ssMsg" style="margin:8px 0;font-size:13px;color:var(--mute)"></div><div id="ssThumbs"></div><div id="ssRows"></div>
+ <button class="btn sec" id="ssDelAll" style="display:none" onclick="ssDelAll()">🗑 എല്ലാം ഡിലീറ്റ് ചെയ്യൂ / Delete all</button><button class="btn" id="ssSave" style="display:none" onclick="ssSave()">✔ സേവ് ചെയ്യൂ</button><button class="btn sec" onclick="closeSS()">Close</button></div></div>
 <div id="pmodal" onclick="if(event.target===this)closePay()"><div class="sheet"><h3>💳 ബിൽ പെയ്ഡ് ആണോ?</h3><div id="pTxt" style="margin:6px 0"></div>
  <small>അടച്ച തുക ₹</small><input id="pAmt" type="number" inputmode="decimal">
  <small>ഏത് അക്കൗണ്ടിൽ നിന്ന്</small><select id="pAcc"></select>
@@ -774,7 +779,7 @@ function closeKw(){$('kwmodal').style.display='none'}
 function saveKw(){const v=$('kwIn').value.trim();
  if(kwKind==='cat'){D.ckw=D.ckw||{};D.ckw[String(kwKey).toLowerCase()]=v}else{const a=accById(kwKey);if(a){a.kw=v;a.u=Date.now()}}
  save();closeKw();render();toast('Keywords സേവ് ചെയ്തു ✔')}
-const APP_VERSION='1.6';
+const APP_VERSION='1.9';
 const FEEDBACK_URL='https://docs.google.com/forms/d/e/1FAIpQLScjyB3pOn3Oo499jXxJNx5IoG41B7qxKh0dT--g0bhn0s7b4w/viewform?usp=publish-editor';
 function openFeedback(){if(!FEEDBACK_URL)return toast('ഫീഡ്ബാക്ക് ലിങ്ക് ഇതുവരെ ചേർത്തിട്ടില്ല');window.open(FEEDBACK_URL,'_blank','noopener')}
 let payCard=0;
@@ -1151,6 +1156,139 @@ function lgOk(){if(!lgSel)return toast('ഒരു ഭാഷ തിരഞ്ഞ�
 $('verHome').textContent='Version '+APP_VERSION;processRec();setType('expense');drawLang();trTree(document.body);document.documentElement.lang=UIC;trMO.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['placeholder','title']});if(!localStorage.getItem('em_ui_set'))lgShow();
 setTimeout(()=>{const b=$('cloudBtn');if(b&&b.textContent.includes('…')){b.textContent='☁ Login';$('sync').textContent='ഫോണിൽ മാത്രം സേവ് ആകുന്നു'}},8000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* ---------- Screenshot import (OCR, Paytm payment history etc.) ---------- */
+const SS={rows:[],busy:false,n:0};
+const SSMON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+const PMM={food:'Food',medical:'Health',health:'Health',taxi:'Travel',travel:'Travel',fuel:'Fuel',groceries:'Grocery',grocery:'Grocery',shopping:'Shopping',bills:'Bills',utilities:'Bills','bill payments':'Bills',recharge:'Recharge','mobile recharge':'Recharge',entertainment:'Entertainment',education:'Education',rent:'Rent',insurance:'Insurance',emi:'EMI',others:'Other',other:'Other'};
+const PMEMO={Food:'🍽️',Travel:'🚌',Fuel:'⛽',Grocery:'🛒',Shopping:'🛍️',Bills:'💡',Recharge:'📱',Entertainment:'🎬',Education:'📚',Rent:'🏠',Insurance:'🛡️',EMI:'🏦',Health:'💊',Other:'📦'};
+const ssClean=l=>l.replace(/[|\[\]{}©®«»•·]/g,' ').replace(/\s+/g,' ').replace(/\s*\bFrom\b.*$/i,'').trim();
+const SSSKIP=/(^paytm\b|\bupi\b|payment history|total spent|total received|powered by|^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4})/i;
+function ssDate(ln){const l=ln.toLowerCase(),t=new Date();
+ if(/^yes?t[a-z]{2,6}d?a?[yv]/.test(l)||/^yesterday/.test(l)){t.setDate(t.getDate()-1);return f(t)}
+ if(/^tod[a-z]?[yv]\b/.test(l)||/^today\b/.test(l))return f(t);
+ const M='(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)';
+ let m=new RegExp('(?:^|\\s)(\\d{1,2})(?!\\d)\\s*'+M+'[a-z]*\\.?,?\\s*(\\d{4})?').exec(l),d,mo,y;
+ if(m){d=+m[1];mo=SSMON[m[2]];y=m[3]?+m[3]:null}
+ else{m=new RegExp('(?:^|\\s)'+M+'[a-z]*\\.?\\s*(\\d{1,2})(?!\\d)(?:,?\\s*(\\d{4}))?').exec(l);if(!m)return '';mo=SSMON[m[1]];d=+m[2];y=m[3]?+m[3]:null}
+ if(d<1||d>31)return '';
+ const now=new Date();let dt=dOf(y||now.getFullYear(),mo,d);if(!y&&dt>now)dt=dOf(now.getFullYear()-1,mo,d);return f(dt)}
+function ssCatWord(ln){const w=ln.replace(/[^A-Za-z &]/g,' ').replace(/\s+/g,' ').trim().toLowerCase();if(!w)return '';
+ if(PMM[w]!==undefined)return w;const p=w.split(' ');
+ for(const k of [p.slice(-2).join(' '),p[p.length-1]])if(PMM[k]!==undefined)return k;return ''}
+function ssAmt(ln){
+ let m=/^(.*?)\s*([-–—−_~+])\s*([^\d\s]{0,1})\s*(\d[\d,]*(?:\.\d{1,2})?)\s*$/.exec(ln);
+ if(m)return {name:m[1],sign:m[2],sym:m[3],amt:m[4]};
+ m=/^(.*?)\s*(₹)\s*(\d[\d,]*(?:\.\d{1,2})?)\s*$/.exec(ln);
+ if(m)return {name:m[1],sign:'-',sym:'₹',amt:m[3]};
+ m=/^(.*?)\s*([-–—−_~+])\s*7\s+(\d[\d,]*(?:\.\d{1,2})?)\s*$/.exec(ln);
+ if(m)return {name:m[1],sign:m[2],sym:'',amt:'7'+m[3]};
+ return null}
+function ssParse(txt){const rows=[];let cur=null;
+ const lines=String(txt||'').split(/\n/).map(ssClean).filter(Boolean);
+ for(const ln of lines){
+  if(SSSKIP.test(ln))continue;
+  const m=ssAmt(ln);
+  if(m&&(m.name.match(/[A-Za-z\u0D00-\u0D7F]/g)||[]).length>=2&&!SSSKIP.test(m.name)){
+   const raw=m.amt.replace(/,/g,'');
+   cur={name:m.name.replace(/[\s\-–—_~:]+$/,'').trim(),amt:parseFloat(raw),income:m.sign==='+',sym:m.sym,rawAmt:raw,date:'',pm:''};
+   cur.chk=m.sym!=='₹'&&/^[237]\d{3,}$/.test(raw.split('.')[0]);
+   rows.push(cur);continue}
+  if(!cur)continue;
+  if(/^(from|to)\b.{0,8}$/i.test(ln))continue;
+  const dt=ssDate(ln);if(dt&&!cur.date){cur.date=dt;continue}
+  const cw=ssCatWord(ln);if(cw&&!cur.pm&&ln.length<=24){cur.pm=cw;continue}
+  if(!cur.date&&!cur.pm&&/^[A-Za-z0-9 .&'\/-]{2,30}$/.test(ln))cur.name+=' '+ln;
+ }
+ rows.forEach((r,i)=>{if(!r.date&&i>0&&rows[i-1].date){r.date=rows[i-1].date;r.guess=true}});
+ {const ns=rows.filter(r=>!r.sym),s7=ns.filter(r=>r.rawAmt.length>=2&&r.rawAmt[0]==='7');
+  if(s7.length&&s7.length>=Math.ceil(ns.length*0.6))s7.forEach(r=>{r.rawAmt=r.rawAmt.slice(1);r.amt=parseFloat(r.rawAmt);r.fix7=true;r.chk=false})}
+ return rows.filter(r=>r.amt>0)}
+function ssCatFor(r){
+ if(r.income)return 'Other Income';
+ const c=classify(r.name,'expense');if(c)return c;
+ const t=PMM[r.pm];return t||'Other'}
+const ssNk=v=>String(v||'').trim().toLowerCase();
+function ssCatOpts(r){const ty=r.income?'income':'expense';let o=catList(ty).map(x=>x.n);if(!o.some(n=>n.toLowerCase()===r.cat.toLowerCase()))o.unshift(r.cat);
+ return o.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===r.cat.toLowerCase()?' selected':''}>${esc(n)}</option>`).join('')}
+function ssDraw(){const b=$('ssRows');
+ b.innerHTML=SS.rows.map((r,i)=>`<div style="border:1.5px solid ${r.dup?'#f59e0b':'#fecaca'};border-radius:12px;padding:8px;margin-top:8px;${r.on?'':'opacity:.55'}">
+<div style="display:flex;gap:6px;align-items:center"><input type="checkbox" ${r.on?'checked':''} onchange="SS.rows[${i}].on=this.checked;ssDraw()" style="width:22px;height:22px;flex:none;margin:0">
+<input value="${esc(r.name)}" oninput="SS.rows[${i}].name=this.value" style="flex:1;min-width:0;margin:0">
+<input type="number" inputmode="decimal" value="${r.amt}" oninput="SS.rows[${i}].amt=+this.value" style="width:92px;flex:none;margin:0"></div>
+<div style="display:flex;gap:6px;margin-top:6px"><input type="date" value="${r.date}" max="${todayStr()}" onchange="SS.rows[${i}].date=this.value" style="flex:1.4;min-width:0;margin:0;padding:10px 6px;font-size:14px${r.noDate?';border-color:#f59e0b':''}">
+<select onchange="SS.rows[${i}].cat=this.value" style="flex:1;min-width:0;margin:0;padding:10px 6px;font-size:14px">${ssCatOpts(r)}</select><button type="button" title="Delete" onclick="ssDelRow(${i})" style="flex:none;border:0;border-radius:10px;background:#fee2e2;color:#b91c1c;padding:0 8px;font-size:16px">🗑</button></div>
+${r.income?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതിനകം ഉണ്ട്</small>':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
+</div>`).join('');
+ $('ssSave').style.display=SS.rows.length?'':'none';$('ssDelAll').style.display=SS.rows.length?'':'none';
+ const n=SS.rows.filter(r=>r.on).length;$('ssSave').textContent='✔ '+n+' എൻട്രി സേവ് ചെയ്യൂ / Save'}
+function ssDelRow(i){SS.rows.splice(i,1);ssDraw()}
+function ssDelShot(id){if(SS.busy)return toast('വായിക്കുന്നു… കാത്തിരിക്കൂ');
+ SS.rows=SS.rows.filter(r=>r.src!==id);const w=$('ssThumbs').querySelector('[data-s="'+id+'"]');if(w)w.remove();ssDraw()}
+function ssDelAll(){if(SS.busy)return toast('വായിക്കുന്നു… കാത്തിരിക്കൂ');if(!confirm('കാണിച്ചിരിക്കുന്ന എല്ലാ എൻട്രികളും ഡിലീറ്റ് ചെയ്യണോ? (ഇത് സേവ് ചെയ്യാത്തവയാണ്)'))return;
+ SS.rows=[];$('ssThumbs').innerHTML='';$('ssMsg').textContent='';ssDraw()}
+function ssCut(i){const r=SS.rows[i];r.amt=parseFloat(String(r.rawAmt).slice(1));r.rawAmt=String(r.amt);r.chk=false;ssDraw()}
+function openSS(){const o=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
+ $('ssAcc').innerHTML=o;let last='';try{last=localStorage.getItem('em_ssacc')||''}catch(e){}
+ if(last&&[...$('ssAcc').options].some(x=>x.value===last))$('ssAcc').value=last;
+ SS.rows=[];$('ssRows').innerHTML='';$('ssThumbs').innerHTML='';$('ssMsg').textContent='';$('ssSave').style.display='none';$('ssDelAll').style.display='none';$('ssFile').value='';
+ $('ssmodal').style.display='flex'}
+function closeSS(){if(SS.busy)return toast('വായിക്കുന്നു… കാത്തിരിക്കൂ');$('ssmodal').style.display='none'}
+let _tessP=null;
+function loadTess(){if(window.Tesseract)return Promise.resolve();
+ return _tessP||(_tessP=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>{_tessP=null;no(new Error('load'))};document.head.appendChild(s)}))}
+async function ssPrep(file){const bm=await createImageBitmap(file);const w=bm.width,sc=w<1400?1400/w:(w>2200?2200/w:1);
+ const c=document.createElement('canvas');c.width=Math.round(bm.width*sc);c.height=Math.round(bm.height*sc);
+ const x=c.getContext('2d');x.drawImage(bm,0,0,c.width,c.height);
+ const W=c.width,H=c.height,id=x.getImageData(0,0,W,H),d=id.data;
+ /* left icon column (coloured pixels) is found and blanked so icons are not read as text */
+ let cut=-1;{const L=Math.floor(W*.4),cnt=new Uint32Array(L),y0=Math.floor(H*.12),y1=Math.floor(H*.92);
+  for(let y=y0;y<y1;y++){const o=y*W*4;for(let xx=0;xx<L;xx++){const j=o+xx*4;if(Math.max(d[j],d[j+1],d[j+2])-Math.min(d[j],d[j+1],d[j+2])>=28)cnt[xx]++}}
+  const thr=.01*(y1-y0),gap=Math.round(.012*W);let st=-1,last=-1;
+  for(let xx=0;xx<L;xx++){if(cnt[xx]>=thr){if(st<0){st=xx;last=xx}else if(xx-last<=gap)last=xx;else break}}
+  if(st>=0&&last-st>=.04*W&&st<.3*W&&last<.3*W)cut=last+gap}
+ let sum=0;for(let i=0;i<d.length;i+=16)sum+=d[i]*.3+d[i+1]*.59+d[i+2]*.11;
+ const dark=sum/(d.length/16)<110;
+ for(let i=0;i<d.length;i+=4){if(cut>0&&((i>>2)%W)<=cut){d[i]=d[i+1]=d[i+2]=255;continue}
+  let g=d[i]*.3+d[i+1]*.59+d[i+2]*.11;if(dark)g=255-g;d[i]=d[i+1]=d[i+2]=g>165?255:(g<115?0:(g-115)*255/50)}
+ x.putImageData(id,0,0);return c}
+async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)return;
+ const acc=+$('ssAcc').value;if(!acc)return toast('ആദ്യം അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
+ try{localStorage.setItem('em_ssacc',String(acc))}catch(e){}
+ SS.busy=true;$('ssAcc').disabled=true;$('ssFile').disabled=true;
+ const msg=t=>{$('ssMsg').textContent=t};let worker=null;
+ try{
+  msg('OCR ലൈബ്രറി ലോഡ് ചെയ്യുന്നു… (ആദ്യമായി ഇന്റർനെറ്റ് വേണം)');
+  await loadTess();
+  let cur=0;
+  worker=await Tesseract.createWorker('eng',1,{langPath:'https://tessdata.projectnaptha.com/4.0.0_fast',logger:m=>{if(m.status==='recognizing text')msg('വായിക്കുന്നു… ചിത്രം '+(cur+1)+'/'+files.length+' · '+Math.round((m.progress||0)*100)+'%')}});
+  await worker.setParameters({tessedit_pageseg_mode:'6',preserve_interword_spaces:'1'});
+  for(cur=0;cur<files.length;cur++){
+   const sid=++SS.n;const wrap=document.createElement('span');wrap.dataset.s=sid;wrap.style.cssText='position:relative;display:inline-block;margin:6px 6px 0 0;vertical-align:top';
+   const im=document.createElement('img');im.src=URL.createObjectURL(files[cur]);im.style.cssText='height:90px;border-radius:8px;border:1px solid var(--line);display:block';
+   im.onclick=()=>{im.style.height=im.style.height==='90px'?'auto':'90px';im.style.maxWidth='100%'};
+   const xb=document.createElement('button');xb.type='button';xb.textContent='✕';xb.title='Delete';xb.style.cssText='position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#b91c1c;color:#fff;font-size:13px;line-height:24px;padding:0';
+   xb.onclick=e=>{e.stopPropagation();ssDelShot(sid)};wrap.appendChild(im);wrap.appendChild(xb);$('ssThumbs').appendChild(wrap);
+   const cv=await ssPrep(files[cur]);const res=await worker.recognize(cv);
+   ssParse(res.data.text).forEach(r=>{r.src=sid;r.cat=ssCatFor(r);r.noDate=!r.date||!!r.guess;if(!r.date)r.date=todayStr();if(r.date>todayStr())r.date=todayStr();
+    r.dup=D.tx.some(t=>t.type===(r.income?'income':'expense')&&t.date===r.date&&Number(t.amt)===Number(r.amt)&&ssNk(t.note)===ssNk(r.name))||SS.rows.some(q=>q.date===r.date&&q.amt===r.amt&&ssNk(q.name)===ssNk(r.name)&&q.income===r.income);
+   r.on=!r.dup&&!r.income;SS.rows.push(r)});
+  }
+  msg(SS.rows.length?SS.rows.length+' എൻട്രി കണ്ടെത്തി':'എൻട്രികൾ ഒന്നും വായിക്കാൻ പറ്റിയില്ല. കൂടുതൽ വ്യക്തമായ സ്ക്രീൻഷോട്ട് ശ്രമിക്കൂ.');
+  ssDraw();
+ }catch(e){msg('⚠ OCR പരാജയപ്പെട്ടു. ഇന്റർനെറ്റ് ഉള്ളപ്പോൾ ഒരു തവണ ശ്രമിക്കൂ. ('+(e.message||e)+')')}
+ finally{try{worker&&await worker.terminate()}catch(e){}SS.busy=false;$('ssAcc').disabled=false;$('ssFile').disabled=false;$('ssFile').value=''}}
+function ssSave(){const acc=+$('ssAcc').value;if(!acc)return toast('അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
+ const rows=SS.rows.filter(r=>r.on);if(!rows.length)return toast('ഒന്നും തിരഞ്ഞെടുത്തിട്ടില്ല');
+ for(const r of rows){if(!(r.amt>0))return toast('തുക ശരിയല്ല: '+r.name);if(!r.date||r.date>todayStr())return toast('തീയതി ശരിയല്ല: '+r.name)}
+ let n=0;const base=Date.now()*1000;
+ for(const r of rows){const ty=r.income?'income':'expense';const emo=PMEMO[r.cat]||null;ensureCat(r.cat,emo,ty);
+  const note=String(r.name).trim();
+  if(note.length>=2&&!/^other/i.test(r.cat))D.map[note.toLowerCase()]=r.cat;
+  D.tx.unshift({id:base+(++n),type:ty,amt:r.amt,cat:r.cat,acc,to:0,date:r.date,note});
+ }
+ D.tx.sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.id-a.id);save();
+ SS.rows=[];$('ssmodal').style.display='none';toast('✔ '+n+' എൻട്രി സേവ് ചെയ്തു');render()}
+
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
