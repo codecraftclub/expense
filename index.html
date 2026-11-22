@@ -56,7 +56,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal,#cbmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -69,7 +69,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal,#cbmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -231,6 +231,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 <div id="dfmodal" onclick="if(event.target===this)dfClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 style="margin:0">🔍 ഡ്യൂപ്ലിക്കേറ്റ് ഫൈൻഡർ</h3><button type="button" onclick="dfClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div>
 <div style="display:flex;gap:8px;margin:6px 0"><button type="button" id="dfM1" class="btn" style="margin:0;flex:1" onclick="dfMode(1)">ഒരേ തുക + തീയതി</button><button type="button" id="dfM2" class="btn sec" style="margin:0;flex:1" onclick="dfMode(2)">ഒരേ തുക മാത്രം</button></div>
 <small id="dfSum" style="display:block;color:var(--mute);margin:6px 0"></small><div id="dfList"></div><button class="btn sec" onclick="dfClose()">അടയ്ക്കുക</button></div></div>
+<div id="cbmodal" onclick="if(event.target===this)cbClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="cbTitle" style="margin:0"></h3><button type="button" onclick="cbClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="cbBody"></div><button class="btn sec" onclick="cbClose()">അടയ്ക്കുക</button></div></div>
 <div id="txmodal" onclick="if(event.target===this)closeTxInfo()"><div class="sheet"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="txTitle" style="margin:0">🔎 ഇപ്പോഴുള്ള എൻട്രി</h3><button type="button" onclick="closeTxInfo()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="txInfoBody"></div><button class="btn" onclick="closeTxInfo()">ശരി</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
 <div id="lgmodal"><div class="sheet"><h3 style="text-align:center">🌐 ഭാഷ തിരഞ്ഞെടുക്കൂ · Choose language</h3><div id="lgBtns"></div><button class="btn" onclick="lgOk()">✔ OK</button></div></div>
@@ -678,7 +679,7 @@ function cardHtml(a){if(!a.sd||!a.dd)return '';
  D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=L?cb+=t.amt:cy+=t.amt}
   if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id))pay+=t.amt});
  const billed=Math.max(0,cb-pay),days=Math.ceil((due-new Date(Y,M,n.getDate()))/864e5),paid=cb>0&&billed===0;
- return `<div class="cinfo"><div><small>ബിൽ ${L}</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>പുതിയ സൈക്കിൾ</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
+ return `<div class="cinfo"><div style="cursor:pointer" onclick="cardBreak(${a.id})"><small>ബിൽ ${L} 🔍</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>പുതിയ സൈക്കിൾ</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
 
 /* ---------- Reports ---------- */
 const MN=['ജനു','ഫെബ്','മാർ','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗ','സെപ്','ഒക്ടോ','നവം','ഡിസം'];
@@ -776,6 +777,26 @@ function ccNewToggle(){const n=$('ccSel').value==='__new__';$('ccNewBox').style.
  $('ccEmo').innerHTML=EMO.map(e=>`<span onclick="$('ccNI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
  $('ccPal').innerHTML=PAL.map(c=>`<span onclick="ccColor='${c}';ccNewToggle()" style="width:30px;height:30px;border-radius:10px;background:${c};display:inline-block;margin:4px;${ccColor===c?'outline:3px solid #1e1b4b;outline-offset:2px':''}"></span>`).join('')}
 const _an=id=>(accById(id)||{}).name||'?';
+let cbId=0;
+function cbClose(){$('cbmodal').style.display='none'}
+function cbDel(id){delTx(id);cardBreak(cbId)}
+function cardBreak(id){const a=accById(id);if(!a)return;cbId=id;
+ const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
+ const L=f(ls),pv=f(dOf(ls.getFullYear(),ls.getMonth()-1,a.sd));
+ const op=Math.max(0,-a.open);let old=0,cyc=0,pay=0;const lo=[],lc=[],lp=[],cnt={};
+ D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;
+  if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){const k=t.type+'|'+t.amt+'|'+t.date+'|'+t.to;cnt[k]=(cnt[k]||0)+1;
+   if(t.date<=pv){old+=t.amt;lo.push(t)}else if(t.date<=L){cyc+=t.amt;lc.push(t)}}
+  if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id)){pay+=t.amt;lp.push(t)}});
+ const billed=Math.max(0,op+old+cyc-pay);
+ const rw=(k,v,b)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><small style="margin:0">${k}</small><b${b?' style="color:#b91c1c"':''}>${v}</b></div>`;
+ const rows=l=>l.map(t=>{const k=t.type+'|'+t.amt+'|'+t.date+'|'+t.to;return txRow(t).replace(/<button class="ib ed"[\s\S]*?<\/button>/,'').replace(/delTx\((\d+)\)/,'cbDel($1)').replace('</small>',(cnt[k]>1?'<br><span style="color:#b45309">⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം</span>':'')+'</small>')}).join('')||'<div class="empty">ഒന്നുമില്ല</div>';
+ const hd=t=>`<div style="font-weight:700;margin:12px 0 2px">${t}</div>`;
+ $('cbTitle').textContent='💳 '+a.name+' · ബിൽ '+fd(L);
+ $('cbBody').innerHTML=rw('പഴയ ബാക്കി (Opening)',inr(op))+rw('മുൻ സൈക്കിളുകളിലെ ചെലവ് (≤ '+fd(pv)+')',inr(old))+rw('ഈ ബിൽ സൈക്കിൾ ('+fd(pv)+' ശേഷം – '+fd(L)+')',inr(cyc))+rw('അടച്ചത് (ആപ്പിൽ രേഖപ്പെടുത്തിയത്)','− '+inr(pay))+rw('ഇപ്പോഴത്തെ ബിൽ',inr(billed),1)+
+  `<small style="display:block;color:var(--mute);margin-top:6px">ബാങ്ക് ബില്ലിനേക്കാൾ കൂടുതലാണെങ്കിൽ: മുൻ ബില്ലിന്റെ പേയ്മെന്റ് ആപ്പിൽ ചേർത്തിട്ടില്ലാത്തതോ ഡ്യൂപ്ലിക്കേറ്റ് എൻട്രിയോ ആകാം. ചുവടെ നോക്കൂ; തെറ്റിയത് × അമർത്തി കളയാം.</small>`+
+  hd('ഈ ബിൽ സൈക്കിളിലെ ഇടപാടുകൾ')+rows(lc)+(lo.length?hd('മുൻ സൈക്കിളുകളിലെ ഇടപാടുകൾ (ബില്ലിൽ ഇപ്പോഴും കൂട്ടുന്നത്)')+rows(lo):'')+hd('അടച്ചതായി രേഖപ്പെടുത്തിയവ')+rows(lp);
+ $('cbmodal').style.display='flex'}
 let DFM=1;
 function dfOpen(){DFM=1;dfDraw();$('dfmodal').style.display='flex'}
 function dfClose(){$('dfmodal').style.display='none'}
