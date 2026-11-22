@@ -1154,10 +1154,10 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {getAuth,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {getAuth,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyAC9KeZ2XtiEXbKbS7T5eavKqWS1MXgiLE",authDomain:"expense-manager-5651c.firebaseapp.com",projectId:"expense-manager-5651c",storageBucket:"expense-manager-5651c.firebasestorage.app",messagingSenderId:"490114275639",appId:"1:490114275639:web:e9b9b9b921978eeef5a2b2",measurementId:"G-NYVBBDEDQV"});
-let auth;try{auth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence]})}catch(e){auth=getAuth(app)}
+let auth;try{auth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence],popupRedirectResolver:browserPopupRedirectResolver})}catch(e){auth=getAuth(app)}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 const db=getFirestore(app),el=id=>document.getElementById(id);
 let uid=null,timer=null,unsub=null,lastRaw='';
@@ -1168,7 +1168,7 @@ let lastPull=0;
 window.cloudToggle=()=>{
  if(uid){if(confirm('Sign out ചെയ്യണോ?'))signOut(auth);return}
  window.lShow&&lShow('in');el('lmodal').style.display='flex'};
-window.googleLogin=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider());el('lmodal').style.display='none'}catch(e){el('lErr').textContent=e.code||e.message}};
+window.googleLogin=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider(),browserPopupRedirectResolver);el('lmodal').style.display='none'}catch(e){el('lErr').textContent=e.code||e.message}};
 window.emailLogin=async mode=>{const g=id=>el(id).value.trim(),err=m=>{el('lErr').textContent=m};
  try{
   if(mode==='reset'){const e=g('fE');if(!e)return err('ഇമെയിൽ നൽകൂ');await sendPasswordResetEmail(auth,e);return err('✔ റീസെറ്റ് ലിങ്ക് ഇമെയിലിൽ അയച്ചു (Spam ഫോൾഡറും നോക്കൂ)')}
