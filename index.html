@@ -56,7 +56,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -69,7 +69,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -217,17 +217,24 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
   <small>അവസാന തീയതി (ദിവസം 1-31)</small><input id="aeDd" type="number" inputmode="numeric" min="1" max="31"></div>
  <small>Keywords (കോമ ഇട്ട്)</small><input id="aeKw" autocomplete="off">
  <button class="btn" onclick="saveAccEdit()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeAccEdit()">റദ്ദാക്കുക</button></div></div>
-<div id="ccmodal" onclick="if(event.target===this)closeCC()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3>✎ മാറ്റാം · Expense</h3><div id="ccInfo" style="font-size:14px;margin:4px 0 6px"></div>
- <small>എന്താവശ്യം / Item</small><input id="ccNote" list="dlNotes" autocomplete="off">
- <small>Category</small><select id="ccSel" onchange="ccNewToggle()"></select>
- <div id="ccNewBox" style="display:none;background:#fef2f2;border-radius:14px;padding:10px;margin-top:8px"><input id="ccNN" placeholder="പുതിയ category പേര്" style="margin-top:0"><input id="ccNI" placeholder="ഐക്കൺ (ഇമോജി) — താഴെ നിന്ന് തൊടാം"><div id="ccEmo" style="margin-top:4px"></div><div id="ccPal"></div><input id="ccNK" placeholder="keywords (comma)"></div>
- <small>Account</small><select id="ccAcc"></select>
- <small style="color:var(--mute)">ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
+<div id="ccmodal" onclick="if(event.target===this)closeCC()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3 id="ccTitle">✎ മാറ്റാം · Expense</h3><div id="ccInfo" style="font-size:14px;margin:4px 0 6px"></div>
+ <small>തുക ₹ / Amount</small><input id="ccAmt" type="number" inputmode="decimal">
+ <small>തീയതി / Date</small><input id="ccDate" type="date">
+ <small id="ccNoteL">എന്താവശ്യം / Item</small><input id="ccNote" list="dlNotes" autocomplete="off">
+ <div id="ccCatBox"><small>Category</small><select id="ccSel" onchange="ccNewToggle()"></select>
+ <div id="ccNewBox" style="display:none;background:#fef2f2;border-radius:14px;padding:10px;margin-top:8px"><input id="ccNN" placeholder="പുതിയ category പേര്" style="margin-top:0"><input id="ccNI" placeholder="ഐക്കൺ (ഇമോജി) — താഴെ നിന്ന് തൊടാം"><div id="ccEmo" style="margin-top:4px"></div><div id="ccPal"></div><input id="ccNK" placeholder="keywords (comma)"></div></div>
+ <small id="ccAccL">Account</small><select id="ccAcc"></select>
+ <div id="ccToBox" style="display:none"><small>To (ഈ അക്കൗണ്ടിലേക്ക്)</small><select id="ccTo"></select></div>
+ <small id="ccHint" style="color:var(--mute)">ഇതേ വിവരണം അടുത്ത തവണ മുതൽ ഈ category-യിലേക്ക് തനിയെ പോകും.</small>
  <button class="btn" onclick="saveCC()">മാറ്റുക</button><button class="btn sec" onclick="closeCC()">അടയ്ക്കുക</button></div></div>
+<div id="txmodal" onclick="if(event.target===this)closeTxInfo()"><div class="sheet"><h3>🔎 ഇപ്പോഴുള്ള എൻട്രി</h3><div id="txInfoBody"></div><button class="btn" onclick="closeTxInfo()">ശരി</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
 <div id="lgmodal"><div class="sheet"><h3 style="text-align:center">🌐 ഭാഷ തിരഞ്ഞെടുക്കൂ · Choose language</h3><div id="lgBtns"></div><button class="btn" onclick="lgOk()">✔ OK</button></div></div>
 <div id="ssmodal" onclick="if(event.target===this)closeSS()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3>📷 സ്ക്രീൻഷോട്ടിൽ നിന്ന് ചേർക്കൂ</h3>
- <small>ഏത് അക്കൗണ്ടിലേക്ക് / Account</small><select id="ssAcc"></select>
+ <div class="seg" id="ssSeg" style="margin:6px 0"><button type="button" data-t="expense" class="on" onclick="ssMode('normal')">⬆⬇ ചെലവ് / വരവ്</button><button type="button" data-t="transfer" onclick="ssMode('transfer')">⇄ Transfer</button></div>
+ <small id="ssAccL">ഏത് അക്കൗണ്ടിലേക്ക് / Account</small><select id="ssAcc" onchange="ssGlobalCh()"></select>
+ <div id="ssToBox" style="display:none"><small>To (ഈ അക്കൗണ്ടിലേക്ക്)</small><select id="ssTo" onchange="ssGlobalCh()"></select>
+ <small>റിമാർക്ക് (വരിയിൽ ഒഴിഞ്ഞതിനെല്ലാം) / Common remark</small><input id="ssRem" placeholder="ഉദാ: Card bill, Cash deposit"></div>
  <small style="display:block;margin-top:10px">സ്ക്രീൻഷോട്ട് (Paytm Payment History) / Screenshot</small><input id="ssFile" type="file" accept="image/*" multiple onchange="ssRun(this.files)">
   <div id="ssMsg" style="margin:8px 0;font-size:13px;color:var(--mute)"></div><div id="ssThumbs"></div><div id="ssRows"></div>
  <button class="btn sec" id="ssDelAll" style="display:none" onclick="ssDelAll()">🗑 എല്ലാം ഡിലീറ്റ് ചെയ്യൂ / Delete all</button><button class="btn" id="ssSave" style="display:none" onclick="ssSave()">✔ സേവ് ചെയ്യൂ</button><button class="btn sec" onclick="closeSS()">Close</button></div></div>
@@ -408,7 +415,7 @@ function saveTx(tx){
  if(String(tx.date||'')>todayStr())return toast('⛔ ഭാവിയിലെ തീയതിയിൽ എൻട്രി ചേർക്കാൻ പറ്റില്ല');
  {const nk=v=>String(v||'').trim().toLowerCase();
   const dup=D.tx.find(t=>t.type===tx.type&&t.date===tx.date&&Number(t.amt)===Number(tx.amt)&&(tx.type!=='transfer'||(t.acc===tx.acc&&t.to===tx.to)));
-  if(dup&&!confirm('⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം!\nഇതേ തീയതി ('+fd(tx.date)+'), ഇതേ തുക ('+inr(tx.amt)+') ഉള്ള '+(tx.type==='transfer'?'ട്രാൻസ്ഫർ':'എൻട്രി')+(nk(dup.note)?' ('+dup.note+')':'')+' ഇതിനകം ഉണ്ട്.\nഎന്നാലും ചേർക്കണോ?'))return false}
+  if(dup&&!confirm('⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം!\nഇതേ തീയതി ('+fd(tx.date)+'), ഇതേ തുക ('+inr(tx.amt)+') ഉള്ള '+(tx.type==='transfer'?'ട്രാൻസ്ഫർ':'എൻട്രി')+' ['+(dup.type==='transfer'?_an(dup.acc)+' → '+_an(dup.to):[dup.cat,_an(dup.acc)].filter(Boolean).join(' · '))+(nk(dup.note)?' · '+dup.note:'')+'] ഇതിനകം ഉണ്ട്.\nഎന്നാലും ചേർക്കണോ?'))return false}
  if(tx.type!=='transfer'&&!tx.cat)tx.cat=tx.type==='income'?'Other Income':'Other';
  if(tx.type!=='transfer'&&tx.note&&String(tx.note).trim().length>=2&&!/^other/i.test(tx.cat||''))D.map[String(tx.note).trim().toLowerCase()]=tx.cat;
  tx.id=Date.now()*1000+(window._lid=((window._lid||0)+1)%1000);D.tx.unshift(tx);D.tx.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);save();
@@ -427,7 +434,7 @@ function txRow(t){
  const ic=cm.ic;
  const a=accById(t.acc),b=accById(t.to);
  const sub=t.type==='transfer'?`${esc(a?.name||'?')} → ${esc(b?.name||'?')}`:`${esc(a?.name||'?')}`;
- return `<div class="row"><div class="dot" style="background:${bg}">${ic}</div><div class="grow"><b>${esc(t.type==='transfer'?'Transfer':t.cat)}</b><small>${sub} · ${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${t.type}">${sign}${inr(t.amt)}</div>${t.type!=='transfer'?`<button class="ib ed" onclick="openCC(${t.id})">${PEN}</button>`:''}<button class="del" onclick="delTx(${t.id})">×</button></div>`}
+ return `<div class="row"><div class="dot" style="background:${bg}">${ic}</div><div class="grow"><b>${esc(t.type==='transfer'?'Transfer':t.cat)}</b><small>${sub} · ${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${t.type}">${sign}${inr(t.amt)}</div><button class="ib ed" onclick="openCC(${t.id})">${PEN}</button><button class="del" onclick="delTx(${t.id})">×</button></div>`}
 
 const OPEN=new Set();function togCat(e){e.open?OPEN.add(e.dataset.k):OPEN.delete(e.dataset.k)}
 let txQ='';
@@ -751,22 +758,64 @@ function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
 function closeAcc(){$('amodal').style.display='none'}
 let ccId=0,ccColor=PAL[0];
 function openCC(id){const t=D.tx.find(x=>x.id===id);if(!t)return;ccId=id;
- $('ccInfo').textContent=inr(t.amt)+' · '+fd(t.date)+' · ഇപ്പോൾ: '+t.cat;$('ccNote').value=t.note||'';fillDL();
- $('ccSel').innerHTML='<option value="__new__">➕ പുതിയ category ചേർക്കൂ</option>'+catOpts(t.type);$('ccSel').value=t.cat;if(!$('ccSel').value)$('ccSel').selectedIndex=Math.min(1,$('ccSel').options.length-1);
- $('ccNN').value='';$('ccNI').value='';$('ccNK').value='';ccColor=PAL[0];ccNewToggle();
- $('ccAcc').innerHTML=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');$('ccAcc').value=t.acc;$('ccmodal').style.display='flex'}
+ const tr=t.type==='transfer';
+ $('ccInfo').textContent=tr?('⇄ Transfer · '+inr(t.amt)+' · '+fd(t.date)):(inr(t.amt)+' · '+fd(t.date)+' · ഇപ്പോൾ: '+t.cat);
+ $('ccAmt').value=t.amt;$('ccDate').value=t.date;$('ccDate').max=todayStr();$('ccNote').value=t.note||'';fillDL();
+ $('ccTitle').textContent=tr?'✎ മാറ്റാം · Transfer':'✎ മാറ്റാം';$('ccNoteL').textContent=tr?'റിമാർക്ക് / Remark':'എന്താവശ്യം / Item';
+ $('ccCatBox').style.display=tr?'none':'';$('ccToBox').style.display=tr?'':'none';$('ccHint').style.display=tr?'none':'';$('ccAccL').textContent=tr?'From (ഈ അക്കൗണ്ടിൽ നിന്ന്)':'Account';
+ if(!tr){$('ccSel').innerHTML='<option value="__new__">➕ പുതിയ category ചേർക്കൂ</option>'+catOpts(t.type);$('ccSel').value=t.cat;if(!$('ccSel').value)$('ccSel').selectedIndex=Math.min(1,$('ccSel').options.length-1);
+  $('ccNN').value='';$('ccNI').value='';$('ccNK').value='';ccColor=PAL[0];ccNewToggle()}
+ const ao=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
+ $('ccAcc').innerHTML=ao;$('ccAcc').value=t.acc;$('ccTo').innerHTML=ao;if(tr)$('ccTo').value=t.to;$('ccmodal').style.display='flex'}
 function ccNewToggle(){const n=$('ccSel').value==='__new__';$('ccNewBox').style.display=n?'block':'none';if(!n)return;
  $('ccEmo').innerHTML=EMO.map(e=>`<span onclick="$('ccNI').value='${e}'" style="font-size:24px;cursor:pointer;margin:3px">${e}</span>`).join('');
  $('ccPal').innerHTML=PAL.map(c=>`<span onclick="ccColor='${c}';ccNewToggle()" style="width:30px;height:30px;border-radius:10px;background:${c};display:inline-block;margin:4px;${ccColor===c?'outline:3px solid #1e1b4b;outline-offset:2px':''}"></span>`).join('')}
+const _an=id=>(accById(id)||{}).name||'?';
+function txInfo(id){const t=D.tx.find(x=>x.id===id);if(!t)return toast('എൻട്രി കണ്ടെത്താനായില്ല');
+ const tr=t.type==='transfer',row=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"><small style="margin:0">${k}</small><b style="text-align:right">${v}</b></div>`;
+ $('txInfoBody').innerHTML=`<div class="amt ${t.type}" style="font-size:26px;font-weight:800;margin:4px 0 8px">${inr(t.amt)}</div>`+
+  row('തരം',tr?'⇄ Transfer':t.type==='income'?'⬇ വരവ്':'⬆ ചെലവ്')+(tr?row('From → To',esc(_an(t.acc))+' → '+esc(_an(t.to))):row('Category',esc(t.cat||''))+row('അക്കൗണ്ട്',esc(_an(t.acc))))+
+  row('തീയതി',fd(t.date))+row(tr?'റിമാർക്ക്':'വിവരണം',t.note?esc(t.note):'—');
+ $('txmodal').style.display='flex'}
+function ssView(i){const r=SS.rows[i];if(!r)return toast('വരി കണ്ടെത്താനായില്ല');
+ const tr=SS.mode==='transfer',row=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"><small style="margin:0">${k}</small><b style="text-align:right">${v}</b></div>`;
+ $('txInfoBody').innerHTML=`<div style="font-size:26px;font-weight:800;margin:4px 0 8px">${inr(r.amt)}</div>`+
+  `<small style="color:#b45309;display:block;margin-bottom:6px">ഇമ്പോർട്ട് ലിസ്റ്റിലെ വരി #${i+1} — ഇതുവരെ സേവ് ചെയ്തിട്ടില്ല</small>`+
+  row(tr?'റിമാർക്ക്':'വിവരണം',r.name?esc(r.name):'—')+row('തീയതി',fd(r.date))+(tr?row('From → To',esc(_an(r.f||+$('ssAcc').value))+' → '+esc(_an(r.t||+$('ssTo').value))):row('Category',esc(r.cat||''))+row('അക്കൗണ്ട്',esc(ssAN('ssAcc'))))+
+  row('ടിക്ക്',r.on?'✔ സേവ് ചെയ്യും':'✖ ഒഴിവാക്കി');
+ $('txmodal').style.display='flex'}
+let LASTIMP=null;
+function impDone(ids,prev,n){LASTIMP={ids,prev};
+ let b=$('undoBar');if(!b){b=document.createElement('div');b.id='undoBar';b.style.cssText='position:fixed;left:12px;right:12px;bottom:90px;z-index:9999;background:#1e1b4b;color:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);font-size:14px';document.body.appendChild(b)}
+ b.innerHTML='<span>✔ '+n+' എൻട്രി സേവ് ചെയ്തു</span><button style="border:0;background:#fff;color:#b91c1c;font-weight:700;border-radius:10px;padding:8px 12px;flex:none">↩ ഇമ്പോർട്ട് തിരിച്ചെടുക്കൂ</button>';
+ b.style.display='flex';clearTimeout(undoTimer);undoTimer=setTimeout(()=>{b.style.display='none'},15000);
+ b.querySelector('button').onclick=()=>{clearTimeout(undoTimer);b.style.display='none';impUndo()}}
+function impUndo(){const L=LASTIMP;if(!L)return;
+ L.ids.forEach(id=>tomb(id));D.tx=D.tx.filter(x=>!L.ids.includes(x.id));
+ Object.keys(L.prev).forEach(k=>{if(L.prev[k]===undefined)delete D.map[k];else D.map[k]=L.prev[k]});
+ LASTIMP=null;save();render();toast('ഇമ്പോർട്ട് തിരിച്ചെടുത്തു ✔')}
+function editDup(t,amt,dt,fr,to){const tr=t.type==='transfer';
+ if(amt===Number(t.amt)&&dt===t.date&&(!tr||(fr===t.acc&&to===t.to)))return true;
+ const d=D.tx.find(x=>x.id!==t.id&&x.type===t.type&&Number(x.amt)===amt&&x.date===dt&&(!tr||(x.acc===fr&&x.to===to)));
+ if(!d)return true;
+ return confirm('⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം!\nഇതേ തീയതി ('+fd(dt)+'), ഇതേ തുക ('+inr(amt)+') ഉള്ള വേറൊരു എൻട്രി ഉണ്ട് ['+(tr?_an(d.acc)+' → '+_an(d.to):[d.cat,_an(d.acc)].filter(Boolean).join(' · '))+(d.note?' · '+d.note:'')+'].\nഎന്നാലും മാറ്റണോ?')}
+function closeTxInfo(){$('txmodal').style.display='none'}
 function closeCC(){$('ccmodal').style.display='none'}
 function chgCat(id,cat){const t=D.tx.find(x=>x.id===id);if(!t||!cat)return;t.cat=cat;ensureCat(cat,null,t.type);
  const d=(t.note||'').trim().toLowerCase();if(d&&!/^other/i.test(cat))D.map[d]=cat;t.u=Date.now();save();render()}
-function saveCC(){const t=D.tx.find(x=>x.id===ccId);if(!t)return closeCC();let cat=$('ccSel').value;
+function saveCC(){const t=D.tx.find(x=>x.id===ccId);if(!t)return closeCC();
+ const amt=parseFloat($('ccAmt').value),dt=$('ccDate').value;
+ if(!(amt>0))return toast('തുക നൽകൂ');if(!dt||dt>todayStr())return toast('തീയതി ശരിയല്ല');
+ const srt=()=>D.tx.sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.id-a.id);
+ if(t.type==='transfer'){const fr=+$('ccAcc').value,to=+$('ccTo').value;if(!fr||!to||fr===to)return toast('രണ്ട് വ്യത്യസ്ത അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');if(!editDup(t,amt,dt,fr,to))return;
+  t.amt=amt;t.date=dt;t.acc=fr;t.to=to;t.note=$('ccNote').value.trim();t.u=Date.now();srt();closeCC();save();render();return toast('മാറ്റി ✔')}
+ if(!editDup(t,amt,dt))return;
+ let cat=$('ccSel').value;
  if(cat==='__new__'){const n=$('ccNN').value.trim(),kw=$('ccNK').value.trim().toLowerCase();if(!n)return toast('പുതിയ category-യുടെ പേര് നൽകൂ');
   const ex=allCats().find(x=>x.n.toLowerCase()===n.toLowerCase()&&x.kind===t.type);
   if(ex){cat=ex.n;if(kw){D.ckw=D.ckw||{};D.ckw[ex.n.toLowerCase()]=kwMerge(D.ckw[ex.n.toLowerCase()],kw)}}
   else{untombCat(n);D.cats.push({n,ic:$('ccNI').value.trim()||'📦',c:ccColor,kind:t.type,k:kwMerge(n.toLowerCase(),kw)});cat=n}}
- t.note=$('ccNote').value.trim();if($('ccAcc').value)t.acc=+$('ccAcc').value;
+ t.note=$('ccNote').value.trim();if($('ccAcc').value)t.acc=+$('ccAcc').value;t.amt=amt;t.date=dt;srt();
  const _id=ccId;closeCC();$('res').style.display='none';try{chgCat(_id,cat)}catch(e){console.error(e)}toast('മാറ്റി ✔')}
 function ccSel(tx,inl){if(tx.type==='transfer')return '';return `<button class="ib ed" style="margin-left:8px;vertical-align:middle" onclick="openCC(${tx.id})">${PEN}</button>`}
 let kwKind='',kwKey='';
@@ -850,7 +899,19 @@ function saveAk(){const a=accById($('akAcc').value);if(!a)return toast('അക�
 const SUBS={'':'setMenu',cat:'setCat',acc:'setAcc',month:'setMonth',lang:'setLangBox',exp:'setExp'};
 function saveFile(name,mime,text){const blob=new Blob([text],{type:mime});
  try{const f=new File([blob],name,{type:mime});if(/Android|iPhone|iPad/i.test(navigator.userAgent)&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(()=>{});return}}catch(e){}
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+ try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}catch(e){}
+ fileFallback(name,mime,text)}
+function fileFallback(name,mime,text){let m=document.getElementById('fbmodal');if(m)m.remove();
+ m=document.createElement('div');m.id='fbmodal';m.style.cssText='position:fixed;inset:0;background:#0007;z-index:60;display:flex;align-items:center;justify-content:center';
+ m.onclick=e=>{if(e.target===m)m.remove()};
+ const sh=document.createElement('div');sh.className='sheet';sh.style.cssText='max-height:90vh;overflow:auto;width:min(92vw,460px)';
+ sh.innerHTML='<h3>📥 '+esc(name)+'</h3><small style="display:block;margin-bottom:8px">ഡൗൺലോഡ് തനിയെ ആയില്ലെങ്കിൽ താഴെയുള്ള വഴികൾ ഉപയോഗിക്കൂ:</small>';
+ if(text.length<1500000){const a=document.createElement('a');a.className='btn';a.textContent='⬇ ഡൗൺലോഡ് ചെയ്യൂ';a.href='data:'+mime+','+encodeURIComponent(text);a.download=name;a.style.cssText='display:block;text-align:center;text-decoration:none';sh.appendChild(a)}
+ const ta=document.createElement('textarea');ta.readOnly=true;ta.value=text;ta.rows=6;ta.style.cssText='width:100%;margin-top:8px;font-size:12px';ta.onfocus=()=>ta.select();
+ const cp=document.createElement('button');cp.className='btn sec';cp.textContent='📋 കോപ്പി ചെയ്യൂ (Notes / Sheets-ൽ പേസ്റ്റ് ചെയ്യാം)';
+ cp.onclick=async()=>{try{await navigator.clipboard.writeText(text)}catch(e){ta.select();try{document.execCommand('copy')}catch(_){}}cp.textContent='✔ കോപ്പി ചെയ്തു'};
+ const cl=document.createElement('button');cl.className='btn sec';cl.textContent='അടയ്ക്കുക';cl.onclick=()=>m.remove();
+ sh.appendChild(cp);sh.appendChild(ta);sh.appendChild(cl);m.appendChild(sh);document.body.appendChild(m)}
 function exportCSV(){const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
  const rows=[['Date','Type','Category','Amount','Account','To Account','Note']];
  D.tx.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).forEach(t=>rows.push([t.date,t.type,t.type==='transfer'?'':(t.cat||''),t.amt,(accById(t.acc)||{}).name||'',t.type==='transfer'?((accById(t.to)||{}).name||''):'',t.note||'']));
@@ -1157,7 +1218,7 @@ $('verHome').textContent='Version '+APP_VERSION;processRec();setType('expense');
 setTimeout(()=>{const b=$('cloudBtn');if(b&&b.textContent.includes('…')){b.textContent='☁ Login';$('sync').textContent='ഫോണിൽ മാത്രം സേവ് ആകുന്നു'}},8000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 /* ---------- Screenshot import (OCR, Paytm payment history etc.) ---------- */
-const SS={rows:[],busy:false,n:0};
+const SS={rows:[],busy:false,n:0,mode:'normal'};
 const SSMON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 const PMM={food:'Food',medical:'Health',health:'Health',taxi:'Travel',travel:'Travel',fuel:'Fuel',groceries:'Grocery',grocery:'Grocery',shopping:'Shopping',bills:'Bills',utilities:'Bills','bill payments':'Bills',recharge:'Recharge','mobile recharge':'Recharge',entertainment:'Entertainment',education:'Education',rent:'Rent',insurance:'Insurance',emi:'EMI',others:'Other',other:'Other'};
 const PMEMO={Food:'🍽️',Travel:'🚌',Fuel:'⛽',Grocery:'🛒',Shopping:'🛍️',Bills:'💡',Recharge:'📱',Entertainment:'🎬',Education:'📚',Rent:'🏠',Insurance:'🛡️',EMI:'🏦',Health:'💊',Other:'📦'};
@@ -1210,29 +1271,48 @@ function ssCatFor(r){
 const ssNk=v=>String(v||'').trim().toLowerCase();
 /* Duplicate check by AMOUNT (+date), name ignored. Each existing entry can be matched only once,
    so two genuine same-amount entries on one day are not wrongly flagged. */
-function ssMatch(r){
- const ty=r.income?'income':'expense',used=new Set(SS.rows.map(q=>q.mid).filter(Boolean));
- const cand=D.tx.filter(t=>t.type===ty&&Number(t.amt)===Number(r.amt)&&!used.has(t.id));
+function ssMatch(r,pool){pool=pool||SS.rows;
+ const tr=SS.mode==='transfer',ty=tr?'transfer':(r.income?'income':'expense'),used=new Set(pool.map(q=>q.mid).filter(Boolean));
+ const gf=+$('ssAcc').value,gt=+$('ssTo').value,fa=r.f||gf,ta=r.t||gt;
+ const cand=D.tx.filter(t=>t.type===ty&&Number(t.amt)===Number(r.amt)&&!used.has(t.id)&&(!tr||(t.acc===fa&&t.to===ta)));
  const ex=cand.find(t=>t.date===r.date);
- r.dup=false;r.mid=null;r.near=null;
+ r.dup=false;r.mid=null;r.near=null;r.dupNote='';r.dupRow=-1;
  if(ex){r.dup=true;r.mid=ex.id;r.dupNote=ex.note||''}
- else if(SS.rows.some(q=>q.date===r.date&&Number(q.amt)===Number(r.amt)&&q.income===r.income&&ssNk(q.name)===ssNk(r.name))){r.dup=true;r.dupNote='ഈ ലിസ്റ്റിൽ തന്നെ'}
- else{const dt=x=>new Date(x+'T00:00:00').getTime(),n=cand.find(t=>Math.abs(dt(t.date)-dt(r.date))<=2*864e5);
-  if(n)r.near={date:n.date,note:n.note||''}}
+ else if((r.dupRow=pool.findIndex(q=>q.date===r.date&&Number(q.amt)===Number(r.amt)&&(tr||q.income===r.income)&&(!tr||((q.f||gf)===fa&&(q.t||gt)===ta))&&ssNk(q.name)===ssNk(r.name)))>=0){r.dup=true;r.dupNote='ഈ ലിസ്റ്റിൽ തന്നെ'}
+ else{const dt=x=>new Date(x+'T00:00:00').getTime(),n=D.tx.find(t=>t.type===ty&&Number(t.amt)===Number(r.amt)&&(!tr||(t.acc===fa&&t.to===ta))&&Math.abs(dt(t.date)-dt(r.date))<=2*864e5);
+  if(n)r.near={date:n.date,note:n.note||'',id:n.id}}
 }
+function ssGlobalCh(){SS.rows.forEach(r=>{r.f=0;r.t=0});ssRematch()}
+function ssRowAcc(i,k,v){const r=SS.rows[i];if(!r)return;r[k]=+v;ssMatch(r,SS.rows.slice(0,i));r.on=!r.dup;ssDraw()}
+function ssAccSel(i,k,val){return '<select onchange="ssRowAcc('+i+',\''+k+'\',this.value)" style="flex:1;min-width:0;margin:0;padding:10px 4px;font-size:13px">'+D.acc.filter(a=>a.group!=='emi').map(a=>'<option value="'+a.id+'"'+(a.id===val?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select>'}
+function ssRematch(){SS.rows.forEach((r,i)=>{ssMatch(r,SS.rows.slice(0,i));r.on=!r.dup&&(SS.mode==='transfer'||!r.income)});ssDraw()}
+function ssMode(m){if(SS.busy)return toast('വായിക്കുന്നു… കാത്തിരിക്കൂ');SS.mode=m;const t=m==='transfer';
+ $('ssSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.t==='transfer')===t));
+ $('ssToBox').style.display=t?'':'none';$('ssAccL').textContent=t?'From (ഈ അക്കൗണ്ടിൽ നിന്ന്)':'ഏത് അക്കൗണ്ടിലേക്ക് / Account';
+ if(t&&$('ssTo').value===$('ssAcc').value){const o=[...$('ssTo').options].find(x=>x.value!==$('ssAcc').value);if(o)$('ssTo').value=o.value}
+ ssRematch()}
+const ssAN=id=>{const o=$(id).selectedOptions[0];return o?o.text.replace(/\s*\S*$/,''):'?'};
 function ssCatOpts(r){const ty=r.income?'income':'expense';let o=catList(ty).map(x=>x.n);if(!o.some(n=>n.toLowerCase()===r.cat.toLowerCase()))o.unshift(r.cat);
  return o.map(n=>`<option value="${esc(n)}"${n.toLowerCase()===r.cat.toLowerCase()?' selected':''}>${esc(n)}</option>`).join('')}
 function ssDraw(){const b=$('ssRows');
  b.innerHTML=SS.rows.map((r,i)=>`<div style="border:1.5px solid ${r.dup?'#f59e0b':'#fecaca'};border-radius:12px;padding:8px;margin-top:8px;${r.on?'':'opacity:.55'}">
 <div style="display:flex;gap:6px;align-items:center"><input type="checkbox" ${r.on?'checked':''} onchange="SS.rows[${i}].on=this.checked;ssDraw()" style="width:22px;height:22px;flex:none;margin:0">
-<input value="${esc(r.name)}" oninput="SS.rows[${i}].name=this.value" style="flex:1;min-width:0;margin:0">
+<input value="${esc(r.name)}" placeholder="${SS.mode==='transfer'?'റിമാർക്ക് / Remark':''}" oninput="SS.rows[${i}].name=this.value" style="flex:1;min-width:0;margin:0">
 <input type="number" inputmode="decimal" value="${r.amt}" oninput="SS.rows[${i}].amt=+this.value" style="width:92px;flex:none;margin:0"></div>
 <div style="display:flex;gap:6px;margin-top:6px"><input type="date" value="${r.date}" max="${todayStr()}" onchange="SS.rows[${i}].date=this.value" style="flex:1.4;min-width:0;margin:0;padding:10px 6px;font-size:14px${r.noDate?';border-color:#f59e0b':''}">
-<select onchange="SS.rows[${i}].cat=this.value" style="flex:1;min-width:0;margin:0;padding:10px 6px;font-size:14px">${ssCatOpts(r)}</select><button type="button" title="Delete" onclick="ssDelRow(${i})" style="flex:none;border:0;border-radius:10px;background:#fee2e2;color:#b91c1c;padding:0 8px;font-size:16px">🗑</button></div>
-${r.income?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതേ തുക+തീയതി ഇതിനകം ഉണ്ട്'+(r.dupNote?' ('+esc(r.dupNote)+')':'')+'</small> ':''}${(!r.dup&&r.near)?'<small style="color:#b45309">⚠ ഇതേ തുക '+fd(r.near.date)+'-ൽ ഉണ്ട്'+(r.near.note?' ('+esc(r.near.note)+')':'')+' — ഒത്തുനോക്കൂ</small> ':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
+${SS.mode==='transfer'?`<span style="flex:1"></span>`:`<select onchange="SS.rows[${i}].cat=this.value" style="flex:1;min-width:0;margin:0;padding:10px 6px;font-size:14px">${ssCatOpts(r)}</select>`}<button type="button" title="Delete" onclick="ssDelRow(${i})" style="flex:none;border:0;border-radius:10px;background:#fee2e2;color:#b91c1c;padding:0 8px;font-size:16px">🗑</button></div>
+${SS.mode==='transfer'?'<div style="display:flex;gap:6px;margin-top:6px;align-items:center">'+ssAccSel(i,'f',r.f||+$('ssAcc').value)+'<span>→</span>'+ssAccSel(i,'t',r.t||+$('ssTo').value)+'</div>':''}${(r.income&&SS.mode!=='transfer')?'<small style="color:#059669">⬇ വരവ് / income</small> ':''}${r.dup?'<small style="color:#b45309">⚠ ഇതേ തുക+തീയതി ഇതിനകം ഉണ്ട്'+(r.dupNote?' ('+esc(r.dupNote)+')':'')+'</small> '+((r.mid||r.dupRow>=0)?'<button type="button" class="chip" style="border:0;cursor:pointer" onclick="event.stopPropagation();'+(r.mid?'txInfo('+r.mid+')':'ssView('+r.dupRow+')')+'">👁 കാണൂ</button>':''):''}${(!r.dup&&r.near)?'<small style="color:#b45309">⚠ ഇതേ തുക '+fd(r.near.date)+'-ൽ ഉണ്ട്'+(r.near.note?' ('+esc(r.near.note)+')':'')+'</small> <button type="button" class="chip" style="border:0;cursor:pointer" onclick="event.stopPropagation();txInfo('+r.near.id+')">👁 കാണൂ</button>':''}${r.noDate?'<small style="color:#b45309">⚠ തീയതി ഒത്തുനോക്കൂ</small>':''}${r.chk?`<small style="color:#b45309">⚠ </small><button type="button" class="chip" style="border:0" onclick="ssCut(${i})">✂ ആദ്യ അക്കം കളയൂ</button>`:''}
 </div>`).join('');
  $('ssSave').style.display=SS.rows.length?'':'none';$('ssDelAll').style.display=SS.rows.length?'':'none';
  const n=SS.rows.filter(r=>r.on).length;$('ssSave').textContent='✔ '+n+' എൻട്രി സേവ് ചെയ്യൂ / Save'}
+function ssSaveTr(){const gf=+$('ssAcc').value,gt=+$('ssTo').value;
+ const rows=SS.rows.filter(r=>r.on);if(!rows.length)return toast('ഒന്നും തിരഞ്ഞെടുത്തിട്ടില്ല');
+ for(const r of rows){if(!(r.amt>0))return toast('തുക ശരിയല്ല: '+r.name);if(!r.date||r.date>todayStr())return toast('തീയതി ശരിയല്ല: '+r.name);
+  const f=r.f||gf,t=r.t||gt;if(!f||!t||f===t)return toast('From, To — വ്യത്യസ്ത അക്കൗണ്ട് വേണം: '+r.name)}
+ const com=$('ssRem').value.trim();let n=0;const base=Date.now()*1000,ids=[];
+ for(const r of rows){const id=base+(++n);ids.push(id);D.tx.unshift({id,type:'transfer',amt:r.amt,cat:'',acc:r.f||gf,to:r.t||gt,date:r.date,note:String(r.name||'').trim()||com})}
+ D.tx.sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.id-a.id);save();
+ SS.rows=[];$('ssmodal').style.display='none';render();impDone(ids,{},n)}
 function ssDelRow(i){SS.rows.splice(i,1);ssDraw()}
 function ssDelShot(id){if(SS.busy)return toast('വായിക്കുന്നു… കാത്തിരിക്കൂ');
  SS.rows=SS.rows.filter(r=>r.src!==id);const w=$('ssThumbs').querySelector('[data-s="'+id+'"]');if(w)w.remove();ssDraw()}
@@ -1240,7 +1320,7 @@ function ssDelAll(){if(SS.busy)return toast('വായിക്കുന്ന�
  SS.rows=[];$('ssThumbs').innerHTML='';$('ssMsg').textContent='';ssDraw()}
 function ssCut(i){const r=SS.rows[i];r.amt=parseFloat(String(r.rawAmt).slice(1));r.rawAmt=String(r.amt);r.chk=false;ssDraw()}
 function openSS(){const o=D.acc.filter(a=>a.group!=='emi').map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('');
- $('ssAcc').innerHTML=o;let last='';try{last=localStorage.getItem('em_ssacc')||''}catch(e){}
+ $('ssAcc').innerHTML=o;$('ssTo').innerHTML=o;$('ssRem').value='';SS.mode='normal';$('ssSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t!=='transfer'));$('ssToBox').style.display='none';$('ssAccL').textContent='ഏത് അക്കൗണ്ടിലേക്ക് / Account';let last='';try{last=localStorage.getItem('em_ssacc')||''}catch(e){}
  if(last&&[...$('ssAcc').options].some(x=>x.value===last))$('ssAcc').value=last;
  SS.rows=[];$('ssRows').innerHTML='';$('ssThumbs').innerHTML='';$('ssMsg').textContent='';$('ssSave').style.display='none';$('ssDelAll').style.display='none';$('ssFile').value='';
  $('ssmodal').style.display='flex'}
@@ -1266,7 +1346,7 @@ async function ssPrep(file){const bm=await createImageBitmap(file);const w=bm.wi
 async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)return;
  const acc=+$('ssAcc').value;if(!acc)return toast('ആദ്യം അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
  try{localStorage.setItem('em_ssacc',String(acc))}catch(e){}
- SS.busy=true;$('ssAcc').disabled=true;$('ssFile').disabled=true;
+ SS.busy=true;$('ssTo').disabled=true;$('ssAcc').disabled=true;$('ssFile').disabled=true;
  const msg=t=>{$('ssMsg').textContent=t};let worker=null;
  try{
   msg('OCR ലൈബ്രറി ലോഡ് ചെയ്യുന്നു… (ആദ്യമായി ഇന്റർനെറ്റ് വേണം)');
@@ -1283,23 +1363,24 @@ async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)ret
    const cv=await ssPrep(files[cur]);const res=await worker.recognize(cv);
    ssParse(res.data.text).forEach(r=>{r.src=sid;r.cat=ssCatFor(r);r.noDate=!r.date||!!r.guess;if(!r.date)r.date=todayStr();if(r.date>todayStr())r.date=todayStr();
     ssMatch(r);
-   r.on=!r.dup&&!r.income;SS.rows.push(r)});
+   r.on=!r.dup&&(SS.mode==='transfer'||!r.income);SS.rows.push(r)});
   }
   msg(SS.rows.length?SS.rows.length+' എൻട്രി കണ്ടെത്തി':'എൻട്രികൾ ഒന്നും വായിക്കാൻ പറ്റിയില്ല. കൂടുതൽ വ്യക്തമായ സ്ക്രീൻഷോട്ട് ശ്രമിക്കൂ.');
   ssDraw();
  }catch(e){msg('⚠ OCR പരാജയപ്പെട്ടു. ഇന്റർനെറ്റ് ഉള്ളപ്പോൾ ഒരു തവണ ശ്രമിക്കൂ. ('+(e.message||e)+')')}
- finally{try{worker&&await worker.terminate()}catch(e){}SS.busy=false;$('ssAcc').disabled=false;$('ssFile').disabled=false;$('ssFile').value=''}}
+ finally{try{worker&&await worker.terminate()}catch(e){}SS.busy=false;$('ssTo').disabled=false;$('ssAcc').disabled=false;$('ssFile').disabled=false;$('ssFile').value=''}}
 function ssSave(){const acc=+$('ssAcc').value;if(!acc)return toast('അക്കൗണ്ട് തിരഞ്ഞെടുക്കൂ');
+ if(SS.mode==='transfer')return ssSaveTr(acc);
  const rows=SS.rows.filter(r=>r.on);if(!rows.length)return toast('ഒന്നും തിരഞ്ഞെടുത്തിട്ടില്ല');
  for(const r of rows){if(!(r.amt>0))return toast('തുക ശരിയല്ല: '+r.name);if(!r.date||r.date>todayStr())return toast('തീയതി ശരിയല്ല: '+r.name)}
- let n=0;const base=Date.now()*1000;
+ let n=0;const base=Date.now()*1000,ids=[],prev={};
  for(const r of rows){const ty=r.income?'income':'expense';const emo=PMEMO[r.cat]||null;ensureCat(r.cat,emo,ty);
   const note=String(r.name).trim();
-  if(note.length>=2&&!/^other/i.test(r.cat))D.map[note.toLowerCase()]=r.cat;
-  D.tx.unshift({id:base+(++n),type:ty,amt:r.amt,cat:r.cat,acc,to:0,date:r.date,note});
+  if(note.length>=2&&!/^other/i.test(r.cat)){const k=note.toLowerCase();if(!(k in prev))prev[k]=D.map[k];D.map[k]=r.cat}
+  const nid=base+(++n);ids.push(nid);D.tx.unshift({id:nid,type:ty,amt:r.amt,cat:r.cat,acc,to:0,date:r.date,note});
  }
  D.tx.sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.id-a.id);save();
- SS.rows=[];$('ssmodal').style.display='none';toast('✔ '+n+' എൻട്രി സേവ് ചെയ്തു');render()}
+ SS.rows=[];$('ssmodal').style.display='none';render();impDone(ids,prev,n)}
 
 </script>
 <script type="module">
