@@ -215,7 +215,8 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  <input id="aeAsOn" type="date" style="margin-top:4px">
  <small style="color:var(--mute);display:block;margin-top:4px">ഒഴിച്ചിട്ടാൽ: ഈ തുക ഇപ്പോഴത്തെ ബാലൻസ് ആകും. തീയതി നൽകിയാൽ: ആ തീയതിയിലെ ബാലൻസ് ഇതാണ്; അതിനു ശേഷമുള്ള ഇടപാടുകൾ മാത്രം ചേർത്ത് ഇപ്പോഴത്തേത് കണക്കാക്കും.</small>
  <div id="aeBillBox" style="display:none"><small>ബിൽ തീയതി (മാസത്തിലെ ദിവസം 1-31)</small><input id="aeSd" type="number" inputmode="numeric" min="1" max="31">
-  <small>അവസാന തീയതി (ദിവസം 1-31)</small><input id="aeDd" type="number" inputmode="numeric" min="1" max="31"></div>
+  <small>അവസാന തീയതി (ദിവസം 1-31)</small><input id="aeDd" type="number" inputmode="numeric" min="1" max="31">
+  <small>ബിൽ തീയതിയിലെ (ഉദാ: 21) ഇടപാടുകൾ</small><select id="aeSx"><option value="0">ആ ബില്ലിൽ ഉൾപ്പെടുത്തുക (21 ഉൾപ്പെടെ)</option><option value="1">അടുത്ത ബില്ലിൽ ഉൾപ്പെടുത്തുക (20 വരെ മാത്രം)</option></select></div>
  <small>Keywords (കോമ ഇട്ട്)</small><input id="aeKw" autocomplete="off">
  <button class="btn" onclick="saveAccEdit()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeAccEdit()">റദ്ദാക്കുക</button></div></div>
 <div id="ccmodal" onclick="if(event.target===this)closeCC()"><div class="sheet" style="max-height:92vh;overflow:auto"><h3 id="ccTitle">✎ മാറ്റാം · Expense</h3><div id="ccInfo" style="font-size:14px;margin:4px 0 6px"></div>
@@ -500,7 +501,7 @@ function openAccEdit(id){const a=accById(id);if(!a)return;aeId=id;
  const sv=a.asOn?+a.open:balance(a);$('aeBal').value=r2(liab?-sv:sv);
  $('aeAsOn').value=a.asOn||'';
  $('aeBillBox').style.display=a.group==='card'?'block':'none';
- $('aeSd').value=a.sd||'';$('aeDd').value=a.dd||'';
+ $('aeSd').value=a.sd||'';$('aeDd').value=a.dd||'';$('aeSx').value=a.sx?'1':'0';
  $('aeKw').value=a.kw||'';
  $('aemodal').style.display='flex'}
 function closeAccEdit(){$('aemodal').style.display='none'}
@@ -512,7 +513,7 @@ function saveAccEdit(){const a=accById(aeId);if(!a)return;
  if(as){a.open=r2(tgt);a.asOn=as}
  else{delete a.asOn;const delta=balance(a)-(+a.open);a.open=r2(tgt-delta)}
  a.name=name;
- if(a.group==='card'){const cl=x=>{x=parseInt(x);return x>=1&&x<=31?x:0};a.sd=cl($('aeSd').value);a.dd=cl($('aeDd').value)}
+ if(a.group==='card'){const cl=x=>{x=parseInt(x);return x>=1&&x<=31?x:0};a.sd=cl($('aeSd').value);a.dd=cl($('aeDd').value);a.sx=$('aeSx').value==='1'?1:0}
  a.kw=$('aeKw').value.trim();a.u=Date.now();
  save();closeAccEdit();render();toast('അക്കൗണ്ട് അപ്ഡേറ്റ് ചെയ്തു ✔')}
 
@@ -673,11 +674,12 @@ function autoCard(){const l=D.rec.filter(r=>r.kind==='auto'),A=D.acc.filter(a=>a
  <small style="color:var(--mute)">ഓരോ മാസവും ഒരു ചെലവ് എൻട്രി തനിയെ ചേരും; ആകെ ചെലവിൽ ഇരട്ടിക്കില്ല.${pm?' ഈ മാസം ഇനി വരാനുള്ളത്: <b>'+inr(pm)+'</b>':''}</small>
  <div id="recForm" style="display:none"><input id="rN" placeholder="പേര്" list="dlNotes" onfocus="fillDL()"><input id="rM" type="number" placeholder="തുക ₹"><select id="rC">${catOpts('expense')}</select><select id="rA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><select id="rF"><option value="monthly">മാസംതോറും</option><option value="yearly">വർഷംതോറും</option></select><small>തുടങ്ങുന്ന തീയതി</small><input id="rS" type="date" value="${todayStr()}"><input id="rK" type="number" placeholder="എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)"><button class="btn" onclick="addRec()">സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+fd(addMonths(r.start,r.done*(r.freq==='yearly'?12:1)))}</small></div><div class="amt">${inr(r.amt)}</div><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
+const cutD=(a,d)=>f(a.sx?new Date(d.getFullYear(),d.getMonth(),d.getDate()-1):d);
 function cardHtml(a){if(!a.sd||!a.dd)return '';
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
- const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls);
+ const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls),LC=cutD(a,ls);
  let cb=Math.max(0,-a.open),cy=0,pay=0;
- D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=L?cb+=t.amt:cy+=t.amt}
+ D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=LC?cb+=t.amt:cy+=t.amt}
   if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id))pay+=t.amt});
  const billed=Math.max(0,cb-pay),days=Math.ceil((due-new Date(Y,M,n.getDate()))/864e5),paid=cb>0&&billed===0;
  return `<div class="cinfo"><div style="cursor:pointer" onclick="cardBreak(${a.id})"><small>ബിൽ ${L} 🔍</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>പുതിയ സൈക്കിൾ</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
@@ -760,16 +762,16 @@ function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
  const l=D.tx.filter(t=>t.acc==id||(t.type==='transfer'&&t.to==id));let ex=0,inc=0;
  $('amTitle').textContent=GROUPS[a.group].ic+' '+a.name;
  const cyc=a.group==='card'&&a.sd>0,groups=[];let curG=null,plain='';
- const cyS=d=>{const p=String(d).split('-'),y=+p[0],m=+p[1]-1;let s=dOf(y,m,a.sd);if(String(d)>f(s))s=dOf(y,m+1,a.sd);return f(s)};
+ const cyS=d=>{const p=String(d).split('-'),y=+p[0],m=+p[1]-1;let s=dOf(y,m,a.sd);if(a.sx?String(d)>=f(s):String(d)>f(s))s=dOf(y,m+1,a.sd);return f(s)};
  l.forEach(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
   const m=t.type==='transfer'?{ic:'⇄',c:'#2563eb'}:catMeta(t.cat);
   const ttl=t.type==='transfer'?(inn?'← '+esc(accById(t.acc)?.name||'?'):'→ '+esc(accById(t.to)?.name||'?')):esc(t.cat);
   const h=`<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div><button class="del" onclick="accDel(${t.id})">×</button></div>`;
   if(cyc){const k=cyS(t.date);if(!curG||curG.k!==k){curG={k,ex:0,inc:0,h:''};groups.push(curG)}inn?curG.inc+=t.amt:curG.ex+=t.amt;curG.h+=h}else plain+=h});
  let html=plain;
- if(cyc){html=groups.map(g=>{const sp=g.k.split('-'),S=new Date(+sp[0],+sp[1]-1,+sp[2]),P=dOf(S.getFullYear(),S.getMonth()-1,a.sd),st=new Date(P.getFullYear(),P.getMonth(),P.getDate()+1);
+ if(cyc){html=groups.map(g=>{const sp=g.k.split('-'),S=new Date(+sp[0],+sp[1]-1,+sp[2]),P=dOf(S.getFullYear(),S.getMonth()-1,a.sd),st=new Date(P.getFullYear(),P.getMonth(),P.getDate()+(a.sx?0:1));
    const due=a.dd>0?dOf(S.getFullYear(),S.getMonth()+(a.dd>a.sd?0:1),a.dd):null,open=g.k>=todayStr();
-   return `<div style="margin:16px 0 4px;padding:8px 10px;border-top:3px dashed ${open?'#16a34a':'#ef4444'};background:${open?'#f0fdf4':'#fff5f5'};border-radius:10px;font-size:12.5px;line-height:1.5"><b>${open?'🟢 നടപ്പ് സൈക്കിൾ (അടുത്ത ബില്ലിൽ വരും)':'🧾 ബിൽ സൈക്കിൾ'}</b><br>${fd(f(st))} → ${fd(g.k)}<br>ബിൽ തീയതി ${fd(g.k)}${due?' · അവസാന തീയതി '+fd(f(due)):''}<br>ചെലവ്: <b>${inr(g.ex)}</b>${g.inc?' · അടവ്/വരവ്: <b>'+inr(g.inc)+'</b>':''}</div>`+g.h}).join('')}
+   return `<div style="margin:16px 0 4px;padding:8px 10px;border-top:3px dashed ${open?'#16a34a':'#ef4444'};background:${open?'#f0fdf4':'#fff5f5'};border-radius:10px;font-size:12.5px;line-height:1.5"><b>${open?'🟢 നടപ്പ് സൈക്കിൾ (അടുത്ത ബില്ലിൽ വരും)':'🧾 ബിൽ സൈക്കിൾ'}</b><br>${fd(f(st))} → ${fd(cutD(a,S))}<br>ബിൽ തീയതി ${fd(g.k)}${due?' · അവസാന തീയതി '+fd(f(due)):''}<br>ചെലവ്: <b>${inr(g.ex)}</b>${g.inc?' · അടവ്/വരവ്: <b>'+inr(g.inc)+'</b>':''}</div>`+g.h}).join('')}
  $('amList').innerHTML=html||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
  $('amodal').style.display='flex'}
@@ -795,18 +797,18 @@ function cbClose(){$('cbmodal').style.display='none'}
 function cbDel(id){delTx(id);cardBreak(cbId)}
 function cardBreak(id){const a=accById(id);if(!a)return;cbId=id;
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
- const L=f(ls),pv=f(dOf(ls.getFullYear(),ls.getMonth()-1,a.sd));
+ const pd=dOf(ls.getFullYear(),ls.getMonth()-1,a.sd),L=f(ls),pv=f(pd),LC=cutD(a,ls),pvC=cutD(a,pd);
  const op=Math.max(0,-a.open);let old=0,cyc=0,pay=0;const lo=[],lc=[],lp=[],cnt={};
  D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;
   if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){const k=t.type+'|'+t.amt+'|'+t.date+'|'+t.to;cnt[k]=(cnt[k]||0)+1;
-   if(t.date<=pv){old+=t.amt;lo.push(t)}else if(t.date<=L){cyc+=t.amt;lc.push(t)}}
+   if(t.date<=pvC){old+=t.amt;lo.push(t)}else if(t.date<=LC){cyc+=t.amt;lc.push(t)}}
   if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id)){pay+=t.amt;lp.push(t)}});
  const billed=Math.max(0,op+old+cyc-pay);
  const rw=(k,v,b)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><small style="margin:0">${k}</small><b${b?' style="color:#b91c1c"':''}>${v}</b></div>`;
  const rows=l=>l.map(t=>{const k=t.type+'|'+t.amt+'|'+t.date+'|'+t.to;return txRow(t).replace(/<button class="ib ed"[\s\S]*?<\/button>/,'').replace(/delTx\((\d+)\)/,'cbDel($1)').replace('</small>',(cnt[k]>1?'<br><span style="color:#b45309">⚠ ഡ്യൂപ്ലിക്കേറ്റ് ആകാം</span>':'')+'</small>')}).join('')||'<div class="empty">ഒന്നുമില്ല</div>';
  const hd=t=>`<div style="font-weight:700;margin:12px 0 2px">${t}</div>`;
  $('cbTitle').textContent='💳 '+a.name+' · ബിൽ '+fd(L);
- $('cbBody').innerHTML=rw('പഴയ ബാക്കി (Opening)',inr(op))+rw('മുൻ സൈക്കിളുകളിലെ ചെലവ് (≤ '+fd(pv)+')',inr(old))+rw('ഈ ബിൽ സൈക്കിൾ ('+fd(pv)+' ശേഷം – '+fd(L)+')',inr(cyc))+rw('അടച്ചത് (ആപ്പിൽ രേഖപ്പെടുത്തിയത്)','− '+inr(pay))+rw('ഇപ്പോഴത്തെ ബിൽ',inr(billed),1)+
+ $('cbBody').innerHTML=rw('പഴയ ബാക്കി (Opening)',inr(op))+rw('മുൻ സൈക്കിളുകളിലെ ചെലവ് (≤ '+fd(pvC)+')',inr(old))+rw('ഈ ബിൽ സൈക്കിൾ ('+fd(pvC)+' ശേഷം – '+fd(LC)+')',inr(cyc))+rw('അടച്ചത് (ആപ്പിൽ രേഖപ്പെടുത്തിയത്)','− '+inr(pay))+rw('ഇപ്പോഴത്തെ ബിൽ',inr(billed),1)+
   `<small style="display:block;color:var(--mute);margin-top:6px">ബാങ്ക് ബില്ലിനേക്കാൾ കൂടുതലാണെങ്കിൽ: മുൻ ബില്ലിന്റെ പേയ്മെന്റ് ആപ്പിൽ ചേർത്തിട്ടില്ലാത്തതോ ഡ്യൂപ്ലിക്കേറ്റ് എൻട്രിയോ ആകാം. ചുവടെ നോക്കൂ; തെറ്റിയത് × അമർത്തി കളയാം.</small>`+
   hd('ഈ ബിൽ സൈക്കിളിലെ ഇടപാടുകൾ')+rows(lc)+(lo.length?hd('മുൻ സൈക്കിളുകളിലെ ഇടപാടുകൾ (ബില്ലിൽ ഇപ്പോഴും കൂട്ടുന്നത്)')+rows(lo):'')+hd('അടച്ചതായി രേഖപ്പെടുത്തിയവ')+rows(lp);
  $('cbmodal').style.display='flex'}
@@ -1309,10 +1311,17 @@ const ssStRe=/^(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z
 function ssParse(txt){const rows=[];let cur=null;
  const lines=String(txt||'').split(/\n/).map(ssClean).filter(Boolean);
  {/* Card statement format: "03 Nov 26  <details>  IN  734.97  D" (D = debit, C = credit) */
-  const st=lines.map(l=>ssStRe.exec(l)).filter(Boolean);
-  if(st.length>=3)return st.map(m=>{let y=+m[3];if(y<100)y+=2000;const raw=m[5].replace(/,/g,'');
-   const nm=m[4].replace(/^[^A-Za-z0-9\u0D00-\u0D7F]+/,'').replace(/^UPI[\s\-:]*/i,'').replace(/\s+IN$/i,'').trim()||m[4];
-   return {name:nm,amt:parseFloat(raw),income:/c/i.test(m[6]||''),sym:'₹',rawAmt:raw,date:f(dOf(y,SSMON[m[2].toLowerCase()],+m[1])),pm:'',chk:false}}).filter(r=>r.amt>0)}
+  const st=lines.filter(l=>ssStRe.test(l));
+  if(st.length>=3){const out=[];let prev=null;
+   const mk=(nm,raw,fl,date)=>({name:nm,amt:parseFloat(raw),income:/c/i.test(fl||''),sym:'₹',rawAmt:raw,date,pm:'',chk:false,stmt:true});
+   lines.forEach(l=>{const m=ssStRe.exec(l);
+    if(m){let y=+m[3];if(y<100)y+=2000;
+     const nm=m[4].replace(/\b(?=[A-Z0-9]*\d)[A-Z0-9]{10,}\b/g,'').replace(/\s+/g,' ').replace(/^[^A-Za-z0-9\u0D00-\u0D7F]+/,'').replace(/^UPI[\s\-:]*/i,'').replace(/\s+IN$/i,'').trim()||m[4];
+     prev=mk(nm,m[5].replace(/,/g,''),m[6],f(dOf(y,SSMON[m[2].toLowerCase()],+m[1])));out.push(prev);return}
+    const g=prev&&/^(.*?(?:GST|TAX|CESS|FEE|CHARGE).*?)\s+(\d[\d,]*\.\d{2})\s*([DCdc])?\s*$/i.exec(l);
+    if(g&&!/statement|total/i.test(l)){prev=mk(g[1].trim(),g[2].replace(/,/g,''),g[3],prev.date);out.push(prev);return}
+    prev=null});
+   return out.filter(r=>r.amt>0)}}
  for(const ln of lines){
   if(SSSKIP.test(ln))continue;
   const m=ssAmt(ln);
@@ -1437,7 +1446,7 @@ async function ssRun(files){files=[...(files||[])];if(!files.length||SS.busy)ret
    const xb=document.createElement('button');xb.type='button';xb.textContent='✕';xb.title='Delete';xb.style.cssText='position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#b91c1c;color:#fff;font-size:13px;line-height:24px;padding:0';
    xb.onclick=e=>{e.stopPropagation();ssDelShot(sid)};wrap.appendChild(im);wrap.appendChild(xb);$('ssThumbs').appendChild(wrap);
    const cv=await ssPrep(files[cur]);const res=await worker.recognize(cv);rawBox().textContent+='--- ചിത്രം '+(cur+1)+' ---\n'+res.data.text+'\n';
-   const newR=[];ssParse(res.data.text).forEach(r=>{r.src=sid;r.cat=ssCatFor(r);r.noDate=!r.date||!!r.guess;if(!r.date)r.date=todayStr();if(r.date>todayStr())r.date=todayStr();
+   const newR=[];ssParse(res.data.text).forEach(r=>{r.src=sid;{const ac=accById(acc);if(r.stmt&&ac&&ac.sx&&ac.sd&&r.date&&/emi|interest|gst|fee|charge/i.test(r.name)&&+r.date.slice(8)===ac.sd){const p=r.date.split('-');r.date=f(new Date(+p[0],+p[1]-1,+p[2]-1))}}r.cat=ssCatFor(r);r.noDate=!r.date||!!r.guess;if(!r.date)r.date=todayStr();if(r.date>todayStr())r.date=todayStr();
     SS.rows.push(r);newR.push(r)});
    ssMatchAll();newR.forEach(r=>{r.on=!r.dup&&(SS.mode==='transfer'||!r.income)});
   }
