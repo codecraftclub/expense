@@ -691,12 +691,12 @@ function cardTotals(list){let b=0,u=0;list.forEach(a=>{const x=cardAmts(a);if(x)
  return `<div class="cinfo" style="grid-template-columns:1fr 1fr;margin:4px 0 6px"><div><small>Billed</small><b>${inr(b)}</b></div><div><small>Unbilled</small><b>${inr(u)}</b></div></div>`}
 function cardHtml(a){if(!a.sd||!a.dd)return '';
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
- const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls),LC=cutD(a,ls);
+ const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls),LC=cutD(a,ls),nb=dOf(ls.getFullYear(),ls.getMonth()+1,a.sd);
  let cb=Math.max(0,-a.open),cy=0,pay=0;
  D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=LC?cb+=t.amt:cy+=t.amt}
   if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id))pay+=t.amt});
- const billed=Math.max(0,cb-pay),days=Math.ceil((due-new Date(Y,M,n.getDate()))/864e5),paid=cb>0&&billed===0;
- return `<div class="cinfo"><div style="cursor:pointer" onclick="cardBreak(${a.id})"><small>Billed 🔍</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>Unbilled</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
+ const billed=Math.max(0,cb-pay),days=Math.ceil((due-new Date(Y,M,n.getDate()))/864e5),paid=cb>0&&billed===0,nd=Math.ceil((nb-new Date(Y,M,n.getDate()))/864e5);
+ return `<div class="cinfo"><div style="cursor:pointer" onclick="cardBreak(${a.id})"><small>Billed 🔍</small><b>${paid?'✔ Paid':inr(billed)}</b></div>${billed===0?`<div><small>അടുത്ത ബിൽ ${f(nb)}</small><b>${nd} ദിവസം</b></div>`:''}${billed===0?'':`<div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div>`}<div><small>Unbilled</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
 
 /* ---------- Reports ---------- */
 const MN=['ജനു','ഫെബ്','മാർ','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗ','സെപ്','ഒക്ടോ','നവം','ഡിസം'];
