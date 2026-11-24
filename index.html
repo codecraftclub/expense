@@ -117,6 +117,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px"><small style="color:var(--mute)" id="tHint"></small><span style="display:flex;gap:8px"><button class="plus" id="plusBtn" onclick="openAdd()">+</button></span></div>
   </div>
+  <div id="txMon"></div>
   <input id="txQ" type="search" placeholder="🔍 പേര് / തുക / category / അക്കൗണ്ട് തിരയൂ" oninput="txSearch(this.value)" style="margin:0 0 10px">
   <div id="txList"></div>
 </section>
@@ -445,14 +446,19 @@ function txRow(t){
 
 const OPEN=new Set();function togCat(e){e.open?OPEN.add(e.dataset.k):OPEN.delete(e.dataset.k)}
 let txQ='';
-function txSearch(v){txQ=String(v||'').trim().toLowerCase();$('txList').innerHTML=listView()}
+let txOff=0;
+function txGo(d){txOff=Math.max(-60,Math.min(12,txOff+d));render()}
+function txMonBar(){
+ const nb='border:0;background:#f1f3f9;color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:18px;padding:0;flex:none';
+ return `<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px"><button type="button" aria-label="Previous month" style="${nb}" onclick="txGo(-1)" ${txOff<=-60?'disabled':''}>‹</button><b style="font-size:16px;text-align:center">${periodLabel(txOff)}${txOff===0?'':' <button type="button" onclick="txOff=0;render()" style="border:0;background:#eef2ff;color:#4338ca;border-radius:10px;padding:2px 8px;font-size:12px;margin-left:6px">ഈ മാസം</button>'}</b><button type="button" aria-label="Next month" style="${nb}" onclick="txGo(1)" ${txOff>=12?'disabled':''}>›</button></div>`}
+function txSearch(v){txQ=String(v||'').trim().toLowerCase();$('txMon').style.display=txQ?'none':'';$('txList').innerHTML=listView()}
 function listView(){
  if(txQ){const r=D.tx.filter(t=>[t.note,t.cat,t.amt,inr(t.amt),(accById(t.acc)||{}).name,(accById(t.to)||{}).name,t.date,fd(t.date),t.type].join(' ').toLowerCase().includes(txQ));
   if(!r.length)return '<div class="card empty">ഒന്നും കണ്ടെത്തിയില്ല</div>';
   const sum=r.reduce((a,t)=>a+(t.type==='income'?t.amt:t.type==='expense'?-t.amt:0),0);
   return '<div class="card"><small style="color:var(--mute)">'+r.length+' ഫലങ്ങൾ'+(r.length>100?' (ആദ്യ 100)':'')+'</small>'+r.slice(0,100).map(txRow).join('')+'</div>'}
- const list=D.tx.filter(x=>x.type===type);
- if(!list.length)return '<div class="card empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
+ const list=D.tx.filter(x=>x.type===type&&mOf(x.date)===mk(txOff));
+ if(!list.length)return '<div class="card empty">ഈ മാസം ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  if(type==='transfer')return '<div class="card">'+list.map(txRow).join('')+'</div>';
  const g={};list.forEach(x=>{const c=x.cat||'മറ്റുള്ളവ';(g[c]=g[c]||[]).push(x)});
  return Object.entries(g).map(([c,a])=>({c,a,s:a.reduce((t,x)=>t+x.amt,0)})).sort((x,y)=>y.s-x.s).map((o,i)=>{
@@ -466,9 +472,9 @@ function render(){
  $('sInc').textContent=inr(inc);$('sExp').textContent=inr(exp);
  $('sBal').textContent=inr(D.acc.reduce((s,a)=>s+balance(a),0));
  $('recent').innerHTML=D.tx.slice(0,5).map(txRow).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
- $('txList').innerHTML=listView();
+ $('txMon').innerHTML=txMonBar();$('txList').innerHTML=listView();
  fillSelects();syncDate();
- $('accList').innerHTML=Object.entries(GROUPS).map(([g,m])=>{if(g==='emi')return emiCard(m);
+ $('accList').innerHTML=Object.entries(GROUPS).sort((x,y)=>(y[0]==='cash')-(x[0]==='cash')).map(([g,m])=>{if(g==='emi')return emiCard(m);
   const list=D.acc.filter(a=>a.group===g);const liab=g==='card'||g==='emi';
   const total=list.reduce((s,a)=>s+balance(a),0);
   return `<div class="card" style="border-top:5px solid ${m.c}"><div class="ghead"><h3>${m.ic} ${m.n}</h3><button class="add" onclick="addAcc('${g}')">+ ചേർക്കൂ</button></div>
@@ -692,7 +698,7 @@ const mk=o=>{const c=mOf(f(new Date())).split('-'),d=new Date(+c[0],+c[1]-1+o,1)
 const mlabel=o=>MN[+mk(o).slice(5)-1];
 function periodRange(o){const c=mk(o).split('-'),y=+c[0],m=+c[1]-1,sd=MSD();return sd===1?[new Date(y,m,1),new Date(y,m+1,0)]:[new Date(y,m-1,sd),new Date(y,m,sd-1)]}
 function periodLabel(o){const r=periodRange(o);if(MSD()===1)return r[0].toLocaleDateString(UIL(),{month:'long',year:'numeric'});
- const g=x=>x.toLocaleDateString(UIL(),{day:'numeric',month:'short'});return g(r[0])+' – '+g(r[1])+' '+r[1].getFullYear()}
+ const g=x=>x.toLocaleDateString(UIL(),{month:'long'});return g(r[0])+' – '+g(r[1])}
 const sumBy=(ty,m)=>{const o={};D.tx.forEach(t=>{if(t.type===ty&&mOf(t.date)===m){const c=t.cat||'മറ്റുള്ളവ';o[c]=(o[c]||0)+t.amt}});return o};
 const tot=o=>Object.values(o).reduce((a,b)=>a+b,0);
 const kfmt=n=>n>=1e5?(n/1e5).toFixed(1)+'L':n>=1e3?(n/1e3).toFixed(1)+'k':Math.round(n);
@@ -758,24 +764,32 @@ function saveAdd(){const amt=+$('aAmt').value;if(!amt||amt<=0)return toast('ത�
 function lShow(m){const ids={in:'lLogin',new:'lNew',reset:'lReset'};for(const k in ids)$(ids[k]).style.display=k===m?'block':'none';$('lErr').textContent=''}
 let amId=0;
 function saveAccKw(){const a=accById(amId);if(!a)return;a.kw=$('amKw').value.trim();a.u=Date.now();save();toast('Keywords സേവ് ചെയ്തു ✔')}
-function openAccTx(id){const a=accById(id);if(!a)return;amId=id;
- const l=D.tx.filter(t=>t.acc==id||(t.type==='transfer'&&t.to==id));let ex=0,inc=0;
+let accOff=0;function accGo(d){accOff=Math.max(-60,Math.min(12,accOff+d));openAccTx(amId,1)}
+function openAccTx(id,keep){const a=accById(id);if(!a)return;if(!keep||amId!==id)accOff=0;amId=id;
+ let l=D.tx.filter(t=>t.acc==id||(t.type==='transfer'&&t.to==id));let ex=0,inc=0;
  $('amTitle').textContent=GROUPS[a.group].ic+' '+a.name;
  const cyc=a.group==='card'&&a.sd>0,groups=[];let curG=null,plain='';
  const cyS=d=>{const p=String(d).split('-'),y=+p[0],m=+p[1]-1;let s=dOf(y,m,a.sd);if(a.sx?String(d)>=f(s):String(d)>f(s))s=dOf(y,m+1,a.sd);return f(s)};
+ let tgt='',barL;
+ if(cyc){const cu=cyS(todayStr()).split('-');const bd=dOf(+cu[0],+cu[1]-1+accOff,a.sd);tgt=f(bd);l=l.filter(t=>cyS(t.date)===tgt);
+  const pb=dOf(bd.getFullYear(),bd.getMonth()-1,a.sd),sd0=new Date(pb.getFullYear(),pb.getMonth(),pb.getDate()+(a.sx?0:1));barL='💳 '+fd(f(sd0))+' → '+fd(cutD(a,bd))}
+ else{l=l.filter(t=>mOf(t.date)===mk(accOff));barL=periodLabel(accOff)}
  l.forEach(t=>{const inn=(t.type==='income'&&t.acc==id)||(t.type==='transfer'&&t.to==id&&t.acc!=id);inn?inc+=t.amt:ex+=t.amt;
   const m=t.type==='transfer'?{ic:'⇄',c:'#2563eb'}:catMeta(t.cat);
   const ttl=t.type==='transfer'?(inn?'← '+esc(accById(t.acc)?.name||'?'):'→ '+esc(accById(t.to)?.name||'?')):esc(t.cat);
   const h=`<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${ttl}</b><small>${fd(t.date)}${t.note?' · '+esc(t.note):''}</small></div><div class="amt ${inn?'income':'expense'}">${inn?'+':'−'}${inr(t.amt)}</div><button class="del" onclick="accDel(${t.id})">×</button></div>`;
   if(cyc){const k=cyS(t.date);if(!curG||curG.k!==k){curG={k,ex:0,inc:0,h:''};groups.push(curG)}inn?curG.inc+=t.amt:curG.ex+=t.amt;curG.h+=h}else plain+=h});
+ if(cyc&&!groups.length)groups.push({k:tgt,ex:0,inc:0,h:''});
  let html=plain;
  if(cyc){html=groups.map(g=>{const sp=g.k.split('-'),S=new Date(+sp[0],+sp[1]-1,+sp[2]),P=dOf(S.getFullYear(),S.getMonth()-1,a.sd),st=new Date(P.getFullYear(),P.getMonth(),P.getDate()+(a.sx?0:1));
    const due=a.dd>0?dOf(S.getFullYear(),S.getMonth()+(a.dd>a.sd?0:1),a.dd):null,open=g.k>=todayStr();
-   return `<div style="margin:16px 0 4px;padding:8px 10px;border-top:3px dashed ${open?'#16a34a':'#ef4444'};background:${open?'#f0fdf4':'#fff5f5'};border-radius:10px;font-size:12.5px;line-height:1.5"><b>${open?'🟢 നടപ്പ് സൈക്കിൾ (അടുത്ത ബില്ലിൽ വരും)':'🧾 ബിൽ സൈക്കിൾ'}</b><br>${fd(f(st))} → ${fd(cutD(a,S))}<br>ബിൽ തീയതി ${fd(g.k)}${due?' · അവസാന തീയതി '+fd(f(due)):''}<br>ചെലവ്: <b>${inr(g.ex)}</b>${g.inc?' · അടവ്/വരവ്: <b>'+inr(g.inc)+'</b>':''}</div>`+g.h}).join('')}
- $('amList').innerHTML=html||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
+   return `<div style="margin:16px 0 4px;padding:8px 10px;border-top:3px dashed ${open?'#16a34a':'#ef4444'};background:${open?'#f0fdf4':'#fff5f5'};border-radius:10px;font-size:12.5px;line-height:1.5"><b>${open?'🟢 നടപ്പ് സൈക്കിൾ (അടുത്ത ബില്ലിൽ വരും)':'🧾 ബിൽ സൈക്കിൾ'}</b><br>${fd(f(st))} → ${fd(cutD(a,S))}<br>ബിൽ തീയതി ${fd(g.k)}${due?' · അവസാന തീയതി '+fd(f(due)):''}<br>ചെലവ്: <b>${inr(g.ex)}</b>${g.inc?' · അടവ്/വരവ്: <b>'+inr(g.inc)+'</b>':''}</div>`+(g.h||'<div class="empty">ഈ സൈക്കിളിൽ ഇടപാടുകൾ ഒന്നുമില്ല</div>')}).join('')}
+ const nb='border:0;background:#f1f3f9;color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:18px;padding:0;flex:none';
+ const bar=`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px"><button type="button" aria-label="Previous" style="${nb}" onclick="accGo(-1)" ${accOff<=-60?'disabled':''}>‹</button><b style="font-size:15px;text-align:center">${barL}${accOff===0?'':' <button type="button" onclick="accGo(-accOff)" style="border:0;background:#eef2ff;color:#4338ca;border-radius:10px;padding:2px 8px;font-size:12px;margin-left:6px">'+'ഈ മാസം'+'</button>'}</b><button type="button" aria-label="Next" style="${nb}" onclick="accGo(1)" ${accOff>=12?'disabled':''}>›</button></div>`;
+ $('amList').innerHTML=bar+(html||'<div class="empty">ഈ മാസം ഇടപാടുകൾ ഒന്നുമില്ല</div>');
  $('amSum').innerHTML=`ചെലവ്/പോയത്: <b class="expense">${inr(ex)}</b> · വരവ്/വന്നത്: <b class="income">${inr(inc)}</b>`;
  $('amodal').style.display='flex'}
-function accDel(id){delTx(id);openAccTx(amId)}
+function accDel(id){delTx(id);openAccTx(amId,1)}
 function closeAcc(){$('amodal').style.display='none'}
 let ccId=0,ccColor=PAL[0];
 function openCC(id){const t=D.tx.find(x=>x.id===id);if(!t)return;ccId=id;
