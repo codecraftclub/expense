@@ -478,8 +478,8 @@ function render(){
   const list=D.acc.filter(a=>a.group===g);const liab=g==='card'||g==='emi';
   const total=list.reduce((s,a)=>s+balance(a),0);
   return `<div class="card" style="border-top:5px solid ${m.c}"><div class="ghead"><h3>${m.ic} ${m.n}</h3><button class="add" onclick="addAcc('${g}')">+ ചേർക്കൂ</button></div>
-  <div style="color:${m.c};font-weight:700;margin-bottom:4px">${liab?'ആകെ കുടിശ്ശിക: '+inr(-total):'ആകെ: '+inr(total)}</div>
-  ${list.map(a=>{const b=balance(a);return `<div class="row" style="cursor:pointer" onclick="openAccTx(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b><small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}</small></div><div class="amt" style="color:${liab?(b<0?'var(--exp)':'var(--inc)'):(b<0?'var(--exp)':'var(--ink)')}">${inr(liab?-b:b)}</div><button class="del" onclick="event.stopPropagation();delAcc(${a.id})">×</button></div>${g==='card'?cardHtml(a):''}`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}).join('')+autoCard();renderReports();renderBudget();drawSettings()}
+  ${g==='card'?cardTotals(list):`<div style="color:${m.c};font-weight:700;margin-bottom:4px">${liab?'ആകെ കുടിശ്ശിക: '+inr(-total):'ആകെ: '+inr(total)}</div>`}
+  ${list.map(a=>{const b=balance(a);return `<div class="row" style="cursor:pointer" onclick="openAccTx(${a.id})"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(a.name)}</b>${g==='card'&&a.sd&&a.dd?'':`<small>${liab?'കുടിശ്ശിക':'ബാലൻസ്'}</small>`}</div>${g==='card'&&a.sd&&a.dd?'':`<div class="amt" style="color:${liab?(b<0?'var(--exp)':'var(--inc)'):(b<0?'var(--exp)':'var(--ink)')}">${inr(liab?-b:b)}</div>`}<button class="del" onclick="event.stopPropagation();delAcc(${a.id})">×</button></div>${g==='card'?cardHtml(a):''}`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}).join('')+autoCard();renderReports();renderBudget();drawSettings()}
 
 function addAcc(g){
  const name=prompt(GROUPS[g].n+' — പേര്:');if(!name)return;
@@ -681,6 +681,14 @@ function autoCard(){const l=D.rec.filter(r=>r.kind==='auto'),A=D.acc.filter(a=>a
  <div id="recForm" style="display:none"><input id="rN" placeholder="പേര്" list="dlNotes" onfocus="fillDL()"><input id="rM" type="number" placeholder="തുക ₹"><select id="rC">${catOpts('expense')}</select><select id="rA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><select id="rF"><option value="monthly">മാസംതോറും</option><option value="yearly">വർഷംതോറും</option></select><small>തുടങ്ങുന്ന തീയതി</small><input id="rS" type="date" value="${todayStr()}"><input id="rK" type="number" placeholder="എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)"><button class="btn" onclick="addRec()">സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+fd(addMonths(r.start,r.done*(r.freq==='yearly'?12:1)))}</small></div><div class="amt">${inr(r.amt)}</div><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
 const cutD=(a,d)=>f(a.sx?new Date(d.getFullYear(),d.getMonth(),d.getDate()-1):d);
+function cardAmts(a){if(!a.sd||!a.dd)return null;
+ const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
+ const LC=cutD(a,ls);let cb=Math.max(0,-a.open),cy=0,pay=0;
+ D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=LC?cb+=t.amt:cy+=t.amt}
+  if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id))pay+=t.amt});
+ return {billed:Math.max(0,cb-pay),cy}}
+function cardTotals(list){let b=0,u=0;list.forEach(a=>{const x=cardAmts(a);if(x){b+=x.billed;u+=x.cy}});
+ return `<div class="cinfo" style="grid-template-columns:1fr 1fr;margin:4px 0 6px"><div><small>Billed</small><b>${inr(b)}</b></div><div><small>Unbilled</small><b>${inr(u)}</b></div></div>`}
 function cardHtml(a){if(!a.sd||!a.dd)return '';
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
  const due=dOf(ls.getFullYear(),ls.getMonth()+(a.dd>a.sd?0:1),a.dd),L=f(ls),LC=cutD(a,ls);
@@ -688,7 +696,7 @@ function cardHtml(a){if(!a.sd||!a.dd)return '';
  D.tx.forEach(t=>{if(a.asOn&&t.date<=a.asOn)return;if((t.type==='expense'||t.type==='transfer')&&t.acc==a.id){t.date<=LC?cb+=t.amt:cy+=t.amt}
   if((t.type==='income'&&t.acc==a.id)||(t.type==='transfer'&&t.to==a.id))pay+=t.amt});
  const billed=Math.max(0,cb-pay),days=Math.ceil((due-new Date(Y,M,n.getDate()))/864e5),paid=cb>0&&billed===0;
- return `<div class="cinfo"><div style="cursor:pointer" onclick="cardBreak(${a.id})"><small>ബിൽ ${L} 🔍</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>പുതിയ സൈക്കിൾ</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
+ return `<div class="cinfo"><div style="cursor:pointer" onclick="cardBreak(${a.id})"><small>Billed 🔍</small><b>${paid?'✔ Paid':inr(billed)}</b></div><div><small>അവസാന തീയതി ${f(due)}</small><b style="color:${days<=3&&!paid?'#e11d48':'inherit'}">${paid?'—':days<0?'കഴിഞ്ഞു':days+' ദിവസം'}</b></div><div><small>Unbilled</small><b>${inr(cy)}</b></div>${billed>0?`<button class="add" style="grid-column:1/-1" onclick="openPay(${a.id},${billed})">✔ Paid ആക്കൂ</button>`:''}</div>`}
 
 /* ---------- Reports ---------- */
 const MN=['ജനു','ഫെബ്','മാർ','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗ','സെപ്','ഒക്ടോ','നവം','ഡിസം'];
