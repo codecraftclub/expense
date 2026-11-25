@@ -56,7 +56,7 @@ nav button.on{color:var(--p);background:#fee2e2;font-weight:700}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 .cinfo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#fef2f2;border-radius:12px;padding:8px;margin:2px 0 8px;text-align:center;color:#1e1b4b}.cinfo small{display:block;font-size:10.5px;color:#6b7280}.cinfo b{font-size:14px}
 .plus{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;font-size:26px;line-height:1;box-shadow:0 4px 12px #ef444455;flex:none;display:grid;place-items:center}
-#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal,#cbmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}
+#modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal,#cbmodal,#remodal,#bxmodal{display:none;position:fixed;inset:0;background:#0007;z-index:30;align-items:flex-end}#txmodal{z-index:45}#bxmodal{z-index:25}
 .sheet{background:#fff;color:#1e1b4b;width:100%;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 .plus.cat{background:#fee2e2;color:#b91c1c;font-size:19px;box-shadow:none}
 .dot{font-size:19px}
@@ -69,7 +69,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
  #home.on{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
  #home>.card:first-child,#repBox>.card:first-child{grid-column:1/-1}
  #accList,#repBox,#txList{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal,#cbmodal{align-items:center;justify-content:center}
+ #modal,#cmodal,#pmodal,#lmodal,#smodal,#amodal,#aemodal,#ccmodal,#kwmodal,#lgmodal,#ssmodal,#txmodal,#dfmodal,#cbmodal,#remodal,#bxmodal{align-items:center;justify-content:center}
  .sheet{max-width:480px;border-radius:24px;max-height:92vh;overflow:auto}
 }
 .ib{border:0;border-radius:10px;width:32px;height:32px;display:inline-grid;place-items:center;margin-left:4px;flex:none;box-shadow:0 2px 6px #0002}
@@ -233,6 +233,8 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 <div id="dfmodal" onclick="if(event.target===this)dfClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 style="margin:0">🔍 ഡ്യൂപ്ലിക്കേറ്റ് ഫൈൻഡർ</h3><button type="button" onclick="dfClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div>
 <div style="display:flex;gap:8px;margin:6px 0"><button type="button" id="dfM1" class="btn" style="margin:0;flex:1" onclick="dfMode(1)">ഒരേ തുക + തീയതി</button><button type="button" id="dfM2" class="btn sec" style="margin:0;flex:1" onclick="dfMode(2)">ഒരേ തുക മാത്രം</button></div>
 <small id="dfSum" style="display:block;color:var(--mute);margin:6px 0"></small><div id="dfList"></div><button class="btn sec" onclick="dfClose()">അടയ്ക്കുക</button></div></div>
+<div id="bxmodal" onclick="if(event.target===this)bxClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="bxTitle" style="margin:0"></h3><button type="button" onclick="bxClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="bxSum" style="font-size:13px;color:var(--mute);margin-bottom:6px"></div><div id="bxBody"></div><button class="btn sec" onclick="bxClose()">അടയ്ക്കുക</button></div></div>
+<div id="remodal" onclick="if(event.target===this)reClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="reTitle" style="margin:0"></h3><button type="button" onclick="reClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="reBody"></div><button class="btn" onclick="reSave()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="reClose()">റദ്ദാക്കുക</button></div></div>
 <div id="cbmodal" onclick="if(event.target===this)cbClose()"><div class="sheet" style="max-height:92vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="cbTitle" style="margin:0"></h3><button type="button" onclick="cbClose()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="cbBody"></div><button class="btn sec" onclick="cbClose()">അടയ്ക്കുക</button></div></div>
 <div id="txmodal" onclick="if(event.target===this)closeTxInfo()"><div class="sheet"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><h3 id="txTitle" style="margin:0">🔎 ഇപ്പോഴുള്ള എൻട്രി</h3><button type="button" onclick="closeTxInfo()" aria-label="Close" style="border:0;background:#f3f4f6;color:#1e1b4b;width:36px;height:36px;border-radius:50%;font-size:18px;flex:none;cursor:pointer">✕</button></div><div id="txInfoBody"></div><button class="btn" onclick="closeTxInfo()">ശരി</button></div></div>
 <div id="kwmodal" onclick="if(event.target===this)closeKw()"><div class="sheet"><h3 id="kwTitle"></h3><div id="kwHint" style="font-size:12px;color:var(--mute);margin:2px 0"></div><input id="kwIn" placeholder="keywords (comma)"><button class="btn" onclick="saveKw()">സേവ് ചെയ്യുക</button><button class="btn sec" onclick="closeKw()">അടയ്ക്കുക</button></div></div>
@@ -282,7 +284,7 @@ function mergeData(a,b){a=a||{};b=b||{};
  const del=[...new Set([...(a.del||[]),...(b.del||[])])],ds=new Set(del.map(String));
  const mk=(x,y,pb)=>{const m=new Map();for(const o of pb?[...(x||[]),...(y||[])]:[...(y||[]),...(x||[])])if(!ds.has(String(o.id)))m.set(o.id,o);return [...m.values()]};
  const newest=(x,y)=>{const m=new Map();for(const o of [...(y||[]),...(x||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>=(e.u||0))m.set(o.id,o)}return [...m.values()]};
- const recs=mk(a.rec,b.rec),all=[...(a.rec||[]),...(b.rec||[])];
+ const recs=newest(a.rec,b.rec),all=[...(a.rec||[]),...(b.rec||[])];
  recs.forEach(r=>{r.done=Math.max(...all.filter(x=>x.id===r.id).map(x=>x.done||0))});
  const cm=new Map();for(const c of [...(b.cats||[]),...(a.cats||[])]){const k='cat:'+c.n.toLowerCase();if(!ds.has(k))cm.set(k,c)}
  return {acc:(()=>{const m=new Map();for(const o of [...(b.acc||[]),...(a.acc||[])]){if(ds.has(String(o.id)))continue;const e=m.get(o.id);if(!e||(o.u||0)>(e.u||0))m.set(o.id,o)}return [...m.values()]})(),tx:newest(a.tx,b.tx).sort((x,y)=>String(y.date).localeCompare(String(x.date))||y.id-x.id),rec:recs,cats:[...cm.values()],map:{...(b.map||{}),...(a.map||{})},bud:(()=>{const mb=(A,B)=>{const Ac=A.c||{},Bc=B.c||{},au=A.cu||{},bu=B.cu||{},c={},cu={};
@@ -663,6 +665,27 @@ function addEmi(){const name=$('eN').value.trim(),amt=+$('eM').value,s=$('eS').v
  const a=new Date(s+'T00:00:00'),b=new Date(e+'T00:00:00'),count=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1;
  D.rec.push({id:Date.now(),kind:'emi',name,amt,total:+$('eT').value||amt*count,acc:+$('eA').value,cat:'EMI',freq:'monthly',start:s,end:e,count,done:0});
  processRec();save();render();toast('EMI ചേർത്തു ✔')}
+let reId=null;
+function openRecEdit(id){const r=D.rec.find(x=>x.id===id);if(!r)return;reId=id;const emi=r.kind==='emi',A=D.acc.filter(a=>a.group!=='emi'||a.id===r.acc);
+ $('reTitle').textContent=emi?'✎ EMI മാറ്റാം':'✎ Recurring മാറ്റാം';
+ const lb=t=>`<small style="display:block;margin-top:8px;color:var(--mute)">${t}</small>`;
+ $('reBody').innerHTML=lb('പേര്')+`<input id="reN" value="${esc(r.name)}" style="margin-top:2px">`
+  +lb(emi?'മാസത്തവണ ₹':'തുക ₹')+`<input id="reM" type="number" inputmode="decimal" value="${r.amt}" style="margin-top:2px">`
+  +(emi?lb('ആകെ തുക ₹')+`<input id="reT" type="number" inputmode="decimal" value="${r.total}" style="margin-top:2px">`+lb('അവസാന തീയതി')+`<input id="reE" type="date" value="${r.end||''}" style="margin-top:2px">`
+   :lb('Category')+`<select id="reC" style="margin-top:2px">${catOpts('expense')}</select>`+lb('എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)')+`<input id="reK" type="number" inputmode="numeric" value="${r.count||''}" style="margin-top:2px">`)
+  +lb('അക്കൗണ്ട്')+`<select id="reA" style="margin-top:2px">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select>`
+  +`<small style="display:block;margin-top:10px;color:var(--mute)">മാറ്റം ഇനി വരുന്ന എൻട്രികൾക്കാണ് ബാധകം; മുൻപ് ചേർന്ന ഇടപാടുകൾ മാറില്ല. (തുടങ്ങുന്ന തീയതി ഇവിടെ മാറ്റാനാകില്ല.)</small>`;
+ $('reA').value=r.acc;if(!emi)$('reC').value=r.cat;$('remodal').style.display='flex'}
+function reClose(){$('remodal').style.display='none';reId=null}
+function reSave(){const r=D.rec.find(x=>x.id===reId);if(!r)return reClose();
+ const name=$('reN').value.trim(),amt=+$('reM').value;if(!name||!(amt>0))return toast('പേര്, തുക ശരിയായി നൽകൂ');
+ if(r.kind==='emi'){const e=$('reE').value;if(!e||e<r.start)return toast('അവസാന തീയതി ശരിയായി നൽകൂ');
+  const a=new Date(r.start+'T00:00:00'),b=new Date(e+'T00:00:00'),count=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1;
+  if(count<r.done)return toast('ഇതിനകം '+r.done+' മാസം അടച്ചു; അവസാന തീയതി അതിനു മുൻപാകരുത്');
+  r.end=e;r.count=count;r.total=+$('reT').value||amt*count}
+ else{const k=$('reK').value.trim(),c=k===''?null:Math.floor(+k);if(c!==null&&!(c>=1&&c>=r.done))return toast('തവണ ശരിയായി നൽകൂ (ഇതിനകം '+r.done+' തവണ ആയി)');
+  r.count=c;r.cat=$('reC').value}
+ r.name=name;r.amt=amt;r.acc=+$('reA').value;r.u=Date.now();reClose();processRec();save();render();toast('മാറ്റം സേവ് ചെയ്തു ✔')}
 function delRec(id){if(confirm('ഡിലീറ്റ് ചെയ്യണോ? (മുൻപ് ചേർന്ന ഇടപാടുകൾ നിലനിൽക്കും)')){tomb(id);D.rec=D.rec.filter(r=>r.id!==id);save();render()}}
 function emiCard(m){const l=D.rec.filter(r=>r.kind==='emi'),A=D.acc.filter(a=>a.group!=='emi');
  const left=l.reduce((t,r)=>t+r.total-Math.min(r.total,r.amt*r.done),0);
@@ -670,7 +693,7 @@ function emiCard(m){const l=D.rec.filter(r=>r.kind==='emi'),A=D.acc.filter(a=>a.
  <div style="color:${m.c};font-weight:700">ആകെ ബാക്കി: ${inr(left)}</div><small style="color:var(--mute)">ഓരോ മാസവും EMI ഒരു ചെലവ് എൻട്രിയായി തനിയെ ചേരും (ഇരട്ടിക്കില്ല).${pendingMonth('emi')?' ഈ മാസം ഇനി: <b>'+inr(pendingMonth('emi'))+'</b>':''}</small>
  <div id="emiForm" style="display:none"><input id="eN" placeholder="EMI പേര്" list="dlNotes" onfocus="fillDL()"><input id="eT" type="number" placeholder="ആകെ തുക ₹ (ഒഴിച്ചിട്ടാൽ തനിയെ)"><input id="eM" type="number" placeholder="മാസത്തവണ ₹"><small>തുടങ്ങുന്ന തീയതി</small><input id="eS" type="date"><small>അവസാന തീയതി</small><input id="eE" type="date"><select id="eA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><button class="btn" onclick="addEmi()">EMI സേവ് ചെയ്യുക</button></div>
  ${l.map(r=>{const paid=Math.min(r.total,r.amt*r.done),pct=Math.round(paid/r.total*100),nx=r.done<r.count?addMonths(r.start,r.done):null;
-  return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="ghead"><b>${esc(r.name)}</b><button class="del" onclick="delRec(${r.id})">×</button></div><small style="color:var(--mute)">${inr(r.amt)}/മാസം · ${esc(accById(r.acc)?.name||'?')} · ${r.done}/${r.count} മാസം${nx?' · അടുത്തത് '+fd(nx):' · ✔ കഴിഞ്ഞു'}</small><div style="height:8px;background:#fef3c7;border-radius:6px;margin:6px 0"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:6px"></div></div><small>അടച്ചത് ${inr(paid)} · ബാക്കി ${inr(r.total-paid)}</small></div>`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}
+  return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="ghead"><b>${esc(r.name)}</b><span style="display:flex;align-items:center"><button class="ib ed" aria-label="Edit" onclick="openRecEdit(${r.id})">${PEN}</button><button class="del" onclick="delRec(${r.id})">×</button></span></div><small style="color:var(--mute)">${inr(r.amt)}/മാസം · ${esc(accById(r.acc)?.name||'?')} · ${r.done}/${r.count} മാസം${nx?' · അടുത്തത് '+fd(nx):' · ✔ കഴിഞ്ഞു'}</small><div style="height:8px;background:#fef3c7;border-radius:6px;margin:6px 0"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:6px"></div></div><small>അടച്ചത് ${inr(paid)} · ബാക്കി ${inr(r.total-paid)}</small></div>`}).join('')||'<div class="empty">ഒന്നുമില്ല</div>'}</div>`}
 function pendingMonth(kind){const m=mk(0);return D.rec.filter(r=>r.kind===kind).reduce((s,r)=>{if(r.count&&r.done>=r.count)return s;const d=addMonths(r.start,r.done*(r.freq==='yearly'?12:1));return s+(mOf(d)===m&&(!r.end||d<=r.end)?r.amt:0)},0)}
 function addRec(){const name=$('rN').value.trim(),amt=+$('rM').value,st=$('rS').value;if(!name||!amt||!st)return toast('പേര്, തുക, തീയതി നൽകൂ');
  D.rec.push({id:Date.now(),kind:'auto',name,amt,acc:+$('rA').value,cat:$('rC').value,freq:$('rF').value,start:st,count:+$('rK').value||null,done:0});
@@ -679,7 +702,7 @@ function autoCard(){const l=D.rec.filter(r=>r.kind==='auto'),A=D.acc.filter(a=>a
  return `<div class="card" style="border-top:5px solid #dc2626"><div class="ghead"><h3>🔁 Recurring Expenses</h3><button class="add" onclick="$('recForm').style.display='block'">+ ചേർക്കൂ</button></div>
  <small style="color:var(--mute)">ഓരോ മാസവും ഒരു ചെലവ് എൻട്രി തനിയെ ചേരും; ആകെ ചെലവിൽ ഇരട്ടിക്കില്ല.${pm?' ഈ മാസം ഇനി വരാനുള്ളത്: <b>'+inr(pm)+'</b>':''}</small>
  <div id="recForm" style="display:none"><input id="rN" placeholder="പേര്" list="dlNotes" onfocus="fillDL()"><input id="rM" type="number" placeholder="തുക ₹"><select id="rC">${catOpts('expense')}</select><select id="rA">${A.map(a=>`<option value="${a.id}">${esc(a.name)} ${GROUPS[a.group].ic}</option>`).join('')}</select><select id="rF"><option value="monthly">മാസംതോറും</option><option value="yearly">വർഷംതോറും</option></select><small>തുടങ്ങുന്ന തീയതി</small><input id="rS" type="date" value="${todayStr()}"><input id="rK" type="number" placeholder="എത്ര തവണ (ഒഴിച്ചിട്ടാൽ തുടർച്ചയായി)"><button class="btn" onclick="addRec()">സേവ് ചെയ്യുക</button></div>
- ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+fd(addMonths(r.start,r.done*(r.freq==='yearly'?12:1)))}</small></div><div class="amt">${inr(r.amt)}</div><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
+ ${l.map(r=>{const m=catMeta(r.cat);return `<div class="row"><div class="dot" style="background:${m.c}">${m.ic}</div><div class="grow"><b>${esc(r.name)}</b><small>${r.freq==='yearly'?'വർഷം':'മാസം'}തോറും · ${r.done}${r.count?'/'+r.count:''} തവണ${r.count&&r.done>=r.count?' · കഴിഞ്ഞു':' · അടുത്തത് '+fd(addMonths(r.start,r.done*(r.freq==='yearly'?12:1)))}</small></div><div class="amt">${inr(r.amt)}</div><button class="ib ed" aria-label="Edit" onclick="openRecEdit(${r.id})">${PEN}</button><button class="del" onclick="delRec(${r.id})">×</button></div>`}).join('')||'<div class="empty">+ അമർത്തി ചേർക്കൂ, അല്ലെങ്കിൽ വോയ്സിൽ പറയൂ: "ഇൻഷുറൻസ് മാസം 1000 രൂപ, 12 മാസത്തേക്ക്"</div>'}</div>`}
 const cutD=(a,d)=>f(a.sx?new Date(d.getFullYear(),d.getMonth(),d.getDate()-1):d);
 function cardAmts(a){if(!a.sd||!a.dd)return null;
  const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let ls=dOf(Y,M,a.sd);if(ls>n)ls=dOf(Y,M-1,a.sd);
@@ -947,6 +970,8 @@ function renderBudget(force){const box=$('bud');if(!box)return;
  const T=BM.t||0,spent=tot(cur),cs=catList('expense').slice().sort((x,y)=>{const a=x.n.toLowerCase(),b=y.n.toLowerCase();return (sp[b]||0)-(sp[a]||0)||((+BM.c[b]||0)-(+BM.c[a]||0))}),ct=Object.values(BM.c).reduce((s,v)=>s+(+v||0),0);
  const mon=periodLabel(budOff);
   const pr=periodRange(budOff),t0=new Date();t0.setHours(0,0,0,0);const eD=new Date(pr[1]);eD.setHours(0,0,0,0);const dl=Math.max(1,Math.round((eD-t0)/864e5)+1),rem=T-spent;
+  const pS=new Date(pr[0]);pS.setHours(0,0,0,0);const nD=Math.max(1,Math.round((eD-pS)/864e5)+1),el=budOff<0?nD:(budOff>0?0:Math.min(nD,Math.max(1,Math.round((t0-pS)/864e5)+1)));
+  const avgBox=(sp0,b0)=>{if(!(el>0)&&!(b0>0))return '';const A=el>0?inr(Math.round(sp0/el)):'—',B=b0>0?inr(Math.floor(b0/nD)):null;return `<div class="cinfo" style="grid-template-columns:${B!==null?'1fr 1fr':'1fr'};margin:8px 0 2px"><div><small>${el>0?'ഇതുവരെ ദിവസ ശരാശരി ചെലവ് ('+el+' ദിവസം)':'ദിവസ ശരാശരി'}</small><b>${A}</b></div>${B!==null?`<div><small>ദിവസം ചെലവാക്കാവുന്നത് (${nD} ദിവസം)</small><b>${B}</b></div>`:''}</div>`};
   const daily=(T>0&&budOff===0)?(rem<=0?'<div style="margin-top:8px;font-size:13px;color:#e11d48;font-weight:700">⚠ മാസ ബജറ്റ് കഴിഞ്ഞു</div>':`<div style="margin-top:8px;padding:8px 10px;background:#f1f5ff;border-radius:10px;font-size:13px">📆 ഇനി <b>${dl}</b> ദിവസം · ദിവസം ശരാശരി <b>${inr(Math.floor(rem/dl))}</b> വരെ ചെലവാക്കാം</div>`):'';
   const prv={},pm=sumBy('expense',mk(budOff-1));for(const k in pm)prv[k.toLowerCase()]=(prv[k.toLowerCase()]||0)+pm[k];
  const navB='border:0;background:#f1f3f9;color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:18px;padding:0;flex:none';
@@ -955,12 +980,21 @@ function renderBudget(force){const box=$('bud');if(!box)return;
   ${(T>0&&budEd!=='__t')?`<div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0"><div><small>മാസ ബജറ്റ്</small><div style="font-size:26px;font-weight:800">${inr(T)}</div></div>${penBtn('__t')}</div>`
   :`<small>മാസ ബജറ്റ് ₹</small><input id="bT" data-focus="${budEd==='__t'?1:''}" type="number" inputmode="decimal" value="${T||''}" placeholder="0">
   <button class="btn" onclick="saveTotBud()">ബജറ്റ് സേവ് ചെയ്യുക</button>`}
-  ${T>0?budBar(spent,T):'<div class="empty">ബജറ്റ് ഇതുവരെ സെറ്റ് ചെയ്തിട്ടില്ല</div>'}${daily}</div>
+  ${T>0?budBar(spent,T):'<div class="empty">ബജറ്റ് ഇതുവരെ സെറ്റ് ചെയ്തിട്ടില്ല</div>'}${avgBox(spent,T)}${daily}<button type="button" class="btn sec" style="margin-top:8px;padding:9px;font-size:14px" onclick="openBudTx(null)">🔎 എല്ലാ ഇടപാടുകളും കാണുക</button></div>
   <div class="card"><h3>🏷 ഓരോ category-ക്കും ബജറ്റ്</h3><small style="color:var(--mute)">ബജറ്റ് വേണ്ടാത്തവ ഒഴിച്ചിടൂ. ഒന്നും ചെലവാക്കാൻ ഉദ്ദേശിക്കാത്തവയ്ക്ക് 0 നൽകൂ.</small>
   ${cs.map(c=>{const k=c.n.toLowerCase(),raw=BM.c[k],has=raw!=null&&raw!==''&&!isNaN(+raw),b=has?+raw:0,s=sp[k]||0;
-   return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><span class="dot" style="background:${c.c};width:34px;height:34px">${c.ic}</span><b style="flex:1;min-width:0">${esc(c.n)}</b>${(has&&budEd!==k)?`<b style="font-size:17px">${inr(b)}</b>${penBtn(k)}`:`<input type="number" inputmode="decimal" data-n="${esc(c.n)}" data-focus="${budEd===k?1:''}" value="${has?b:''}" placeholder="₹" onchange="setCatBud(this.dataset.n,this.value)" onblur="if(budEd){budEd=null;renderBudget(true)}" onkeydown="if(event.key==='Enter')this.blur()" style="width:110px;margin:0;padding:8px">`}</div>${has?budBar(s,b):(s?`<small style="color:var(--mute)">${inr(s)}</small>`:'')}${budCmp(s,prv[k]||0)}</div>`}).join('')}
+   return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="display:flex;align-items:center;gap:10px"><div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer" data-n="${esc(c.n)}" onclick="openBudTx(this.dataset.n)"><span class="dot" style="background:${c.c};width:34px;height:34px">${c.ic}</span><b style="flex:1;min-width:0">${esc(c.n)} <small style="color:var(--mute);font-weight:400">›</small></b></div>${(has&&budEd!==k)?`<b style="font-size:17px">${inr(b)}</b>${penBtn(k)}`:`<input type="number" inputmode="decimal" data-n="${esc(c.n)}" data-focus="${budEd===k?1:''}" value="${has?b:''}" placeholder="₹" onchange="setCatBud(this.dataset.n,this.value)" onblur="if(budEd){budEd=null;renderBudget(true)}" onkeydown="if(event.key==='Enter')this.blur()" style="width:110px;margin:0;padding:8px">`}</div>${has?budBar(s,b):(s?`<small style="color:var(--mute)">${inr(s)}</small>`:'')}${(has||s)?avgBox(s,has?b:0):''}${budCmp(s,prv[k]||0)}</div>`}).join('')}
   ${ct>0?`<div style="margin-top:10px;font-size:14px;color:var(--mute)">Category ബജറ്റുകളുടെ ആകെ: <b style="color:var(--ink)">${inr(ct)}</b></div>`:''}</div>`;
- const f=box.querySelector('[data-focus="1"]');if(f)f.focus()}
+ const f=box.querySelector('[data-focus="1"]');if(f)f.focus();if($('bxmodal').style.display==='flex')drawBx()}
+let bxK=null;
+function openBudTx(n){bxK=n;drawBx();$('bxmodal').style.display='flex'}
+function bxClose(){$('bxmodal').style.display='none'}
+function drawBx(){const m=mk(budOff),all=bxK===null,k=all?'':String(bxK).toLowerCase();
+ const l=D.tx.filter(t=>t.type==='expense'&&mOf(t.date)===m&&(all||String(t.cat||'മറ്റുള്ളവ').toLowerCase()===k));
+ const sum=l.reduce((a,t)=>a+t.amt,0),cm=all?{ic:'🎯'}:catMeta(bxK);
+ $('bxTitle').textContent=(all?'🎯 എല്ലാ ചെലവുകളും':cm.ic+' '+bxK)+' · '+periodLabel(budOff);
+ $('bxSum').innerHTML=l.length?l.length+' ഇടപാട് · ആകെ <b class="expense">'+inr(sum)+'</b>':'';
+ $('bxBody').innerHTML=l.map(t=>{const m2=catMeta(t.cat),a=accById(t.acc);return `<div class="row"><div class="dot" style="background:${m2.c}">${m2.ic}</div><div class="grow"><b>${esc(all?(t.cat||'മറ്റുള്ളവ'):(t.note||t.cat||'മറ്റുള്ളവ'))}</b><small>${esc(a?.name||'?')} · ${fd(t.date)}${all&&t.note?' · '+esc(t.note):''}</small></div><div class="amt expense">−${inr(t.amt)}</div><button class="ib ed" aria-label="Edit" onclick="openCC(${t.id})">${PEN}</button><button class="del" onclick="delTx(${t.id})">×</button></div>`}).join('')||'<div class="empty">ഈ മാസം ഇടപാടുകൾ ഒന്നുമില്ല</div>'}
 function saveTotBud(){const v=$('bT').value.trim(),n=v===''?0:+v;if(!(n>=0))return toast('ശരിയായ തുക നൽകൂ');
  {const e=bEdit();e.t=n;e.tu=Date.now()}budEd=null;save();renderBudget(true);toast('ബജറ്റ് സേവ് ചെയ്തു ✔')}
 function setCatBud(name,v){v=String(v).trim();const n=v===''?null:+v;if(n!==null&&!(n>=0)){renderBudget(true);return toast('ശരിയായ തുക നൽകൂ')}
@@ -1247,7 +1281,18 @@ Keywords (കോമ ഇട്ട്)¦Keywords (comma separated)
 അക്കൗണ്ട് പേര് നൽകൂ¦Enter the account name
 ഈ പേരിൽ അക്കൗണ്ട് ഉണ്ട്¦An account with this name already exists
 ബാലൻസ് നൽകൂ¦Enter the balance
-അക്കൗണ്ട് അപ്ഡേറ്റ് ചെയ്തു ✔¦Account updated ✔`;
+അക്കൗണ്ട് അപ്ഡേറ്റ് ചെയ്തു ✔¦Account updated ✔
+ഇതുവരെ ദിവസ ശരാശരി ചെലവ്¦Daily average spent so far
+ദിവസം ചെലവാക്കാവുന്നത്¦Can spend per day
+🔎 എല്ലാ ഇടപാടുകളും കാണുക¦🔎 View all transactions
+🎯 എല്ലാ ചെലവുകളും¦🎯 All expenses
+ഈ മാസം ഇടപാടുകൾ ഒന്നുമില്ല¦No transactions this month
+✎ EMI മാറ്റാം¦✎ Edit EMI
+✎ Recurring മാറ്റാം¦✎ Edit recurring
+മാസത്തവണ ₹¦Monthly instalment ₹
+ആകെ തുക ₹¦Total amount ₹
+മാറ്റം സേവ് ചെയ്തു ✔¦Changes saved ✔
+മാറ്റം ഇനി വരുന്ന എൻട്രികൾക്കാണ് ബാധകം; മുൻപ് ചേർന്ന ഇടപാടുകൾ മാറില്ല. (തുടങ്ങുന്ന തീയതി ഇവിടെ മാറ്റാനാകില്ല.)¦Changes apply to future entries only; past transactions stay as they are. (Start date can't be changed here.)`;
 const I18N_EN=``;
 const I18N_EX=`ജനു¦Jan
 ഫെബ്¦Feb
