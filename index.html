@@ -90,7 +90,7 @@ details summary{list-style:none;cursor:pointer}details summary::-webkit-details-
 
 <!-- HOME -->
 <section class="tab on" id="home">
-  <div class="card"><div class="sum">
+  <div class="card"><div id="sMon" style="text-align:center;font-size:13px;color:var(--mute);margin:0 0 8px"></div><div class="sum">
     <div class="s1">വരവ് / Income<b id="sInc">₹0</b></div>
     <div class="s2">ചെലവ് / Expense<b id="sExp">₹0</b></div>
     <div class="s3">ബാലൻസ്<b id="sBal">₹0</b></div></div></div>
@@ -470,9 +470,9 @@ function listView(){
 
 function render(){
  $('today').textContent=new Date().toLocaleDateString(UIL(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
- const inc=D.tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amt,0),exp=D.tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amt,0);
+ const cm0=mk(0),inc=D.tx.filter(t=>t.type==='income'&&mOf(t.date)===cm0).reduce((s,t)=>s+t.amt,0),exp=D.tx.filter(t=>t.type==='expense'&&mOf(t.date)===cm0).reduce((s,t)=>s+t.amt,0);
  $('sInc').textContent=inr(inc);$('sExp').textContent=inr(exp);
- $('sBal').textContent=inr(D.acc.reduce((s,a)=>s+balance(a),0));
+ $('sBal').textContent=inr(inc-exp);$('sMon').textContent='📅 '+periodLabel(0);
  $('recent').innerHTML=D.tx.slice(0,5).map(txRow).join('')||'<div class="empty">ഇടപാടുകൾ ഒന്നുമില്ല</div>';
  $('txMon').innerHTML=txMonBar();$('txList').innerHTML=listView();
  fillSelects();syncDate();
